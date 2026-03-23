@@ -1,1 +1,4 @@
 customers.md
+
+# 環境変数ファイル（APIキーを含むため除外）
+.env
