@@ -1,4 +1,5 @@
 # 顧客サクセスマネージャー — Customer Success Manager
+**井上 結**（いのうえ ゆい）
 
 ## 役割の定義
 

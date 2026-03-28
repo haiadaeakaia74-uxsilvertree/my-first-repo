@@ -1,4 +1,5 @@
 # CSO（戦略参謀） — Chief Strategy Officer
+**高橋 誠**（たかはし まこと）
 
 ## 役割の定義
 

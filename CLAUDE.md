@@ -57,19 +57,19 @@
 
 ## エージェント一覧（詳細は agents/ フォルダ参照）
 
-| 部門 | エージェント | ファイル |
-|------|------------|---------|
-| 戦略 | CSO（戦略参謀） | `agents/strategy/chief-strategy-officer.md` |
-| 商品 | 商品設計士 | `agents/product/product-designer.md` |
-| 商品 | 体験キュレーター | `agents/product/experience-curator.md` |
-| マーケティング | SNS戦略家 | `agents/marketing/sns-strategist.md` |
-| マーケティング | コピーライター | `agents/marketing/copywriter.md` |
-| 営業・顧客 | 営業戦略家 | `agents/sales/sales-strategist.md` |
-| 営業・顧客 | 顧客サクセスマネージャー | `agents/sales/customer-success.md` |
-| オペレーション | オペレーションマネージャー | `agents/operations/operations-manager.md` |
-| 財務 | 財務マネージャー | `agents/finance/finance-manager.md` |
-| クリエイティブ | レターライター | `agents/creative/letter-writer.md` |
-| クリエイティブ | ブランドディレクター | `agents/creative/brand-director.md` |
+| 部門 | 担当者 | ファイル |
+|------|--------|---------|
+| 戦略 | 高橋 誠（CSO） | `agents/strategy/chief-strategy-officer.md` |
+| 商品 | 松本 匠（商品設計士） | `agents/product/product-designer.md` |
+| 商品 | 木村 凛（体験キュレーター） | `agents/product/experience-curator.md` |
+| マーケティング | 伊藤 蓮（SNS戦略家） | `agents/marketing/sns-strategist.md` |
+| マーケティング | 渡辺 詩（コピーライター） | `agents/marketing/copywriter.md` |
+| 営業・顧客 | 山田 拓（営業戦略家） | `agents/sales/sales-strategist.md` |
+| 営業・顧客 | 井上 結（顧客サクセス） | `agents/sales/customer-success.md` |
+| オペレーション | 橋本 律（オペレーションマネージャー） | `agents/operations/operations-manager.md` |
+| 財務 | 森 明（財務マネージャー） | `agents/finance/finance-manager.md` |
+| クリエイティブ | 岡田 栞（レターライター） | `agents/creative/letter-writer.md` |
+| クリエイティブ | 竹内 藍（ブランドディレクター） | `agents/creative/brand-director.md` |
 
 ## 共通ガイドライン（全エージェント参照）
 

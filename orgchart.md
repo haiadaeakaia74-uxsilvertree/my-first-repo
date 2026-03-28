@@ -43,57 +43,57 @@
 ### 戦略部門
 ```
 agents/strategy/
-└── chief-strategy-officer.md   CSO（戦略参謀）
+└── chief-strategy-officer.md   高橋 誠（CSO・戦略参謀）
     ビジョン・意思決定・優先順位
 ```
 
 ### 商品・体験部門
 ```
 agents/product/
-├── product-designer.md         商品設計士
+├── product-designer.md         松本 匠（商品設計士）
 │   ブレンド設計・価格設定
-└── experience-curator.md       体験キュレーター
+└── experience-curator.md       木村 凛（体験キュレーター）
     4分回復体験・体験パッケージ設計
 ```
 
 ### マーケティング部門
 ```
 agents/marketing/
-├── sns-strategist.md           SNS戦略家
+├── sns-strategist.md           伊藤 蓮（SNS戦略家）
 │   SNS戦略・購買導線・数字管理
-└── copywriter.md               コピーライター
+└── copywriter.md               渡辺 詩（コピーライター）
     投稿文・商品説明・全コピー
 ```
 
 ### 営業・顧客部門
 ```
 agents/sales/
-├── sales-strategist.md         営業戦略家
+├── sales-strategist.md         山田 拓（営業戦略家）
 │   新規獲得・マルシェ・チャネル拡大
-└── customer-success.md         顧客サクセスマネージャー
+└── customer-success.md         井上 結（顧客サクセスマネージャー）
     既存顧客維持・フォローアップ
 ```
 
 ### オペレーション部門
 ```
 agents/operations/
-└── operations-manager.md       オペレーションマネージャー
+└── operations-manager.md       橋本 律（オペレーションマネージャー）
     発送・在庫・EC・業務フロー
 ```
 
 ### 財務部門
 ```
 agents/finance/
-└── finance-manager.md          財務マネージャー
+└── finance-manager.md          森 明（財務マネージャー）
     売上管理・採算計算・価格設計
 ```
 
 ### クリエイティブ部門
 ```
 agents/creative/
-├── letter-writer.md            レターライター
+├── letter-writer.md            岡田 栞（レターライター）
 │   手紙・言葉の創作
-└── brand-director.md           ブランドディレクター
+└── brand-director.md           竹内 藍（ブランドディレクター）
     ブランド管理・世界観の番人
 ```
 
