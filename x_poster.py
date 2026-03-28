@@ -19,6 +19,7 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 from zoneinfo import ZoneInfo
 
 import tweepy
@@ -55,7 +56,7 @@ def get_twitter_client(config: dict) -> tweepy.Client:
     )
 
 
-def parse_scheduled_datetime(date_str: str) -> datetime | None:
+def parse_scheduled_datetime(date_str: str) -> Optional[datetime]:
     """
     '2026年3月30日 07:00' または '2026年2月25日' 形式をパース。
     時刻なしの場合は 00:00 として扱う（即時投稿可能）。
