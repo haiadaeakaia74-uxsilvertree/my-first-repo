@@ -1,25 +1,32 @@
 """
-x_poster.py - X（Twitter）自動投稿スクリプト
+x_poster.py - X（Twitter）自動投稿スクリプト（時刻スケジュール対応版）
 
 x-post-log.md から未投稿の投稿文を読み取り、X に自動投稿します。
+スケジュール時刻が現在時刻以前の投稿のみ処理します。
 投稿済みの記録は .env ファイルの POSTED_DATES に保存されます。
 
 使い方:
-    python x_poster.py          # 未投稿をすべて投稿
+    python x_poster.py          # スケジュール済みの未投稿を投稿
     python x_poster.py --dry-run  # 投稿せずに内容を確認のみ
-    python x_poster.py --list     # 投稿済み/未投稿の一覧を表示
+    python x_poster.py --list     # スケジュール一覧を表示
+
+cron 設定例（毎日 朝7時・昼12時・夜20時に自動実行）:
+    0 7,12,20 * * * cd /home/user/my-first-repo && python x_poster.py >> /tmp/x_poster.log 2>&1
 """
 
 import argparse
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import tweepy
 from dotenv import dotenv_values, set_key
 
 ENV_FILE = Path(".env")
 LOG_FILE = Path("x-post-log.md")
+JST = ZoneInfo("Asia/Tokyo")
 
 
 def load_config() -> dict:
@@ -48,10 +55,28 @@ def get_twitter_client(config: dict) -> tweepy.Client:
     )
 
 
+def parse_scheduled_datetime(date_str: str) -> datetime | None:
+    """
+    '2026年3月30日 07:00' または '2026年2月25日' 形式をパース。
+    時刻なしの場合は 00:00 として扱う（即時投稿可能）。
+    """
+    m = re.match(r"(\d{4})年(\d{1,2})月(\d{1,2})日\s+(\d{2}):(\d{2})", date_str)
+    if m:
+        y, mo, d, h, mi = map(int, m.groups())
+        return datetime(y, mo, d, h, mi, tzinfo=JST)
+
+    m = re.match(r"(\d{4})年(\d{1,2})月(\d{1,2})日", date_str)
+    if m:
+        y, mo, d = map(int, m.groups())
+        return datetime(y, mo, d, 0, 0, tzinfo=JST)
+
+    return None
+
+
 def parse_log_file(log_path: Path) -> list[dict]:
     """
     x-post-log.md をパースして投稿エントリのリストを返す。
-    各エントリは {"date": str, "theme": str, "text": str} の辞書。
+    各エントリは {"date": str, "theme": str, "text": str, "scheduled_at": datetime} の辞書。
     """
     if not log_path.exists():
         print(f"エラー: {log_path} が見つかりません。")
@@ -59,13 +84,12 @@ def parse_log_file(log_path: Path) -> list[dict]:
 
     content = log_path.read_text(encoding="utf-8")
 
-    # ## 日付 ブロックで分割（--- で終わる）
     pattern = re.compile(
-        r"^## (.+?)\n"          # ## 日付
-        r".*?\*\*テーマ：\*\* (.+?)\n"  # **テーマ：** テーマ
-        r"\*\*投稿文：\*\*\n"   # **投稿文：**
-        r"(.*?)"                 # 投稿本文
-        r"(?:^---$|\Z)",         # --- または EOF
+        r"^## (.+?)\n"
+        r".*?\*\*テーマ：\*\* (.+?)\n"
+        r"\*\*投稿文：\*\*\n"
+        r"(.*?)"
+        r"(?:^---$|\Z)",
         re.MULTILINE | re.DOTALL,
     )
 
@@ -75,7 +99,12 @@ def parse_log_file(log_path: Path) -> list[dict]:
         theme = match.group(2).strip()
         text = match.group(3).strip()
         if text:
-            entries.append({"date": date, "theme": theme, "text": text})
+            entries.append({
+                "date": date,
+                "theme": theme,
+                "text": text,
+                "scheduled_at": parse_scheduled_datetime(date),
+            })
 
     return entries
 
@@ -108,23 +137,51 @@ def post_tweet(client: tweepy.Client, text: str, dry_run: bool) -> bool:
 
 
 def cmd_list(entries: list[dict], posted_dates: set[str]) -> None:
-    print(f"{'状態':<6} {'日付':<20} テーマ")
-    print("-" * 60)
+    now = datetime.now(JST)
+    print(f"{'状態':<6} {'スケジュール':<28} テーマ")
+    print("-" * 75)
     for entry in entries:
-        status = "投稿済" if entry["date"] in posted_dates else "未投稿"
-        print(f"{status:<6} {entry['date']:<20} {entry['theme']}")
+        if entry["date"] in posted_dates:
+            status = "投稿済"
+        elif entry["scheduled_at"] and entry["scheduled_at"] > now:
+            status = "待機中"
+        else:
+            status = "未投稿"
+        print(f"{status:<6} {entry['date']:<28} {entry['theme']}")
+
+    pending = sum(
+        1 for e in entries
+        if e["date"] not in posted_dates
+        and (e["scheduled_at"] is None or e["scheduled_at"] <= now)
+    )
+    waiting = sum(
+        1 for e in entries
+        if e["date"] not in posted_dates
+        and e["scheduled_at"] and e["scheduled_at"] > now
+    )
     print()
-    print(f"合計 {len(entries)} 件 / 未投稿 {sum(1 for e in entries if e['date'] not in posted_dates)} 件")
+    print(f"合計 {len(entries)} 件 / 投稿可能 {pending} 件 / 待機中 {waiting} 件")
 
 
-def cmd_post(entries: list[dict], posted_dates: set[str], client: tweepy.Client, dry_run: bool) -> None:
-    pending = [e for e in entries if e["date"] not in posted_dates]
+def cmd_post(
+    entries: list[dict],
+    posted_dates: set[str],
+    client: tweepy.Client,
+    dry_run: bool,
+) -> None:
+    now = datetime.now(JST)
+
+    pending = [
+        e for e in entries
+        if e["date"] not in posted_dates
+        and (e["scheduled_at"] is None or e["scheduled_at"] <= now)
+    ]
 
     if not pending:
-        print("未投稿の記事はありません。")
+        print("投稿可能な未投稿記事はありません。")
         return
 
-    print(f"{len(pending)} 件の未投稿記事を処理します。\n")
+    print(f"{len(pending)} 件の投稿を処理します。\n")
 
     for entry in pending:
         print(f"【{entry['date']}】{entry['theme']}")
@@ -142,7 +199,7 @@ def cmd_post(entries: list[dict], posted_dates: set[str], client: tweepy.Client,
 def main() -> None:
     parser = argparse.ArgumentParser(description="X（Twitter）自動投稿スクリプト")
     parser.add_argument("--dry-run", action="store_true", help="投稿せずに内容を確認のみ")
-    parser.add_argument("--list", action="store_true", help="投稿済み/未投稿の一覧を表示")
+    parser.add_argument("--list", action="store_true", help="スケジュール一覧を表示")
     args = parser.parse_args()
 
     config = load_config()
