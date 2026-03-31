@@ -28,7 +28,7 @@ jobs:
       - name: X に投稿
         env:
           API_KEY: ${{ secrets.X_API_KEY }}
-          API_SECRET: ${{ secrets.X_API_SECRET }}
+          API_SECRET: ${{ secrets.X_API_KEY_SECRET }}
           ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
           BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
