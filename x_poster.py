@@ -1,16 +1,17 @@
 """
 x_poster.py - X（Twitter）自動投稿スクリプト
 
-x-post-log.md から未投稿の投稿文を読み取り、X に自動投稿します。
-投稿済みの記録は .env ファイルの POSTED_DATES に保存されます。
+x-post-log.md から投稿文を読み取り、X に自動投稿します。
+投稿済みの記録は ops/sns/posted-dates.txt に保存されます。
 
 使い方:
-    python x_poster.py          # 未投稿をすべて投稿
-    python x_poster.py --dry-run  # 投稿せずに内容を確認のみ
-    python x_poster.py --list     # 投稿済み/未投稿の一覧を表示
+    python x_poster.py --scheduled   # 現在時刻に対応する1件だけ投稿（自動化用）
+    python x_poster.py --dry-run     # 投稿せずに内容を確認のみ
+    python x_poster.py --list        # 投稿済み/未投稿の一覧を表示
 """
 
 import argparse
+import os
 import re
 import sys
 from datetime import datetime
@@ -21,19 +22,26 @@ from dotenv import dotenv_values, set_key
 
 ENV_FILE = Path(".env")
 LOG_FILE = Path("x-post-log.md")
+POSTED_FILE = Path("ops/sns/posted-dates.txt")
+
+SCHEDULED_WINDOW_MINUTES = 30
 
 
 def load_config() -> dict:
-    if not ENV_FILE.exists():
-        print(f"エラー: {ENV_FILE} が見つかりません。")
-        print(".env.template をコピーして .env を作成し、APIキーを設定してください。")
-        sys.exit(1)
+    config = {}
 
-    config = dotenv_values(ENV_FILE)
+    if ENV_FILE.exists():
+        config = dict(dotenv_values(ENV_FILE))
+
+    # 環境変数で上書き（GitHub Actions では Secrets がここに入る）
+    for key in ["API_KEY", "API_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET", "BEARER_TOKEN"]:
+        if os.environ.get(key):
+            config[key] = os.environ[key]
+
     required_keys = ["API_KEY", "API_SECRET", "ACCESS_TOKEN", "ACCESS_TOKEN_SECRET"]
     missing = [k for k in required_keys if not config.get(k) or "your_" in config.get(k, "")]
     if missing:
-        print(f"エラー: .env に以下のキーが未設定です: {', '.join(missing)}")
+        print(f"エラー: 以下のキーが未設定です: {', '.join(missing)}")
         sys.exit(1)
 
     return config
@@ -50,30 +58,25 @@ def get_twitter_client(config: dict) -> tweepy.Client:
 
 
 def parse_log_file(log_path: Path) -> list[dict]:
-    """
-    x-post-log.md をパースして投稿エントリのリストを返す。
-    各エントリは {"date": str, "theme": str, "text": str} の辞書。
-    """
+    """x-post-log.md をパースして全エントリを返す。"""
     if not log_path.exists():
         print(f"エラー: {log_path} が見つかりません。")
         sys.exit(1)
 
     content = log_path.read_text(encoding="utf-8")
 
-    # HTMLコメントブロックを除去してからパース
+    # HTMLコメントブロックを除去
     content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
 
-    # ## 日付 ブロックで分割（--- で終わる）
     pattern = re.compile(
-        r"^## (.+?)\n"          # ## 日付
-        r".*?\*\*テーマ：\*\* (.+?)\n"  # **テーマ：** テーマ
-        r"\*\*投稿文：\*\*\n"   # **投稿文：**
-        r"(.*?)"                 # 投稿本文
-        r"(?:^---$|\Z)",         # --- または EOF
+        r"^## (.+?)\n"
+        r".*?\*\*テーマ：\*\* (.+?)\n"
+        r"\*\*投稿文：\*\*\n"
+        r"(.*?)"
+        r"(?:^---$|\Z)",
         re.MULTILINE | re.DOTALL,
     )
 
-    now = datetime.now()
     entries = []
     for match in pattern.finditer(content):
         date = match.group(1).strip()
@@ -81,21 +84,10 @@ def parse_log_file(log_path: Path) -> list[dict]:
         text = match.group(3).strip()
         if not text:
             continue
-        # 日付をパースして未来の投稿を除外
-        parsed_dt = _parse_date(date)
-        if parsed_dt is not None and parsed_dt > now:
-            continue
-        entries.append({"date": date, "theme": theme, "text": text, "datetime": parsed_dt})
+        entries.append({"date": date, "theme": theme, "text": text, "datetime": _parse_date(date)})
 
-    # 日付昇順でソート（日時不明は末尾）
     entries.sort(key=lambda e: e["datetime"] or datetime.max)
     return entries
-
-
-_DATE_PATTERNS = [
-    (r"(\d{4})年(\d{1,2})月(\d{1,2})日\s+(\d{1,2}):(\d{2})", "%Y%m%d%H%M"),
-    (r"(\d{4})年(\d{1,2})月(\d{1,2})日", "%Y%m%d"),
-]
 
 
 def _parse_date(date_str: str) -> datetime | None:
@@ -109,16 +101,17 @@ def _parse_date(date_str: str) -> datetime | None:
     return None
 
 
-def get_posted_dates(config: dict) -> set[str]:
-    raw = config.get("POSTED_DATES", "") or ""
-    return {d.strip() for d in raw.split(",") if d.strip()}
+def get_posted_dates() -> set[str]:
+    if not POSTED_FILE.exists():
+        return set()
+    return {line.strip() for line in POSTED_FILE.read_text(encoding="utf-8").splitlines() if line.strip()}
 
 
 def save_posted_date(date: str) -> None:
-    config = dotenv_values(ENV_FILE)
-    posted = get_posted_dates(config)
+    posted = get_posted_dates()
     posted.add(date)
-    set_key(ENV_FILE, "POSTED_DATES", ",".join(sorted(posted)))
+    POSTED_FILE.parent.mkdir(parents=True, exist_ok=True)
+    POSTED_FILE.write_text("\n".join(sorted(posted)) + "\n", encoding="utf-8")
 
 
 def post_tweet(client: tweepy.Client, text: str, dry_run: bool) -> bool:
@@ -136,47 +129,64 @@ def post_tweet(client: tweepy.Client, text: str, dry_run: bool) -> bool:
         return False
 
 
-def cmd_list(entries: list[dict], posted_dates: set[str]) -> None:
-    print(f"{'状態':<6} {'日付':<20} テーマ")
-    print("-" * 60)
+def cmd_scheduled(entries: list[dict], posted_dates: set[str], client: tweepy.Client, dry_run: bool) -> None:
+    """現在時刻に対応する1件だけ投稿する（GitHub Actions 自動実行用）。"""
+    now = datetime.now()
+
+    target = None
     for entry in entries:
-        status = "投稿済" if entry["date"] in posted_dates else "未投稿"
-        print(f"{status:<6} {entry['date']:<20} {entry['theme']}")
-    print()
-    print(f"合計 {len(entries)} 件 / 未投稿 {sum(1 for e in entries if e['date'] not in posted_dates)} 件")
+        if entry["date"] in posted_dates:
+            continue
+        dt = entry["datetime"]
+        if dt is None:
+            continue
+        diff_minutes = abs((now - dt).total_seconds() / 60)
+        if diff_minutes <= SCHEDULED_WINDOW_MINUTES:
+            target = entry
+            break
 
-
-def cmd_post(entries: list[dict], posted_dates: set[str], client: tweepy.Client, dry_run: bool) -> None:
-    pending = [e for e in entries if e["date"] not in posted_dates]
-
-    if not pending:
-        print("未投稿の記事はありません。")
+    if target is None:
+        print(f"[{now.strftime('%Y-%m-%d %H:%M')}] 対応する投稿が見つかりません（±{SCHEDULED_WINDOW_MINUTES}分）。")
         return
 
-    print(f"{len(pending)} 件の未投稿記事を処理します。\n")
+    print(f"[{now.strftime('%Y-%m-%d %H:%M')}] 投稿します: 【{target['date']}】{target['theme']}")
+    print("-" * 40)
+    print(target["text"])
+    print("-" * 40)
 
-    for entry in pending:
-        print(f"【{entry['date']}】{entry['theme']}")
-        print("-" * 40)
-        print(entry["text"])
-        print("-" * 40)
+    success = post_tweet(client, target["text"], dry_run)
+    if success and not dry_run:
+        save_posted_date(target["date"])
 
-        success = post_tweet(client, entry["text"], dry_run)
-        if success and not dry_run:
-            save_posted_date(entry["date"])
 
-        print()
+def cmd_list(entries: list[dict], posted_dates: set[str]) -> None:
+    now = datetime.now()
+    print(f"{'状態':<6} {'日付':<25} テーマ")
+    print("-" * 70)
+    for entry in entries:
+        dt = entry["datetime"]
+        if dt and dt > now:
+            status = "予定"
+        elif entry["date"] in posted_dates:
+            status = "投稿済"
+        else:
+            status = "未投稿"
+        print(f"{status:<6} {entry['date']:<25} {entry['theme']}")
+    print()
+    pending = [e for e in entries if e["date"] not in posted_dates and (e["datetime"] or datetime.max) <= now]
+    print(f"合計 {len(entries)} 件 / 未投稿（当日以前）{len(pending)} 件")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="X（Twitter）自動投稿スクリプト")
+    parser.add_argument("--scheduled", action="store_true", help="現在時刻に対応する1件だけ投稿（自動化用）")
     parser.add_argument("--dry-run", action="store_true", help="投稿せずに内容を確認のみ")
-    parser.add_argument("--list", action="store_true", help="投稿済み/未投稿の一覧を表示")
+    parser.add_argument("--list", action="store_true", help="投稿済み/未投稿/予定の一覧を表示")
     args = parser.parse_args()
 
     config = load_config()
     entries = parse_log_file(LOG_FILE)
-    posted_dates = get_posted_dates(config)
+    posted_dates = get_posted_dates()
 
     if args.list:
         cmd_list(entries, posted_dates)
@@ -187,7 +197,29 @@ def main() -> None:
     if args.dry_run:
         print("=== DRY-RUN モード（実際には投稿しません）===\n")
 
-    cmd_post(entries, posted_dates, client, dry_run=args.dry_run)
+    if args.scheduled:
+        cmd_scheduled(entries, posted_dates, client, dry_run=args.dry_run)
+    else:
+        # 手動一括実行（当日以前の未投稿を全件）
+        now = datetime.now()
+        pending = [
+            e for e in entries
+            if e["date"] not in posted_dates
+            and (e["datetime"] or datetime.max) <= now
+        ]
+        if not pending:
+            print("未投稿の記事はありません。")
+            return
+        print(f"{len(pending)} 件の未投稿記事を処理します。\n")
+        for entry in pending:
+            print(f"【{entry['date']}】{entry['theme']}")
+            print("-" * 40)
+            print(entry["text"])
+            print("-" * 40)
+            success = post_tweet(client, entry["text"], dry_run=args.dry_run)
+            if success and not args.dry_run:
+                save_posted_date(entry["date"])
+            print()
 
 
 if __name__ == "__main__":

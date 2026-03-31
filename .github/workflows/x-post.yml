@@ -1,0 +1,44 @@
+name: X自動投稿
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 07:00 JST
+    - cron: '0 3 * * *'   # 12:00 JST
+    - cron: '0 11 * * *'  # 20:00 JST
+  workflow_dispatch:       # 手動実行ボタン（テスト用）
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 依存パッケージをインストール
+        run: pip install tweepy python-dotenv
+
+      - name: X に投稿
+        env:
+          API_KEY: ${{ secrets.X_API_KEY }}
+          API_SECRET: ${{ secrets.X_API_SECRET }}
+          ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          TZ: Asia/Tokyo
+        run: python x_poster.py --scheduled
+
+      - name: 投稿済み記録をコミット＆プッシュ
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ops/sns/posted-dates.txt
+          git diff --staged --quiet || git commit -m "投稿済み記録を更新 [skip ci]"
+          git push
