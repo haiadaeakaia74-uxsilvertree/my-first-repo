@@ -2,12 +2,13 @@
 x_poster.py - X（Twitter）自動投稿スクリプト
 
 x-post-log.md から投稿文を読み取り、X に自動投稿します。
+画像フィールドがある場合は画像付きで投稿します。
 投稿済みの記録は ops/sns/posted-dates.txt に保存されます。
 
 使い方:
     python x_poster.py --scheduled   # 現在時刻に対応する1件だけ投稿（自動化用）
     python x_poster.py --dry-run     # 投稿せずに内容を確認のみ
-    python x_poster.py --list        # 投稿済み/未投稿の一覧を表示
+    python x_poster.py --list        # 投稿済み/未投稿/予定の一覧を表示
 """
 
 import argparse
@@ -18,7 +19,7 @@ from datetime import datetime
 from pathlib import Path
 
 import tweepy
-from dotenv import dotenv_values, set_key
+from dotenv import dotenv_values
 
 ENV_FILE = Path(".env")
 LOG_FILE = Path("x-post-log.md")
@@ -57,6 +58,17 @@ def get_twitter_client(config: dict) -> tweepy.Client:
     )
 
 
+def get_v1_api(config: dict) -> tweepy.API:
+    """画像アップロード用の v1.1 API クライアント。"""
+    auth = tweepy.OAuth1UserHandler(
+        consumer_key=config["API_KEY"],
+        consumer_secret=config["API_SECRET"],
+        access_token=config["ACCESS_TOKEN"],
+        access_token_secret=config["ACCESS_TOKEN_SECRET"],
+    )
+    return tweepy.API(auth)
+
+
 def parse_log_file(log_path: Path) -> list[dict]:
     """x-post-log.md をパースして全エントリを返す。"""
     if not log_path.exists():
@@ -70,7 +82,7 @@ def parse_log_file(log_path: Path) -> list[dict]:
 
     pattern = re.compile(
         r"^## (.+?)\n"
-        r".*?\*\*テーマ：\*\* (.+?)\n"
+        r"(.*?)"
         r"\*\*投稿文：\*\*\n"
         r"(.*?)"
         r"(?:^---$|\Z)",
@@ -80,11 +92,26 @@ def parse_log_file(log_path: Path) -> list[dict]:
     entries = []
     for match in pattern.finditer(content):
         date = match.group(1).strip()
-        theme = match.group(2).strip()
+        meta = match.group(2)
         text = match.group(3).strip()
         if not text:
             continue
-        entries.append({"date": date, "theme": theme, "text": text, "datetime": _parse_date(date)})
+
+        # テーマを取得
+        theme_m = re.search(r"\*\*テーマ：\*\* (.+)", meta)
+        theme = theme_m.group(1).strip() if theme_m else ""
+
+        # 画像パスを取得
+        image_m = re.search(r"\*\*画像：\*\* (.+)", meta)
+        image = image_m.group(1).strip() if image_m else None
+
+        entries.append({
+            "date": date,
+            "theme": theme,
+            "text": text,
+            "image": image,
+            "datetime": _parse_date(date),
+        })
 
     entries.sort(key=lambda e: e["datetime"] or datetime.max)
     return entries
@@ -114,13 +141,26 @@ def save_posted_date(date: str) -> None:
     POSTED_FILE.write_text("\n".join(sorted(posted)) + "\n", encoding="utf-8")
 
 
-def post_tweet(client: tweepy.Client, text: str, dry_run: bool) -> bool:
+def post_tweet(client: tweepy.Client, api: tweepy.API, text: str, image: str | None, dry_run: bool) -> bool:
     if dry_run:
+        if image:
+            print(f"  [DRY-RUN] 画像あり: {image}")
         print("  [DRY-RUN] 投稿はスキップされました。")
         return True
 
     try:
-        response = client.create_tweet(text=text)
+        media_ids = None
+
+        if image:
+            image_path = Path(image)
+            if image_path.exists():
+                media = api.media_upload(filename=str(image_path))
+                media_ids = [media.media_id]
+                print(f"  画像アップロード完了: {image}")
+            else:
+                print(f"  警告: 画像ファイルが見つかりません（{image}）。テキストのみで投稿します。")
+
+        response = client.create_tweet(text=text, media_ids=media_ids)
         tweet_id = response.data["id"]
         print(f"  投稿成功: https://x.com/i/web/status/{tweet_id}")
         return True
@@ -129,7 +169,7 @@ def post_tweet(client: tweepy.Client, text: str, dry_run: bool) -> bool:
         return False
 
 
-def cmd_scheduled(entries: list[dict], posted_dates: set[str], client: tweepy.Client, dry_run: bool) -> None:
+def cmd_scheduled(entries: list[dict], posted_dates: set[str], client: tweepy.Client, api: tweepy.API, dry_run: bool) -> None:
     """現在時刻に対応する1件だけ投稿する（GitHub Actions 自動実行用）。"""
     now = datetime.now()
 
@@ -150,19 +190,21 @@ def cmd_scheduled(entries: list[dict], posted_dates: set[str], client: tweepy.Cl
         return
 
     print(f"[{now.strftime('%Y-%m-%d %H:%M')}] 投稿します: 【{target['date']}】{target['theme']}")
+    if target["image"]:
+        print(f"  画像: {target['image']}")
     print("-" * 40)
     print(target["text"])
     print("-" * 40)
 
-    success = post_tweet(client, target["text"], dry_run)
+    success = post_tweet(client, api, target["text"], target["image"], dry_run)
     if success and not dry_run:
         save_posted_date(target["date"])
 
 
 def cmd_list(entries: list[dict], posted_dates: set[str]) -> None:
     now = datetime.now()
-    print(f"{'状態':<6} {'日付':<25} テーマ")
-    print("-" * 70)
+    print(f"{'状態':<6} {'画像':<4} {'日付':<25} テーマ")
+    print("-" * 75)
     for entry in entries:
         dt = entry["datetime"]
         if dt and dt > now:
@@ -171,7 +213,8 @@ def cmd_list(entries: list[dict], posted_dates: set[str]) -> None:
             status = "投稿済"
         else:
             status = "未投稿"
-        print(f"{status:<6} {entry['date']:<25} {entry['theme']}")
+        img = "🖼" if entry["image"] else "  "
+        print(f"{status:<6} {img:<4} {entry['date']:<25} {entry['theme']}")
     print()
     pending = [e for e in entries if e["date"] not in posted_dates and (e["datetime"] or datetime.max) <= now]
     print(f"合計 {len(entries)} 件 / 未投稿（当日以前）{len(pending)} 件")
@@ -193,14 +236,14 @@ def main() -> None:
         return
 
     client = get_twitter_client(config)
+    api = get_v1_api(config)
 
     if args.dry_run:
         print("=== DRY-RUN モード（実際には投稿しません）===\n")
 
     if args.scheduled:
-        cmd_scheduled(entries, posted_dates, client, dry_run=args.dry_run)
+        cmd_scheduled(entries, posted_dates, client, api, dry_run=args.dry_run)
     else:
-        # 手動一括実行（当日以前の未投稿を全件）
         now = datetime.now()
         pending = [
             e for e in entries
@@ -213,10 +256,12 @@ def main() -> None:
         print(f"{len(pending)} 件の未投稿記事を処理します。\n")
         for entry in pending:
             print(f"【{entry['date']}】{entry['theme']}")
+            if entry["image"]:
+                print(f"  画像: {entry['image']}")
             print("-" * 40)
             print(entry["text"])
             print("-" * 40)
-            success = post_tweet(client, entry["text"], dry_run=args.dry_run)
+            success = post_tweet(client, api, entry["text"], entry["image"], dry_run=args.dry_run)
             if success and not args.dry_run:
                 save_posted_date(entry["date"])
             print()
