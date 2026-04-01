@@ -47,4 +47,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add ops/sns/posted-dates.txt
           git diff --staged --quiet || git commit -m "投稿済み記録を更新 [skip ci]"
-          git push
+          git pull --rebase origin main
+          git push origin main
