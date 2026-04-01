@@ -25,6 +25,12 @@ jobs:
       - name: 依存パッケージをインストール
         run: pip install tweepy python-dotenv
 
+      - name: 現在時刻を確認
+        run: date '+%Y-%m-%d %H:%M:%S %Z'
+
+      - name: 画像ファイルを確認
+        run: ls -la images/ || echo "imagesフォルダなし"
+
       - name: X に投稿
         env:
           API_KEY: ${{ secrets.X_API_KEY }}
