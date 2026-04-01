@@ -148,18 +148,21 @@ def post_tweet(client: tweepy.Client, api: tweepy.API, text: str, image: str | N
         print("  [DRY-RUN] 投稿はスキップされました。")
         return True
 
-    try:
-        media_ids = None
+    media_ids = None
 
-        if image:
-            image_path = Path(image)
-            if image_path.exists():
+    if image:
+        image_path = Path(image)
+        if image_path.exists():
+            try:
                 media = api.media_upload(filename=str(image_path))
                 media_ids = [media.media_id]
                 print(f"  画像アップロード完了: {image}")
-            else:
-                print(f"  警告: 画像ファイルが見つかりません（{image}）。テキストのみで投稿します。")
+            except Exception as e:
+                print(f"  警告: 画像アップロード失敗（{e}）。テキストのみで投稿します。")
+        else:
+            print(f"  警告: 画像ファイルが見つかりません（{image}）。テキストのみで投稿します。")
 
+    try:
         response = client.create_tweet(text=text, media_ids=media_ids)
         tweet_id = response.data["id"]
         print(f"  投稿成功: https://x.com/i/web/status/{tweet_id}")
