@@ -25,7 +25,7 @@ ENV_FILE = Path(".env")
 LOG_FILE = Path("x-post-log.md")
 POSTED_FILE = Path("ops/sns/posted-dates.txt")
 
-SCHEDULED_WINDOW_MINUTES = 30
+SCHEDULED_WINDOW_MINUTES = 90
 
 
 def load_config() -> dict:
