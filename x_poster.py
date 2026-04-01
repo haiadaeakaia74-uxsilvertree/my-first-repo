@@ -152,13 +152,17 @@ def post_tweet(client: tweepy.Client, api: tweepy.API, text: str, image: str | N
 
     if image:
         image_path = Path(image)
+        print(f"  [DEBUG] 作業ディレクトリ: {Path.cwd()}")
+        print(f"  [DEBUG] 画像パス: {image_path} / 絶対パス: {image_path.resolve()}")
+        print(f"  [DEBUG] ファイル存在: {image_path.exists()}")
         if image_path.exists():
+            print(f"  [DEBUG] ファイルサイズ: {image_path.stat().st_size} bytes")
             try:
                 media = api.media_upload(filename=str(image_path))
                 media_ids = [media.media_id]
-                print(f"  画像アップロード完了: {image}")
+                print(f"  画像アップロード完了: {image} (media_id={media.media_id})")
             except Exception as e:
-                print(f"  警告: 画像アップロード失敗（{e}）。テキストのみで投稿します。")
+                print(f"  警告: 画像アップロード失敗（{type(e).__name__}: {e}）。テキストのみで投稿します。")
         else:
             print(f"  警告: 画像ファイルが見つかりません（{image}）。テキストのみで投稿します。")
 
