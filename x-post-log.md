@@ -394,8 +394,6 @@ White & Dark Blend ギフトセット
 
 #ひとときの4分 #自家焙煎
 
----
-
 ## 2026年4月7日 07:00
 **テーマ：** 【商品ストーリー】White Blendの「白」（火・朝）
 **画像：** images/plant-cup.jpg
@@ -906,6 +904,8 @@ Silver Tree Coffee Roaster
 自分のためだけにコーヒーを淹れていい夜です。
 
 #ひとときの4分
+
+---
 
 ---
 
