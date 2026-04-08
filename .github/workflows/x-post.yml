@@ -2,9 +2,7 @@ name: X自動投稿
 
 on:
   schedule:
-    - cron: '0 22 * * *'  # 07:00 JST
-    - cron: '0 3 * * *'   # 12:00 JST
-    - cron: '0 11 * * *'  # 20:00 JST
+    - cron: '*/30 * * * *'  # 30分ごと（JST 07:00/12:00/20:00 ±90分以内に自動投稿）
   workflow_dispatch:       # 手動実行ボタン（テスト用）
 
 jobs:

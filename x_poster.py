@@ -192,13 +192,13 @@ def cmd_scheduled(entries: list[dict], posted_dates: set[str], client: tweepy.Cl
         dt = entry["datetime"]
         if dt is None:
             continue
-        diff_minutes = abs((now - dt).total_seconds() / 60)
-        if diff_minutes <= SCHEDULED_WINDOW_MINUTES:
+        diff_minutes = (now - dt).total_seconds() / 60
+        if 0 <= diff_minutes <= SCHEDULED_WINDOW_MINUTES:
             target = entry
             break
 
     if target is None:
-        print(f"[{now.strftime('%Y-%m-%d %H:%M')}] 対応する投稿が見つかりません（±{SCHEDULED_WINDOW_MINUTES}分）。")
+        print(f"[{now.strftime('%Y-%m-%d %H:%M')}] 対応する投稿が見つかりません（予定時刻を過ぎた{SCHEDULED_WINDOW_MINUTES}分以内）。")
         return
 
     print(f"[{now.strftime('%Y-%m-%d %H:%M')}] 投稿します: 【{target['date']}】{target['theme']}")
