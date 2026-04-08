@@ -173,6 +173,11 @@ def post_tweet(client: tweepy.Client, api: tweepy.API, text: str, image: str | N
         return True
     except tweepy.TweepyException as e:
         print(f"  投稿失敗: {e}")
+        if hasattr(e, "api_errors") and e.api_errors:
+            for err in e.api_errors:
+                print(f"  [API ERROR] code={err.get('code')} message={err.get('message')}")
+        if hasattr(e, "response") and e.response is not None:
+            print(f"  [RESPONSE] status={e.response.status_code} body={e.response.text[:300]}")
         return False
 
 
