@@ -25,7 +25,7 @@ ENV_FILE = Path(".env")
 LOG_FILE = Path("x-post-log.md")
 POSTED_FILE = Path("ops/sns/posted-dates.txt")
 
-SCHEDULED_WINDOW_MINUTES = 90
+SCHEDULED_WINDOW_MINUTES = 240  # GitHub Actions cron は最大2〜3時間遅延することがある
 
 
 def load_config() -> dict:
