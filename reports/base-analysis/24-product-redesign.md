@@ -221,10 +221,10 @@ White Blend・Dark Blendは特定の豆に依存しません。
 
 | SKU | 商品名 | サイズ | 価格 |
 |-----|-------|-------|------|
-| ST-W100 | White Blend | 100g | ¥1,800 |
-| ST-W200 | White Blend | 200g | ¥3,000 |
-| ST-D100 | Dark Blend | 100g | ¥1,800 |
-| ST-D200 | Dark Blend | 200g | ¥3,000 |
+| ST-W100 | White Blend | 100g | ¥1,500 |
+| ST-W200 | White Blend | 200g | ¥2,600 |
+| ST-D100 | Dark Blend | 100g | ¥1,500 |
+| ST-D200 | Dark Blend | 200g | ¥2,600 |
 | ST-M100 | Mandheling（ガジャ農園）⛔出品停止 | 100g | ¥1,800 |
 | ST-M200 | Mandheling（ガジャ農園）⛔出品停止 | 200g | ¥3,200 |
 | ST-S1-100 | ブラジル ベラビスタ農園 | 100g | ¥2,200 |
