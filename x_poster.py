@@ -141,7 +141,30 @@ def save_posted_date(date: str) -> None:
     POSTED_FILE.write_text("\n".join(sorted(posted)) + "\n", encoding="utf-8")
 
 
-def post_tweet(client: tweepy.Client, api: tweepy.API, text: str, image: str | None, dry_run: bool) -> bool:
+def resolve_image(image: str | None, entry_dt: datetime | None) -> str | None:
+    """imageフィールドを実際のパスに解決する。
+    'daily' の場合は images/daily/YYYY-MM-DD.{jpg,jpeg,png} を自動検索。
+    """
+    if image is None:
+        return None
+    if image.strip().lower() in ("daily", "なし", "none", ""):
+        if image.strip().lower() in ("なし", "none", ""):
+            return None
+        # daily モード：投稿日付で images/daily/ を検索
+        if entry_dt is None:
+            return None
+        date_str = entry_dt.strftime("%Y-%m-%d")
+        for ext in ["jpg", "jpeg", "png"]:
+            path = Path(f"images/daily/{date_str}.{ext}")
+            if path.exists():
+                print(f"  [daily] 写真を使用: {path}")
+                return str(path)
+        print(f"  [daily] {date_str} の写真が見つかりません。テキストのみで投稿します。")
+        return None
+    return image
+
+
+
     if dry_run:
         if image:
             print(f"  [DRY-RUN] 画像あり: {image}")
@@ -208,7 +231,8 @@ def cmd_scheduled(entries: list[dict], posted_dates: set[str], client: tweepy.Cl
     print(target["text"])
     print("-" * 40)
 
-    success = post_tweet(client, api, target["text"], target["image"], dry_run)
+    resolved_image = resolve_image(target["image"], target["datetime"])
+    success = post_tweet(client, api, target["text"], resolved_image, dry_run)
     if success and not dry_run:
         save_posted_date(target["date"])
 
@@ -273,7 +297,8 @@ def main() -> None:
             print("-" * 40)
             print(entry["text"])
             print("-" * 40)
-            success = post_tweet(client, api, entry["text"], entry["image"], dry_run=args.dry_run)
+            resolved_image = resolve_image(entry["image"], entry["datetime"])
+            success = post_tweet(client, api, entry["text"], resolved_image, dry_run=args.dry_run)
             if success and not args.dry_run:
                 save_posted_date(entry["date"])
             print()
