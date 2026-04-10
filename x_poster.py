@@ -164,7 +164,8 @@ def resolve_image(image: str | None, entry_dt: datetime | None) -> str | None:
     return image
 
 
-
+def post_tweet(client: tweepy.Client, api: tweepy.API, text: str, image: str | None, dry_run: bool) -> bool:
+    """X に1件投稿する。成功したら True を返す。"""
     if dry_run:
         if image:
             print(f"  [DRY-RUN] 画像あり: {image}")
