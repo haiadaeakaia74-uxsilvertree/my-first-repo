@@ -155,16 +155,19 @@ def resolve_image(image: str | None, entry_dt: datetime | None) -> str | None:
             return None
         date_str = entry_dt.strftime("%Y-%m-%d")
         for ext in ["jpg", "jpeg", "png"]:
-            path = Path(f"images/daily/{date_str}.{ext}")
-            if path.exists():
-                print(f"  [daily] 写真を使用: {path}")
-                return str(path)
+            # images/daily/ を優先、次に images/ 直下も探す
+            for folder in ["images/daily", "images"]:
+                path = Path(f"{folder}/{date_str}.{ext}")
+                if path.exists():
+                    print(f"  [daily] 写真を使用: {path}")
+                    return str(path)
         print(f"  [daily] {date_str} の写真が見つかりません。テキストのみで投稿します。")
         return None
     return image
 
 
-
+def post_tweet(client: tweepy.Client, api: tweepy.API, text: str, image: str | None, dry_run: bool) -> bool:
+    """X に1件投稿する。成功したら True を返す。"""
     if dry_run:
         if image:
             print(f"  [DRY-RUN] 画像あり: {image}")
