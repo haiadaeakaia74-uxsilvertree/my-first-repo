@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree Coffee — 在庫状況（2026-04-16）</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background: #faf8f4;
+      color: #3a2e1e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+    p.subtitle {
+      font-size: 0.85rem;
+      color: #8a7355;
+      margin-bottom: 32px;
+    }
+    .chart-wrap {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 32px;
+      width: 100%;
+      max-width: 700px;
+    }
+    .legend {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-top: 20px;
+      font-size: 0.82rem;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 3px; }
+    .dot-used { background: #c0826e; }
+    .dot-remain { background: #6aa87e; }
+    table {
+      width: 100%;
+      max-width: 700px;
+      margin-top: 28px;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th {
+      background: #3a2e1e;
+      color: #faf8f4;
+      padding: 8px 14px;
+      text-align: center;
+    }
+    td {
+      padding: 8px 14px;
+      text-align: center;
+      border-bottom: 1px solid #e8e2d8;
+    }
+    tr:nth-child(even) td { background: #f5f1eb; }
+    .low { color: #c0826e; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Silver Tree Coffee Roaster — 生豆在庫</h1>
+  <p class="subtitle">集計日：2026年4月16日</p>
+
+  <div class="chart-wrap">
+    <canvas id="stockChart" height="220"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="dot dot-used"></div>使用済み (kg)</div>
+      <div class="legend-item"><div class="dot dot-remain"></div>残量 (kg)</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>銘柄</th>
+        <th>仕入れ (kg)</th>
+        <th>使用済み (kg)</th>
+        <th>残量 (kg)</th>
+        <th>消費率</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ブラジル</td>
+        <td>5.0</td>
+        <td>0.3</td>
+        <td>4.7</td>
+        <td>6%</td>
+      </tr>
+      <tr>
+        <td>エチオピア</td>
+        <td>5.0</td>
+        <td>2.5</td>
+        <td>2.5</td>
+        <td>50%</td>
+      </tr>
+      <tr>
+        <td>コロンビア</td>
+        <td>5.0</td>
+        <td>1.0</td>
+        <td>4.0</td>
+        <td>20%</td>
+      </tr>
+      <tr>
+        <td>コスタリカ</td>
+        <td>5.0</td>
+        <td>2.0</td>
+        <td>3.0</td>
+        <td>40%</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    const labels = ['ブラジル', 'エチオピア', 'コロンビア', 'コスタリカ'];
+    const used   = [0.3, 2.5, 1.0, 2.0];
+    const remain = [4.7, 2.5, 4.0, 3.0];
+
+    new Chart(document.getElementById('stockChart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: '残量 (kg)',
+            data: remain,
+            backgroundColor: '#6aa87e',
+            borderRadius: 4,
+            stack: 'stock'
+          },
+          {
+            label: '使用済み (kg)',
+            data: used,
+            backgroundColor: '#c0826e',
+            borderRadius: 4,
+            stack: 'stock'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} kg`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            max: 6,
+            ticks: { callback: v => v + ' kg' },
+            title: { display: true, text: '重量 (kg)' }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
