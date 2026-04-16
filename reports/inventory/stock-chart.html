@@ -12,19 +12,64 @@
       color: #3a2e1e;
       padding: 24px 16px;
     }
-    h1 {
-      font-size: 1.1rem;
-      text-align: center;
-      margin-bottom: 4px;
-    }
-    .date {
-      text-align: center;
-      font-size: 0.78rem;
-      color: #8a7355;
-      margin-bottom: 28px;
+    h1 { font-size: 1.1rem; text-align: center; margin-bottom: 4px; }
+    .date { text-align: center; font-size: 0.78rem; color: #8a7355; margin-bottom: 28px; }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
     }
 
-    /* 凡例 */
+    .item { margin-bottom: 16px; }
+    .item:last-child { margin-bottom: 0; }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .item-header .name { color: #3a2e1e; }
+    .item-header .kgs { color: #8a7355; font-size: 0.8rem; font-weight: normal; }
+
+    .track {
+      width: 100%;
+      height: 32px;
+      background: #f0ebe3;
+      border-radius: 6px;
+      display: flex;
+    }
+    .seg-remain {
+      background: #6aa87e;
+      border-radius: 6px 0 0 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: bold;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .seg-used {
+      background: #c0826e;
+      border-radius: 0 6px 6px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .seg-remain.full { border-radius: 6px; }
+    .seg-used.hide { display: none; }
+
     .legend {
       display: flex;
       gap: 20px;
@@ -33,64 +78,13 @@
       font-size: 0.82rem;
     }
     .legend-item { display: flex; align-items: center; gap: 6px; }
-    .dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
-    .dot-remain  { background: #6aa87e; }
-    .dot-used    { background: #c0826e; }
+    .dot { width: 14px; height: 14px; border-radius: 3px; }
+    .dot-remain { background: #6aa87e; }
+    .dot-used   { background: #c0826e; }
 
-    /* 棒グラフ */
-    .chart {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px 16px 16px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      margin-bottom: 24px;
-    }
-    .bar-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-    .bar-label {
-      width: 72px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      flex-shrink: 0;
-    }
-    .bar-track {
-      flex: 1;
-      background: #f0ebe3;
-      border-radius: 6px;
-      height: 36px;
-      position: relative;
-      overflow: hidden;
-    }
-    .bar-remain {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      background: #6aa87e;
-      border-radius: 6px 0 0 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .bar-used {
-      position: absolute;
-      top: 0; bottom: 0;
-      background: #c0826e;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .bar-val {
-      font-size: 0.78rem;
-      font-weight: bold;
-      color: #fff;
-      white-space: nowrap;
-      padding: 0 6px;
-    }
-    .bar-val-small { font-size: 0.68rem; }
+    .warn { color: #c0826e; font-weight: bold; }
+    .ok   { color: #6aa87e; font-weight: bold; }
 
-    /* テーブル */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -103,19 +97,18 @@
     th {
       background: #3a2e1e;
       color: #faf8f4;
-      padding: 10px 8px;
+      padding: 10px 6px;
       text-align: center;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
     }
     td {
-      padding: 10px 8px;
+      padding: 10px 6px;
       text-align: center;
       border-bottom: 1px solid #ede8df;
+      font-size: 0.82rem;
     }
     tr:last-child td { border-bottom: none; }
     tr:nth-child(even) td { background: #f5f1eb; }
-    .warn { color: #c0826e; font-weight: bold; }
-    .ok   { color: #6aa87e; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -128,57 +121,49 @@
     <div class="legend-item"><div class="dot dot-used"></div>使用済み</div>
   </div>
 
-  <div class="chart">
+  <div class="card">
 
-    <!-- ブラジル: 残4.7 / 使0.3 → 94% / 6% -->
-    <div class="bar-row">
-      <div class="bar-label">ブラジル</div>
-      <div class="bar-track">
-        <div class="bar-remain" style="width:94%">
-          <span class="bar-val">4.7 kg</span>
-        </div>
-        <div class="bar-used" style="left:94%; width:6%">
-          <span class="bar-val bar-val-small">0.3</span>
-        </div>
+    <div class="item">
+      <div class="item-header">
+        <span class="name">ブラジル</span>
+        <span class="kgs">残 4.7 kg / 使用 0.3 kg</span>
+      </div>
+      <div class="track">
+        <div class="seg-remain" style="width:94%">4.7 kg</div>
+        <div class="seg-used"   style="width:6%">0.3</div>
       </div>
     </div>
 
-    <!-- エチオピア: 残2.5 / 使2.5 → 50% / 50% -->
-    <div class="bar-row">
-      <div class="bar-label">エチオピア</div>
-      <div class="bar-track">
-        <div class="bar-remain" style="width:50%">
-          <span class="bar-val">2.5 kg</span>
-        </div>
-        <div class="bar-used" style="left:50%; width:50%">
-          <span class="bar-val">2.5 kg</span>
-        </div>
+    <div class="item">
+      <div class="item-header">
+        <span class="name warn">エチオピア ⚠️</span>
+        <span class="kgs warn">残 2.5 kg / 使用 2.5 kg</span>
+      </div>
+      <div class="track">
+        <div class="seg-remain" style="width:50%">2.5 kg</div>
+        <div class="seg-used"   style="width:50%">2.5 kg</div>
       </div>
     </div>
 
-    <!-- コロンビア: 残4.0 / 使1.0 → 80% / 20% -->
-    <div class="bar-row">
-      <div class="bar-label">コロンビア</div>
-      <div class="bar-track">
-        <div class="bar-remain" style="width:80%">
-          <span class="bar-val">4.0 kg</span>
-        </div>
-        <div class="bar-used" style="left:80%; width:20%">
-          <span class="bar-val bar-val-small">1.0</span>
-        </div>
+    <div class="item">
+      <div class="item-header">
+        <span class="name">コロンビア</span>
+        <span class="kgs">残 4.0 kg / 使用 1.0 kg</span>
+      </div>
+      <div class="track">
+        <div class="seg-remain" style="width:80%">4.0 kg</div>
+        <div class="seg-used"   style="width:20%">1.0</div>
       </div>
     </div>
 
-    <!-- コスタリカ: 残3.0 / 使2.0 → 60% / 40% -->
-    <div class="bar-row">
-      <div class="bar-label">コスタリカ</div>
-      <div class="bar-track">
-        <div class="bar-remain" style="width:60%">
-          <span class="bar-val">3.0 kg</span>
-        </div>
-        <div class="bar-used" style="left:60%; width:40%">
-          <span class="bar-val">2.0 kg</span>
-        </div>
+    <div class="item">
+      <div class="item-header">
+        <span class="name warn">コスタリカ</span>
+        <span class="kgs warn">残 3.0 kg / 使用 2.0 kg</span>
+      </div>
+      <div class="track">
+        <div class="seg-remain" style="width:60%">3.0 kg</div>
+        <div class="seg-used"   style="width:40%">2.0 kg</div>
       </div>
     </div>
 
