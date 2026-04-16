@@ -82,6 +82,22 @@
 - `guidelines/07-financial-management.md` — 財務管理
 - `guidelines/08-agent-collaboration.md` — エージェント間連携ルール
 
+## ガイドライン更新ルール
+
+会社の方針・内容が変わったときは、必ず以下のファイルを更新すること。
+
+| 変更内容 | 更新するファイル |
+|---------|---------------|
+| SNSの方向性・運用ルールの変更 | `guidelines/05-sns-operations.md` を上書き更新 |
+| 商品ラインの変更・追加・廃止 | `guidelines/03-product-guide.md` を上書き更新 |
+| 会社の重大な方向転換・戦略変更 | `CLAUDE.md` も合わせて更新 |
+| ブランドトーン・世界観の変更 | `guidelines/02-brand-identity.md` を上書き更新 |
+| 顧客対応方針の変更 | `guidelines/04-customer-communication.md` を上書き更新 |
+| イベント・マルシェ運用の変更 | `guidelines/06-event-operations.md` を上書き更新 |
+| 財務方針・価格設計の変更 | `guidelines/07-financial-management.md` を上書き更新 |
+
+**原則：** 口頭で方針が変わったら、その場でファイルに反映する。古い情報が残ると全エージェントの判断がズレる。
+
 ## 司令塔の判断基準
 
 | 状況 | アクション |
