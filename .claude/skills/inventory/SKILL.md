@@ -47,220 +47,95 @@ Dark Blend 袋：3袋
 
 ## Step 2：HTMLファイルの生成
 
-在庫データを受け取ったら、Chart.js を使った棒グラフ付きHTMLファイルを生成して `/tmp/inventory_[YYYYMMDD].html` に保存する。
+**必ず以下の標準フォーマットを使用すること。勝手に簡略化しない。**
 
-### HTMLテンプレート
+在庫データを受け取ったら `/tmp/inventory_[YYYYMMDD].html` に保存し、`open` コマンドで自動的にブラウザで開く。
 
-以下の構造でHTMLを生成すること：
+### 標準フォーマット（必須）
 
-```html
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Silver Tree — 在庫管理 [日付]</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: "Hiragino Mincho ProN", Georgia, serif;
-      background: #F8F4EE;
-      color: #1C1C1C;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    h1 {
-      font-size: 1.4rem;
-      font-weight: normal;
-      color: #2D4A3E;
-      border-bottom: 1px solid #D4C5A9;
-      padding-bottom: 12px;
-      margin-bottom: 8px;
-    }
-    .date {
-      color: #6B4226;
-      font-size: 0.85rem;
-      margin-bottom: 40px;
-    }
-    .chart-container {
-      background: white;
-      border-radius: 8px;
-      padding: 24px;
-      margin-bottom: 32px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    }
-    .chart-title {
-      font-size: 0.9rem;
-      color: #6B4226;
-      margin-bottom: 16px;
-      font-weight: normal;
-      letter-spacing: 0.05em;
-    }
-    .alert-section {
-      background: #fff8f0;
-      border-left: 3px solid #6B4226;
-      padding: 16px 20px;
-      border-radius: 0 8px 8px 0;
-      margin-bottom: 24px;
-    }
-    .alert-title {
-      font-size: 0.85rem;
-      color: #6B4226;
-      margin-bottom: 10px;
-    }
-    .alert-item {
-      font-size: 0.9rem;
-      padding: 4px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .status-danger { color: #c0392b; }
-    .status-warning { color: #e67e22; }
-    .status-ok { color: #2D4A3E; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    }
-    th {
-      background: #2D4A3E;
-      color: white;
-      padding: 10px 16px;
-      text-align: left;
-      font-weight: normal;
-      font-size: 0.8rem;
-      letter-spacing: 0.05em;
-    }
-    td {
-      padding: 10px 16px;
-      border-bottom: 1px solid #F8F4EE;
-    }
-    tr:last-child td { border-bottom: none; }
-    .tag-danger {
-      background: #fde8e8;
-      color: #c0392b;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-    }
-    .tag-warning {
-      background: #fef3e2;
-      color: #e67e22;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-    }
-    .tag-ok {
-      background: #e8f4f0;
-      color: #2D4A3E;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-    }
-    footer {
-      text-align: center;
-      color: #D4C5A9;
-      font-size: 0.75rem;
-      margin-top: 48px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Silver Tree Coffee Roaster — 在庫管理</h1>
-  <p class="date">[日付] 現在</p>
+以下の6要素をすべて含めること：
 
-  <!-- アラートセクション -->
-  <div class="alert-section">
-    <div class="alert-title">⚠ 要確認アイテム</div>
-    [要補充・注意アイテムをリスト表示]
-  </div>
+1. **ヘッダー**：タイトル＋日付・発注ライン・総在庫をサブテキストで
+2. **サマリーカード4枚**：🔴発注以下・🟠ライン接近・🟢正常・総在庫(kg)
+3. **赤アラートセクション**：発注ライン以下の銘柄を列挙（border-left: 3px solid #c0392b）
+4. **オレンジ通知セクション**：発注ライン接近（2kg〜2.6kg）の銘柄（border-left: 3px solid #e67e22）
+5. **縦棒グラフ**：在庫量(kg)・発注ライン赤点線付き・Chart.js
+6. **横棒グラフ**：残存率(%)・5kg基準・Chart.js
+7. **詳細テーブル**：銘柄・現在庫・発注ライン・状態タグ・備考バッジ
+8. **フッター**：Silver Tree Coffee Roaster — 香川県東かがわ市 ｜ 日付
 
-  <!-- 棒グラフ（全体） -->
-  <div class="chart-container">
-    <div class="chart-title">在庫一覧（現在数 vs 最低ライン）</div>
-    <canvas id="inventoryChart" height="300"></canvas>
-  </div>
+### CSSクラス定義（必須）
 
-  <!-- カテゴリ別グラフ -->
-  <div class="chart-container">
-    <div class="chart-title">カテゴリ別 在庫率（%）</div>
-    <canvas id="categoryChart" height="200"></canvas>
-  </div>
-
-  <!-- 詳細テーブル -->
-  <table>
-    <thead>
-      <tr>
-        <th>アイテム</th>
-        <th>現在庫</th>
-        <th>最低ライン</th>
-        <th>状態</th>
-      </tr>
-    </thead>
-    <tbody>
-      [各アイテムの行を動的に生成]
-    </tbody>
-  </table>
-
-  <footer>Silver Tree Coffee Roaster — 香川県東かがわ市</footer>
-
-  <script>
-    // データ
-    const items = [データを配列で];
-
-    // 棒グラフ：現在庫 vs 最低ライン
-    const ctx1 = document.getElementById('inventoryChart').getContext('2d');
-    new Chart(ctx1, {
-      type: 'bar',
-      data: {
-        labels: items.map(i => i.name),
-        datasets: [
-          {
-            label: '現在庫',
-            data: items.map(i => i.current),
-            backgroundColor: items.map(i =>
-              i.current < i.min ? 'rgba(192,57,43,0.7)' :
-              i.current < i.min * 1.5 ? 'rgba(230,126,34,0.7)' :
-              'rgba(45,74,62,0.7)'
-            ),
-            borderRadius: 4,
-          },
-          {
-            label: '最低ライン',
-            data: items.map(i => i.min),
-            backgroundColor: 'rgba(212,197,169,0.4)',
-            borderRadius: 4,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'top' },
-        },
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-  </script>
-</body>
-</html>
+```css
+body { font-family: "Hiragino Mincho ProN", Georgia, serif; background: #F8F4EE; color: #1C1C1C; max-width: 960px; margin: 0 auto; padding: 40px 20px; }
+h1 { font-size: 1.4rem; font-weight: normal; color: #2D4A3E; border-bottom: 1px solid #D4C5A9; padding-bottom: 12px; margin-bottom: 8px; }
+.date { color: #6B4226; font-size: 0.85rem; margin-bottom: 32px; }
+.summary-row { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+.summary-card { background: white; border-radius: 8px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); flex: 1; min-width: 130px; text-align: center; }
+.summary-card .label { font-size: 0.75rem; color: #6B4226; margin-bottom: 6px; }
+.summary-card .value { font-size: 1.6rem; font-weight: bold; }
+.summary-card.danger .value { color: #c0392b; }
+.summary-card.warning .value { color: #e67e22; }
+.summary-card.ok .value { color: #2D4A3E; }
+.alert-section { background: #fff8f0; border-left: 3px solid #c0392b; padding: 16px 20px; border-radius: 0 8px 8px 0; margin-bottom: 28px; }
+.alert-title { font-size: 0.85rem; color: #c0392b; margin-bottom: 10px; font-weight: bold; }
+.alert-item { font-size: 0.9rem; padding: 5px 0; }
+.notice-section { background: #fef9f0; border-left: 3px solid #e67e22; padding: 16px 20px; border-radius: 0 8px 8px 0; margin-bottom: 28px; }
+.notice-title { font-size: 0.85rem; color: #e67e22; margin-bottom: 10px; font-weight: bold; }
+.chart-container { background: white; border-radius: 8px; padding: 24px; margin-bottom: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.chart-title { font-size: 0.9rem; color: #6B4226; margin-bottom: 16px; font-weight: normal; letter-spacing: 0.05em; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 28px; }
+th { background: #2D4A3E; color: white; padding: 10px 16px; text-align: left; font-weight: normal; font-size: 0.8rem; letter-spacing: 0.05em; }
+td { padding: 10px 16px; border-bottom: 1px solid #F8F4EE; }
+tr:last-child td { border-bottom: none; }
+.tag { padding: 2px 10px; border-radius: 4px; font-size: 0.75rem; display: inline-block; }
+.tag-danger { background: #fde8e8; color: #c0392b; }
+.tag-warning { background: #fef3e2; color: #e67e22; }
+.tag-ok { background: #e8f4f0; color: #2D4A3E; }
+.tag-full { background: #e8f4f0; color: #2D4A3E; font-weight: bold; }
+.badge { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 4px; }
+.badge-base { background: #D4C5A9; color: #6B4226; }
+.badge-end { background: #fde8e8; color: #c0392b; }
+.badge-water { background: #e8f0f4; color: #2D4A3E; }
+.badge-roast { background: #e8f4f0; color: #2D4A3E; }
+footer { text-align: center; color: #D4C5A9; font-size: 0.75rem; margin-top: 48px; }
 ```
 
 ### カラーコード（在庫状態別）
 
 | 状態 | 条件 | 色 |
 |------|------|-----|
-| 危険（要即補充） | 現在庫 < 最低ライン | 赤 `#c0392b` |
-| 注意（近日補充） | 最低ライン ≤ 現在庫 < 最低ライン×1.5 | オレンジ `#e67e22` |
-| 正常 | 最低ライン×1.5 以上 | ディープグリーン `#2D4A3E` |
+| 発注以下 | 現在庫 < 2kg | 赤 `rgba(192,57,43,0.75)` |
+| 要注意 | 2kg ≤ 現在庫 < 2.6kg | オレンジ `rgba(230,126,34,0.75)` |
+| 正常 | 2.6kg 以上 | ディープグリーン `rgba(45,74,62,0.75)` |
+
+### 発注ライン赤点線（縦棒グラフ必須プラグイン）
+
+```javascript
+plugins: [{
+  id: 'orderLine',
+  afterDraw(chart) {
+    const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+    const yPos = y.getPixelForValue(2.0);
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(left, yPos);
+    ctx.lineTo(right, yPos);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(192,57,43,0.6)';
+    ctx.setLineDash([6, 3]);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(192,57,43,0.8)';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('発注ライン 2kg', right - 90, yPos - 6);
+    ctx.restore();
+  }
+}]
+```
+
+### 参照ファイル（正規フォーマットの実例）
+
+`/tmp/inventory_20260421.html` — 必ずこのファイルを参照してフォーマットを確認すること。
 
 ---
 
