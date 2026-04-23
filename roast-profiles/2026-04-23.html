@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 焙煎プロファイル 2026/4/23</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: #F8F4EE;
+      color: #1C1C1C;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: normal;
+      color: #2D4A3E;
+      border-bottom: 1px solid #D4C5A9;
+      padding-bottom: 12px;
+      margin-bottom: 6px;
+    }
+    .date { color: #6B4226; font-size: 0.82rem; margin-bottom: 36px; }
+
+    .summary-row { display: flex; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+    .summary-card {
+      background: white; border-radius: 8px; padding: 16px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 140px;
+    }
+    .summary-card .sc-label { font-size: 0.72rem; color: #6B4226; margin-bottom: 5px; }
+    .summary-card .sc-value { font-size: 1.5rem; font-weight: bold; color: #2D4A3E; line-height: 1.2; }
+    .summary-card .sc-sub { font-size: 0.72rem; color: #888; margin-top: 4px; }
+
+    .batch-section { margin-bottom: 60px; }
+    .batch-header { margin-bottom: 20px; }
+    .batch-title { font-size: 1.05rem; font-weight: normal; color: #2D4A3E; margin: 0 0 4px 0; }
+    .batch-sub { font-size: 0.78rem; color: #888; margin: 0; }
+
+    .chart-card {
+      background: white; border-radius: 8px; padding: 24px 20px 20px;
+      margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .chart-legend { display: flex; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; color: #555; }
+    .legend-line {
+      display: inline-block; width: 22px; height: 0;
+      border-top-width: 2.5px; border-top-style: solid; border-radius: 2px;
+    }
+    .legend-line.dashed { border-top-style: dashed; }
+
+    table {
+      width: 100%; border-collapse: collapse; font-size: 0.83rem;
+      background: white; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    th {
+      background: #2D4A3E; color: white; padding: 9px 14px;
+      text-align: left; font-weight: normal; font-size: 0.76rem; letter-spacing: 0.04em;
+    }
+    td { padding: 7px 14px; border-bottom: 1px solid #F8F4EE; font-variant-numeric: tabular-nums; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdfaf6; }
+    .badge { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 0.7rem; }
+    .badge-crack1 { background: #fef3e2; color: #c87e1a; }
+    .badge-eject  { background: #e8f4f0; color: #2D4A3E; }
+    .badge-input  { background: #f0f0f0; color: #555; }
+    .ror-plus { color: #b85e00; font-weight: 600; }
+
+    .section-divider { border: none; border-top: 1px dashed #D4C5A9; margin: 48px 0; }
+
+    .insights-section { margin-bottom: 48px; }
+    .insights-header {
+      font-size: 0.85rem; color: #6B4226; letter-spacing: 0.08em;
+      margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid #D4C5A9;
+    }
+    .insight-card {
+      display: flex; gap: 20px; background: white; border-radius: 8px;
+      padding: 20px 22px; margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-left: 3px solid #2D4A3E;
+    }
+    .insight-num {
+      font-size: 1.4rem; font-weight: bold; color: #D4C5A9;
+      min-width: 32px; line-height: 1; padding-top: 2px; font-variant-numeric: tabular-nums;
+    }
+    .insight-body { flex: 1; }
+    .insight-title { font-size: 0.88rem; color: #2D4A3E; font-weight: bold; margin-bottom: 8px; line-height: 1.5; }
+    .insight-text { font-size: 0.82rem; color: #444; line-height: 1.8; }
+
+    footer { text-align: center; color: #D4C5A9; font-size: 0.73rem; margin-top: 56px; }
+  </style>
+</head>
+<body>
+
+<h1>Silver Tree Coffee Roaster — 焙煎プロファイル</h1>
+<p class="date">2026年4月23日　｜　Brazil モレテ ＋ Ethiopia コチャレ　｜　ドラム設定 全220</p>
+
+<!-- Summary -->
+<div class="summary-row">
+  <div class="summary-card">
+    <div class="sc-label">🌿 Brazil モレテ</div>
+    <div class="sc-value">220℃</div>
+    <div class="sc-sub">排出 11:00 ／ 歩留まり 84.3%</div>
+  </div>
+  <div class="summary-card">
+    <div class="sc-label">☕ Ethiopia コチャレ</div>
+    <div class="sc-value">218℃</div>
+    <div class="sc-sub">排出 12:00 ／ 歩留まり 84.9%</div>
+  </div>
+</div>
+
+<!-- ===== Brazil モレテ ===== -->
+<div class="batch-section">
+  <div class="batch-header">
+    <h2 class="batch-title">Brazil モレテ（9:40）</h2>
+    <p class="batch-sub">ドラム設定220 ／ 中煎り 1ハゼ止め ／ 生豆 146.1g → 焙煎後 123.1g　｜　小バッチ</p>
+  </div>
+  <div class="chart-card">
+    <div class="chart-legend">
+      <div class="legend-item"><span class="legend-line" style="border-top-color:#2D4A3E;"></span>ドラム温度（左軸）</div>
+      <div class="legend-item"><span class="legend-line" style="border-top-color:#6B4226; border-top-width:3px;"></span>豆温度（左軸）</div>
+      <div class="legend-item"><span class="legend-line dashed" style="border-top-color:#e67e22;"></span>ROR（右軸 ℃/min）</div>
+    </div>
+    <canvas id="chart-morete" height="260"></canvas>
+  </div>
+  <table>
+    <thead>
+      <tr><th>時間</th><th>ドラム℃</th><th>豆℃</th><th>ROR（℃/min）</th><th>イベント</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>0:00</td><td>133</td><td>90</td><td>—</td><td><span class="badge badge-input">投入</span></td></tr>
+      <tr><td>3:00</td><td>168</td><td>154</td><td><span class="ror-plus">+21.3</span></td><td></td></tr>
+      <tr><td>6:00</td><td>187</td><td>184</td><td><span class="ror-plus">+10.0</span></td><td></td></tr>
+      <tr><td>8:00</td><td>206</td><td>206</td><td><span class="ror-plus">+11.0</span></td><td></td></tr>
+      <tr><td>8:50</td><td>206</td><td>206</td><td>—</td><td><span class="badge badge-crack1">1ハゼ開始</span></td></tr>
+      <tr><td>9:35</td><td>208</td><td>211</td><td>—</td><td><span class="badge badge-crack1">1ハゼ終了</span></td></tr>
+      <tr><td>11:00</td><td>210</td><td>220</td><td>—</td><td><span class="badge badge-eject">排出</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- ===== Ethiopia コチャレ ===== -->
+<div class="batch-section">
+  <div class="batch-header">
+    <h2 class="batch-title">Ethiopia コチャレ（10:00）</h2>
+    <p class="batch-sub">ドラム設定220 ／ 中煎り 1ハゼ止め ／ 生豆 249.1g → 焙煎後 211.6g</p>
+  </div>
+  <div class="chart-card">
+    <div class="chart-legend">
+      <div class="legend-item"><span class="legend-line" style="border-top-color:#2D4A3E;"></span>ドラム温度（左軸）</div>
+      <div class="legend-item"><span class="legend-line" style="border-top-color:#6B4226; border-top-width:3px;"></span>豆温度（左軸）</div>
+      <div class="legend-item"><span class="legend-line dashed" style="border-top-color:#e67e22;"></span>ROR（右軸 ℃/min）</div>
+    </div>
+    <canvas id="chart-ethiopia" height="260"></canvas>
+  </div>
+  <table>
+    <thead>
+      <tr><th>時間</th><th>ドラム℃</th><th>豆℃</th><th>ROR（℃/min）</th><th>イベント</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>0:00</td><td>115</td><td>90</td><td>—</td><td><span class="badge badge-input">投入</span></td></tr>
+      <tr><td>3:00</td><td>164</td><td>140</td><td><span class="ror-plus">+16.7</span></td><td></td></tr>
+      <tr><td>6:00</td><td>197</td><td>183</td><td><span class="ror-plus">+14.3</span></td><td></td></tr>
+      <tr><td>8:00</td><td>207</td><td>201</td><td><span class="ror-plus">+9.0</span></td><td></td></tr>
+      <tr><td>9:35</td><td>207</td><td>199</td><td>—</td><td><span class="badge badge-crack1">1ハゼ開始</span></td></tr>
+      <tr><td>10:00</td><td>208</td><td>208</td><td><span class="ror-plus">+3.5</span></td><td></td></tr>
+      <tr><td>10:15</td><td>208</td><td>210</td><td>—</td><td><span class="badge badge-crack1">1ハゼ終了</span></td></tr>
+      <tr><td>11:00</td><td>208</td><td>213</td><td><span class="ror-plus">+5.0</span></td><td></td></tr>
+      <tr><td>12:00</td><td>209</td><td>218</td><td><span class="ror-plus">+5.0</span></td><td><span class="badge badge-eject">排出</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== Insights ===== -->
+<hr class="section-divider">
+<div class="insights-section">
+  <div class="insights-header">分析インサイト — 2026/4/23</div>
+
+  <div class="insight-card">
+    <div class="insight-num">01</div>
+    <div class="insight-body">
+      <div class="insight-title">Brazil モレテの初期ROR +21.3 — 小バッチ×高投入ドラム温が作り出す急速加熱</div>
+      <div class="insight-text">
+        0〜3分のRORが+21.3℃/minと、今セッション最高値を記録した。
+        要因は2つの掛け合わせ：生豆量が146.1g（標準250g比で約60%）と少なく、
+        熱が逃げにくいこと、さらに投入ドラム温が133℃（4/22 Brazil Batch1の119℃比 +14℃）と高かったこと。
+        小バッチは標準レシピをそのまま適用すると過熱しやすい。
+        次回は投入ドラム温度を120℃前後に下げて初期RORを+15前後に揃える実験を推奨。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">02</div>
+    <div class="insight-body">
+      <div class="insight-title">Brazil モレテの6〜8分でRORが微上昇（10.0→11.0）— 通常と逆の動き</div>
+      <div class="insight-text">
+        焙煎の教科書的ROR推移は「序盤ピーク → 一貫降下」が理想とされる。
+        しかし Brazil モレテは6分（+10.0）→ 8分（+11.0）で微上昇している。
+        小バッチで豆の量が少ないため、ドラム熱容量が相対的に大きくなり、
+        豆温が追いついてくる6〜8分帯に余剰熱が豆に転移したと考えられる。
+        品質への直接的な悪影響は限定的だが、ROR安定化のためには投入温を下げて初期からの降下曲線を揃えたい。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">03</div>
+    <div class="insight-body">
+      <div class="insight-title">Ethiopia コチャレのROR降下曲線 — 教科書に近い安定パターン</div>
+      <div class="insight-text">
+        +16.7 → +14.3 → +9.0 → +3.5 → +5.0 と、序盤ピーク後に一貫して降下し
+        1ハゼ通過後に+5.0に微回復して保持する。
+        前回4/22のColombia（1ハゼ後に+1 まで急落、スタック懸念）と対照的に、
+        今回のEthiopiaは1ハゼ後も適切なRORを維持できている。
+        この+3.5→+5.0 の「U字底」は適切な後半管理の証拠。
+        中煎り仕上げの理想的なプロファイル例として記録価値が高い。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">04</div>
+    <div class="insight-body">
+      <div class="insight-title">1ハゼ開始タイミングの差（Brazil 8:50 vs Ethiopia 9:35）— バッチ量と熱質量の関係</div>
+      <div class="insight-text">
+        同じ投入豆温（90℃）・同じドラム設定（220）でスタートしながら、
+        Brazil（146.1g）は8:50、Ethiopia（249.1g）は9:35と45秒の開きがある。
+        豆量が少ないほど熱質量（thermal mass）が小さく、ドラムからの熱が素早く豆全体に伝わる。
+        これは「小バッチは焙煎が速い」という現象の具体的な証明。
+        今後バッチ量が変わる場合は、この比例関係を参考に1ハゼタイミングを予測できる。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">05</div>
+    <div class="insight-body">
+      <div class="insight-title">歩留まり 84%台の連続記録 — 4/22・4/23 全4バッチで安定</div>
+      <div class="insight-text">
+        4/22（Brazil Bellavista 84.8% ×2、Colombia 81.8%）に続き、
+        4/23も Brazil モレテ 84.3%・Ethiopia コチャレ 84.9% と84〜85%台に収束した。
+        豆の種類・バッチサイズ・産地をまたいでこの水準が安定していることは、
+        「中煎り 1ハゼ止め」という焙煎スタイルの再現性の高さを示している。
+        深煎りのColombiaのみ81.8%（2ハゼ通過のため）と異なり、
+        焙煎度別の歩留まり基準値として「中煎り≒84%台、深煎り≒82%台」が
+        Silver Tree の標準レンジとして確立されつつある。
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　2026.4.23 焙煎記録</footer>
+
+<script>
+const eventMarkerPlugin = {
+  id: 'eventMarkers',
+  afterDraw(chart, args, pluginOptions) {
+    const events = pluginOptions.events || [];
+    if (!events.length) return;
+    const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+    events.forEach(ev => {
+      const xPos = x.getPixelForValue(ev.t);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(xPos, top);
+      ctx.lineTo(xPos, bottom);
+      ctx.strokeStyle = ev.color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = ev.color;
+      ctx.font = '10px "Hiragino Mincho ProN", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ev.label, xPos, top + 14);
+      ctx.restore();
+    });
+  }
+};
+
+function makeChart(canvasId, drumData, beanData, rorData, events, xMax) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'ドラム温度',
+          data: drumData,
+          borderColor: '#2D4A3E', backgroundColor: 'transparent',
+          borderWidth: 2, showLine: true, pointRadius: 4, pointHoverRadius: 6,
+          pointBackgroundColor: '#2D4A3E', pointBorderColor: '#fff', pointBorderWidth: 1.5,
+          yAxisID: 'yTemp', tension: 0.25, spanGaps: false,
+        },
+        {
+          label: '豆温度',
+          data: beanData,
+          borderColor: '#6B4226', backgroundColor: 'transparent',
+          borderWidth: 2.5, showLine: true, pointRadius: 4, pointHoverRadius: 6,
+          pointBackgroundColor: '#6B4226', pointBorderColor: '#fff', pointBorderWidth: 1.5,
+          yAxisID: 'yTemp', tension: 0.25, spanGaps: false,
+        },
+        {
+          label: 'ROR',
+          data: rorData,
+          borderColor: '#e67e22', backgroundColor: 'rgba(230,126,34,0.06)',
+          borderWidth: 2, borderDash: [6, 3], showLine: true,
+          pointRadius: 3.5, pointHoverRadius: 5,
+          pointBackgroundColor: '#e67e22', pointBorderColor: '#fff', pointBorderWidth: 1,
+          yAxisID: 'yROR', tension: 0.3, fill: false, spanGaps: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.97)',
+          titleColor: '#1C1C1C', bodyColor: '#444',
+          borderColor: '#D4C5A9', borderWidth: 1,
+          callbacks: {
+            title: function(items) {
+              const t = items[0].parsed.x;
+              const min = Math.floor(t);
+              const sec = Math.round((t - min) * 60);
+              return sec === 0 ? min + ':00' : min + ':' + String(sec).padStart(2, '0');
+            },
+            label: function(item) {
+              const label = item.dataset.label;
+              const val = item.parsed.y;
+              if (label === 'ROR') return '  ROR: +' + val + ' ℃/min';
+              return '  ' + label + ': ' + val + '℃';
+            }
+          }
+        },
+        eventMarkers: { events: events }
+      },
+      scales: {
+        x: {
+          type: 'linear', min: 0, max: xMax,
+          title: { display: true, text: '経過時間（分）', font: { size: 11 }, color: '#888' },
+          ticks: { stepSize: 2, callback: function(v) { return v + '分'; }, color: '#888', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        yTemp: {
+          type: 'linear', position: 'left', min: 80, max: 240,
+          title: { display: true, text: '温度（℃）', font: { size: 11 }, color: '#555' },
+          ticks: { stepSize: 20, callback: function(v) { return v + '℃'; }, color: '#555', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        yROR: {
+          type: 'linear', position: 'right', min: 0, max: 26,
+          title: { display: true, text: 'ROR（℃/min）', font: { size: 11 }, color: '#e67e22' },
+          ticks: { stepSize: 5, callback: function(v) { return '+' + v; }, color: '#e67e22', font: { size: 11 } },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    },
+    plugins: [eventMarkerPlugin]
+  });
+}
+
+// ===== Brazil モレテ =====
+const morDrum = [
+  {x: 0,     y: 133},
+  {x: 3,     y: 168},
+  {x: 6,     y: 187},
+  {x: 8,     y: 206},
+  {x: 8.833, y: 206},
+  {x: 9.583, y: 208},
+  {x: 11,    y: 210}
+];
+const morBean = [
+  {x: 0,     y: 90},
+  {x: 3,     y: 154},
+  {x: 6,     y: 184},
+  {x: 8,     y: 206},
+  {x: 8.833, y: 206},
+  {x: 9.583, y: 211},
+  {x: 11,    y: 220}
+];
+const morRor = [
+  {x: 3,     y: 21.3},
+  {x: 6,     y: 10.0},
+  {x: 8,     y: 11.0}
+];
+const morEvents = [
+  { t: 8.833, label: '1ハゼ',  color: '#c87e1a' },
+  { t: 9.583, label: '1ハゼ終', color: '#c87e1a' },
+  { t: 11,    label: '排出',   color: '#2D4A3E' }
+];
+
+// ===== Ethiopia コチャレ =====
+const ethDrum = [
+  {x: 0,      y: 115},
+  {x: 3,      y: 164},
+  {x: 6,      y: 197},
+  {x: 8,      y: 207},
+  {x: 9.583,  y: 207},
+  {x: 10,     y: 208},
+  {x: 10.25,  y: 208},
+  {x: 11,     y: 208},
+  {x: 12,     y: 209}
+];
+const ethBean = [
+  {x: 0,      y: 90},
+  {x: 3,      y: 140},
+  {x: 6,      y: 183},
+  {x: 8,      y: 201},
+  {x: 9.583,  y: 199},
+  {x: 10,     y: 208},
+  {x: 10.25,  y: 210},
+  {x: 11,     y: 213},
+  {x: 12,     y: 218}
+];
+const ethRor = [
+  {x: 3,     y: 16.7},
+  {x: 6,     y: 14.3},
+  {x: 8,     y: 9.0},
+  {x: 10,    y: 3.5},
+  {x: 11,    y: 5.0},
+  {x: 12,    y: 5.0}
+];
+const ethEvents = [
+  { t: 9.583, label: '1ハゼ',  color: '#c87e1a' },
+  { t: 10.25, label: '1ハゼ終', color: '#c87e1a' },
+  { t: 12,    label: '排出',   color: '#2D4A3E' }
+];
+
+makeChart('chart-morete',   morDrum, morBean, morRor, morEvents, 13);
+makeChart('chart-ethiopia', ethDrum, ethBean, ethRor, ethEvents, 14);
+</script>
+
+</body>
+</html>
