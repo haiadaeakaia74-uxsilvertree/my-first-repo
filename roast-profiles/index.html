@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 焙煎プロファイル 記録一覧</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: #F8F4EE;
+      color: #1C1C1C;
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 48px 20px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: normal;
+      color: #2D4A3E;
+      border-bottom: 1px solid #D4C5A9;
+      padding-bottom: 12px;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #6B4226;
+      font-size: 0.82rem;
+      margin-bottom: 40px;
+    }
+
+    /* Stats Bar */
+    .stats-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      flex: 1;
+      min-width: 130px;
+      text-align: center;
+    }
+    .stat-card .s-label { font-size: 0.72rem; color: #6B4226; margin-bottom: 5px; }
+    .stat-card .s-value { font-size: 1.6rem; font-weight: bold; color: #2D4A3E; }
+
+    /* Section Header */
+    .section-header {
+      font-size: 0.8rem;
+      color: #888;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #E8E0D4;
+    }
+
+    /* Session Cards */
+    .session-card {
+      background: white;
+      border-radius: 8px;
+      padding: 22px 24px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.15s, transform 0.1s;
+    }
+    .session-card:hover {
+      box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+      transform: translateY(-1px);
+    }
+    .session-date {
+      min-width: 90px;
+      text-align: center;
+    }
+    .session-date .d-month {
+      font-size: 0.72rem;
+      color: #888;
+      letter-spacing: 0.05em;
+    }
+    .session-date .d-day {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #2D4A3E;
+      line-height: 1.1;
+    }
+    .session-date .d-year {
+      font-size: 0.7rem;
+      color: #bbb;
+    }
+    .session-divider {
+      width: 1px;
+      background: #F0E8DC;
+      align-self: stretch;
+      min-height: 60px;
+    }
+    .session-info { flex: 1; }
+    .session-title {
+      font-size: 0.95rem;
+      color: #1C1C1C;
+      margin-bottom: 6px;
+      font-weight: normal;
+    }
+    .session-beans {
+      font-size: 0.78rem;
+      color: #6B4226;
+      margin-bottom: 10px;
+    }
+    .session-metrics {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .metric {
+      font-size: 0.76rem;
+      color: #666;
+    }
+    .metric span { color: #2D4A3E; font-weight: 600; }
+    .session-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 80px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+    }
+    .badge-medium { background: #e8f4f0; color: #2D4A3E; }
+    .badge-dark   { background: #3a2e28; color: #D4C5A9; }
+    .badge-light  { background: #fef9f0; color: #c87e1a; }
+    .arrow {
+      font-size: 1.2rem;
+      color: #D4C5A9;
+      align-self: center;
+      padding-left: 8px;
+    }
+
+    /* How to Add */
+    .howto {
+      background: white;
+      border-radius: 8px;
+      padding: 22px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      margin-top: 36px;
+      border-left: 3px solid #D4C5A9;
+    }
+    .howto-title {
+      font-size: 0.82rem;
+      color: #6B4226;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+    .howto-body {
+      font-size: 0.8rem;
+      color: #555;
+      line-height: 1.9;
+    }
+    code {
+      background: #F0EDE8;
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-family: "SF Mono", Monaco, monospace;
+      font-size: 0.78rem;
+      color: #2D4A3E;
+    }
+
+    footer {
+      text-align: center;
+      color: #D4C5A9;
+      font-size: 0.73rem;
+      margin-top: 56px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Silver Tree Coffee Roaster — 焙煎プロファイル記録</h1>
+<p class="subtitle">全セッションのプロファイルHTML・成長記録　｜　roast-profiles/</p>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="s-label">記録セッション数</div>
+    <div class="s-value">1</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">総バッチ数</div>
+    <div class="s-value">3</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">平均歩留まり</div>
+    <div class="s-value">84%</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">記録開始</div>
+    <div class="s-value" style="font-size:1.1rem;">2026.04</div>
+  </div>
+</div>
+
+<!-- Session List -->
+<div class="section-header">セッション一覧 — 新しい順</div>
+
+<!-- 2026-04-22 -->
+<a class="session-card" href="2026-04-22.html">
+  <div class="session-date">
+    <div class="d-month">APR</div>
+    <div class="d-day">22</div>
+    <div class="d-year">2026</div>
+  </div>
+  <div class="session-divider"></div>
+  <div class="session-info">
+    <div class="session-title">Brazil ベラビスタ ×2 ＋ Colombia スプレモ</div>
+    <div class="session-beans">
+      ブラジル 南ミナス ベラビスタ農園 ブルボンアマレロ PN No.2　／　コロンビア スプレモ
+    </div>
+    <div class="session-metrics">
+      <div class="metric">バッチ数：<span>3</span></div>
+      <div class="metric">Brazil 歩留まり：<span>84.8%</span></div>
+      <div class="metric">Colombia 歩留まり：<span>81.8%</span></div>
+      <div class="metric">Brazil 排出豆温：<span>218〜219℃</span></div>
+      <div class="metric">Colombia 排出豆温：<span>230℃</span></div>
+    </div>
+  </div>
+  <div class="session-badges">
+    <span class="badge badge-medium">中煎り</span>
+    <span class="badge badge-dark">深煎り</span>
+  </div>
+  <div class="arrow">›</div>
+</a>
+
+<!-- How to Add -->
+<div class="howto">
+  <div class="howto-title">📋 新しいセッションを追加するには</div>
+  <div class="howto-body">
+    焙煎後に Claude に「焙煎プロファイルを保存して」と伝えるだけで自動生成されます。<br>
+    ファイル命名規則：<code>YYYY-MM-DD.html</code>（例：<code>2026-05-10.html</code>）<br>
+    保存先：<code>roast-profiles/</code> フォルダ　｜　マークダウンログ：<code>roast-logs/</code> フォルダ<br>
+    index.html の「セッション一覧」と「統計カード」は毎回 Claude が更新します。
+  </div>
+</div>
+
+<footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　焙煎記録アーカイブ</footer>
+
+</body>
+</html>

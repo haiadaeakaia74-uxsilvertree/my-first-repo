@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 焙煎プロファイル 2026/4/22</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: #F8F4EE;
+      color: #1C1C1C;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: normal;
+      color: #2D4A3E;
+      border-bottom: 1px solid #D4C5A9;
+      padding-bottom: 12px;
+      margin-bottom: 6px;
+    }
+    .date { color: #6B4226; font-size: 0.82rem; margin-bottom: 36px; }
+
+    /* Summary Cards */
+    .summary-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    .summary-card {
+      background: white;
+      border-radius: 8px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      flex: 1;
+      min-width: 140px;
+    }
+    .summary-card .sc-label {
+      font-size: 0.72rem;
+      color: #6B4226;
+      margin-bottom: 5px;
+      letter-spacing: 0.04em;
+    }
+    .summary-card .sc-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #2D4A3E;
+      line-height: 1.2;
+    }
+    .summary-card .sc-sub {
+      font-size: 0.72rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    /* Batch Section */
+    .batch-section { margin-bottom: 60px; }
+    .batch-header { margin-bottom: 20px; }
+    .batch-title {
+      font-size: 1.05rem;
+      font-weight: normal;
+      color: #2D4A3E;
+      margin: 0 0 4px 0;
+    }
+    .batch-sub {
+      font-size: 0.78rem;
+      color: #888;
+      margin: 0;
+    }
+
+    /* Chart Card */
+    .chart-card {
+      background: white;
+      border-radius: 8px;
+      padding: 24px 20px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      color: #555;
+    }
+    .legend-line {
+      display: inline-block;
+      width: 22px;
+      height: 0;
+      border-top-width: 2.5px;
+      border-top-style: solid;
+      border-radius: 2px;
+    }
+    .legend-line.dashed {
+      border-top-style: dashed;
+    }
+
+    /* Data Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    th {
+      background: #2D4A3E;
+      color: white;
+      padding: 9px 14px;
+      text-align: left;
+      font-weight: normal;
+      font-size: 0.76rem;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 7px 14px;
+      border-bottom: 1px solid #F8F4EE;
+      font-variant-numeric: tabular-nums;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdfaf6; }
+    .badge {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+    }
+    .badge-crack1 { background: #fef3e2; color: #c87e1a; }
+    .badge-crack2 { background: #fde8e8; color: #c0392b; }
+    .badge-eject  { background: #e8f4f0; color: #2D4A3E; }
+    .badge-input  { background: #f0f0f0; color: #555; }
+    .ror-plus { color: #b85e00; font-weight: 600; }
+
+    /* Divider */
+    .section-divider {
+      border: none;
+      border-top: 1px dashed #D4C5A9;
+      margin: 48px 0;
+    }
+
+    /* Insights */
+    .insights-section { margin-bottom: 48px; }
+    .insights-header {
+      font-size: 0.85rem;
+      color: #6B4226;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #D4C5A9;
+    }
+    .insight-card {
+      display: flex;
+      gap: 20px;
+      background: white;
+      border-radius: 8px;
+      padding: 20px 22px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      border-left: 3px solid #2D4A3E;
+    }
+    .insight-num {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #D4C5A9;
+      min-width: 32px;
+      line-height: 1;
+      padding-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+    .insight-body { flex: 1; }
+    .insight-title {
+      font-size: 0.88rem;
+      color: #2D4A3E;
+      font-weight: bold;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+    .insight-text {
+      font-size: 0.82rem;
+      color: #444;
+      line-height: 1.8;
+    }
+
+    footer {
+      text-align: center;
+      color: #D4C5A9;
+      font-size: 0.73rem;
+      margin-top: 56px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Silver Tree Coffee Roaster — 焙煎プロファイル</h1>
+<p class="date">2026年4月22日　｜　ブラジル ベラビスタ ×2バッチ ＋ コロンビア スプレモ　｜　ドラム設定 全220</p>
+
+<!-- ===== Summary ===== -->
+<div class="summary-row">
+  <div class="summary-card">
+    <div class="sc-label">🌿 Brazil Batch1</div>
+    <div class="sc-value">218℃</div>
+    <div class="sc-sub">排出 11:36 ／ 歩留まり 84.8%</div>
+  </div>
+  <div class="summary-card">
+    <div class="sc-label">🌿 Brazil Batch2</div>
+    <div class="sc-value">219℃</div>
+    <div class="sc-sub">排出 12:17 ／ 歩留まり 84.8%</div>
+  </div>
+  <div class="summary-card">
+    <div class="sc-label">☕ Colombia Supremo</div>
+    <div class="sc-value">230℃</div>
+    <div class="sc-sub">排出 14:12 ／ 歩留まり 81.8%</div>
+  </div>
+</div>
+
+
+<!-- ===== Batch 1 ===== -->
+<div class="batch-section">
+  <div class="batch-header">
+    <h2 class="batch-title">Brazil ベラビスタ — バッチ1（19:00）</h2>
+    <p class="batch-sub">ドラム設定220 ／ 中煎り 1ハゼ止め ／ 生豆 234.8g → 焙煎後 199.2g</p>
+  </div>
+  <div class="chart-card">
+    <div class="chart-legend">
+      <div class="legend-item">
+        <span class="legend-line" style="border-top-color:#2D4A3E;"></span>ドラム温度（左軸）
+      </div>
+      <div class="legend-item">
+        <span class="legend-line" style="border-top-color:#6B4226; border-top-width:3px;"></span>豆温度（左軸）
+      </div>
+      <div class="legend-item">
+        <span class="legend-line dashed" style="border-top-color:#e67e22;"></span>ROR（右軸 ℃/min）
+      </div>
+    </div>
+    <canvas id="chart-batch1" height="260"></canvas>
+  </div>
+  <table>
+    <thead>
+      <tr><th>時間</th><th>ドラム℃</th><th>豆℃</th><th>ROR（℃/min）</th><th>イベント</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>0:00</td><td>119</td><td>90</td><td>—</td><td><span class="badge badge-input">投入</span></td></tr>
+      <tr><td>3:00</td><td>163</td><td>140</td><td><span class="ror-plus">+16.7</span></td><td></td></tr>
+      <tr><td>6:00</td><td>202</td><td>187</td><td><span class="ror-plus">+15.7</span></td><td></td></tr>
+      <tr><td>8:00</td><td>203</td><td>200</td><td><span class="ror-plus">+6.5</span></td><td></td></tr>
+      <tr><td>8:10</td><td>203</td><td>201</td><td>—</td><td><span class="badge badge-crack1">1ハゼ開始</span></td></tr>
+      <tr><td>10:10</td><td>204</td><td>208</td><td><span class="ror-plus">+3.5</span></td><td><span class="badge badge-crack1">1ハゼ終了</span></td></tr>
+      <tr><td>11:36</td><td>208</td><td>218</td><td><span class="ror-plus">+7.6</span></td><td><span class="badge badge-eject">排出</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- ===== Batch 2 ===== -->
+<div class="batch-section">
+  <div class="batch-header">
+    <h2 class="batch-title">Brazil ベラビスタ — バッチ2（19:30）</h2>
+    <p class="batch-sub">ドラム設定220 ／ 中煎り 1ハゼ止め ／ 生豆 232.8g → 焙煎後 197.4g</p>
+  </div>
+  <div class="chart-card">
+    <div class="chart-legend">
+      <div class="legend-item">
+        <span class="legend-line" style="border-top-color:#2D4A3E;"></span>ドラム温度（左軸）
+      </div>
+      <div class="legend-item">
+        <span class="legend-line" style="border-top-color:#6B4226; border-top-width:3px;"></span>豆温度（左軸）
+      </div>
+      <div class="legend-item">
+        <span class="legend-line dashed" style="border-top-color:#e67e22;"></span>ROR（右軸 ℃/min）
+      </div>
+    </div>
+    <canvas id="chart-batch2" height="260"></canvas>
+  </div>
+  <table>
+    <thead>
+      <tr><th>時間</th><th>ドラム℃</th><th>豆℃</th><th>ROR（℃/min）</th><th>イベント</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>0:00</td><td>126</td><td>92</td><td>—</td><td><span class="badge badge-input">投入</span></td></tr>
+      <tr><td>3:00</td><td>172</td><td>144</td><td><span class="ror-plus">+17.3</span></td><td></td></tr>
+      <tr><td>6:00</td><td>195</td><td>181</td><td><span class="ror-plus">+12.3</span></td><td></td></tr>
+      <tr><td>8:00</td><td>202</td><td>196</td><td><span class="ror-plus">+7.5</span></td><td></td></tr>
+      <tr><td>8:25</td><td>200</td><td>199</td><td>—</td><td><span class="badge badge-crack1">1ハゼ開始</span></td></tr>
+      <tr><td>10:25</td><td>206</td><td>209</td><td><span class="ror-plus">+5.0</span></td><td><span class="badge badge-crack1">1ハゼ終了</span></td></tr>
+      <tr><td>12:17</td><td>209</td><td>219</td><td><span class="ror-plus">+5.5</span></td><td><span class="badge badge-eject">排出</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr class="section-divider">
+
+<!-- ===== Colombia ===== -->
+<div class="batch-section">
+  <div class="batch-header">
+    <h2 class="batch-title">Colombia スプレモ（20:15）</h2>
+    <p class="batch-sub">ドラム設定220 ／ 深煎り 2ハゼ通過 ／ 生豆 338g（推定）→ 焙煎後 276.5g　｜　水出し専用</p>
+  </div>
+  <div class="chart-card">
+    <div class="chart-legend">
+      <div class="legend-item">
+        <span class="legend-line" style="border-top-color:#2D4A3E;"></span>ドラム温度（左軸）
+      </div>
+      <div class="legend-item">
+        <span class="legend-line" style="border-top-color:#6B4226; border-top-width:3px;"></span>豆温度（左軸）
+      </div>
+      <div class="legend-item">
+        <span class="legend-line dashed" style="border-top-color:#e67e22;"></span>ROR（右軸 ℃/min）
+      </div>
+    </div>
+    <canvas id="chart-colombia" height="260"></canvas>
+  </div>
+  <table>
+    <thead>
+      <tr><th>時間</th><th>ドラム℃</th><th>豆℃</th><th>ROR（℃/min）</th><th>イベント</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>0:00</td><td>102</td><td>90</td><td>—</td><td><span class="badge badge-input">投入</span></td></tr>
+      <tr><td>1:00</td><td>109</td><td>95</td><td><span class="ror-plus">+5</span></td><td></td></tr>
+      <tr><td>2:00</td><td>128</td><td>107</td><td><span class="ror-plus">+12</span></td><td></td></tr>
+      <tr><td>3:00</td><td>147</td><td>121</td><td><span class="ror-plus">+14</span></td><td></td></tr>
+      <tr><td>4:00</td><td>164</td><td>138</td><td><span class="ror-plus">+17</span></td><td></td></tr>
+      <tr><td>5:00</td><td>179</td><td>152</td><td><span class="ror-plus">+14</span></td><td></td></tr>
+      <tr><td>6:00</td><td>193</td><td>167</td><td><span class="ror-plus">+15</span></td><td></td></tr>
+      <tr><td>7:00</td><td>205</td><td>180</td><td><span class="ror-plus">+13</span></td><td></td></tr>
+      <tr><td>8:00</td><td>214</td><td>193</td><td><span class="ror-plus">+13</span></td><td></td></tr>
+      <tr><td>9:00</td><td>216</td><td>205</td><td><span class="ror-plus">+12</span></td><td><span class="badge badge-crack1">1ハゼ開始</span></td></tr>
+      <tr><td>10:00</td><td>218</td><td>216</td><td><span class="ror-plus">+11</span></td><td></td></tr>
+      <tr><td>11:45</td><td>218</td><td>217</td><td><span class="ror-plus">+1</span></td><td><span class="badge badge-crack1">1ハゼ終了</span></td></tr>
+      <tr><td>13:28</td><td>218</td><td>227</td><td><span class="ror-plus">+6</span></td><td><span class="badge badge-crack2">2ハゼ開始</span></td></tr>
+      <tr><td>14:12</td><td>220</td><td>230</td><td><span class="ror-plus">+4</span></td><td><span class="badge badge-eject">排出</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== Insights ===== -->
+<hr class="section-divider">
+<div class="insights-section">
+  <div class="insights-header">分析インサイト — 2026/4/22</div>
+
+  <div class="insight-card">
+    <div class="insight-num">01</div>
+    <div class="insight-body">
+      <div class="insight-title">Brazil 両バッチの歩留まり完全一致（84.8%）</div>
+      <div class="insight-text">
+        投入温度差＋7℃・焙煎時間差＋41秒という条件違いがありながら、歩留まりは両バッチとも84.8%で一致した。
+        重量減少率が同一ということは、水分蒸発と細胞構造の変化が同じ到達点に収束していることを示す。
+        ベラビスタ農園豆の均質性と、中煎り（1ハゼ止め）という焙煎度設定の再現性が高いと評価できる。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">02</div>
+    <div class="insight-body">
+      <div class="insight-title">Batch2は投入温度が高いのに焙煎時間が長い — 「投入温度＝速さ」ではない</div>
+      <div class="insight-text">
+        Batch2の投入ドラム温度は126℃（Batch1比＋7℃）だったが、排出は12:17（Batch1比＋41秒）と逆に長くなった。
+        Batch2のROR推移を見ると、6分→8分のROR降下が12.3→7.5と緩やか（Batch1は15.7→6.5と急落）。
+        ドラムがすでに熱されている状態での2バッチ目は、熱の入り方が変わる可能性がある。
+        次回検証：Batch1・Batch2でドラム予熱時間を統一して比較。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">03</div>
+    <div class="insight-body">
+      <div class="insight-title">Colombia：1ハゼ終了直後にRORが +1 まで急落 — "スタック"の兆候</div>
+      <div class="insight-text">
+        11:45（1ハゼ終）時点でRORが+1℃/minまで急落している。これは豆温度の上昇が一時的にほぼ停止した状態（スタック）に近い。
+        スタックは焙煎が詰まる「フラット期」で、ベークドフレーバー（パン臭・平坦な味）のリスクがある。
+        その後13:28に豆温度が再び上昇して2ハゼに達しているが、+1の区間（約1分45秒）が長めである点は次回の改善ポイント。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">04</div>
+    <div class="insight-body">
+      <div class="insight-title">Colombia：2ハゼ以降に豆温度がドラム温度を超える — 発熱反応の証拠</div>
+      <div class="insight-text">
+        13:28（2ハゼ開始）でドラム温度218℃・豆温度227℃となり、豆がドラムより熱くなっている。
+        これは2ハゼ（セルロースの熱分解）による発熱反応（外部から熱を吸収するのではなく、豆自身が熱を出す）の物理的証拠。
+        14:12排出時点でも豆230℃・ドラム220℃と逆転が続いており、深煎り焙煎では排出タイミングの制御が特に重要になることを示している。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">05</div>
+    <div class="insight-body">
+      <div class="insight-title">Brazil vs Colombia：ROR開始ピークの高さと到達温度の関係</div>
+      <div class="insight-text">
+        Batch1（初期ROR +16.7）・Batch2（+17.3）・Colombia（+17 at 4分）と、3バッチとも序盤のRORピークは16〜17台で揃っている。
+        一方、排出豆温はBrazil 2バッチが218〜219℃・Colombiaが230℃と11℃差がある。
+        この差はRORのピーク値ではなく「降下速度の緩急」と「焙煎を続けた時間」によって生まれている。
+        Colombia はROR降下後に2ハゼまで保持したことで、同じスタートラインからより高い到達温度を実現した。
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　2026.4.22 焙煎記録</footer>
+
+<script>
+// =============================================
+// イベントマーカー カスタムプラグイン
+// =============================================
+const eventMarkerPlugin = {
+  id: 'eventMarkers',
+  afterDraw(chart, args, pluginOptions) {
+    const events = pluginOptions.events || [];
+    if (!events.length) return;
+    const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+    events.forEach(ev => {
+      const xPos = x.getPixelForValue(ev.t);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(xPos, top);
+      ctx.lineTo(xPos, bottom);
+      ctx.strokeStyle = ev.color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = ev.color;
+      ctx.font = '10px "Hiragino Mincho ProN", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ev.label, xPos, top + 14);
+      ctx.restore();
+    });
+  }
+};
+
+// =============================================
+// チャート生成ファンクション
+// =============================================
+function makeChart(canvasId, drumData, beanData, rorData, events, xMax) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'ドラム温度',
+          data: drumData,
+          borderColor: '#2D4A3E',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          showLine: true,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#2D4A3E',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5,
+          yAxisID: 'yTemp',
+          tension: 0.25,
+          spanGaps: false,
+        },
+        {
+          label: '豆温度',
+          data: beanData,
+          borderColor: '#6B4226',
+          backgroundColor: 'transparent',
+          borderWidth: 2.5,
+          showLine: true,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#6B4226',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5,
+          yAxisID: 'yTemp',
+          tension: 0.25,
+          spanGaps: false,
+        },
+        {
+          label: 'ROR',
+          data: rorData,
+          borderColor: '#e67e22',
+          backgroundColor: 'rgba(230,126,34,0.06)',
+          borderWidth: 2,
+          borderDash: [6, 3],
+          showLine: true,
+          pointRadius: 3.5,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#e67e22',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1,
+          yAxisID: 'yROR',
+          tension: 0.3,
+          fill: false,
+          spanGaps: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.97)',
+          titleColor: '#1C1C1C',
+          bodyColor: '#444',
+          borderColor: '#D4C5A9',
+          borderWidth: 1,
+          callbacks: {
+            title: function(items) {
+              const t = items[0].parsed.x;
+              const min = Math.floor(t);
+              const sec = Math.round((t - min) * 60);
+              return sec === 0
+                ? min + ':00'
+                : min + ':' + String(sec).padStart(2, '0');
+            },
+            label: function(item) {
+              const label = item.dataset.label;
+              const val = item.parsed.y;
+              if (label === 'ROR') return '  ROR: +' + val + ' ℃/min';
+              return '  ' + label + ': ' + val + '℃';
+            }
+          }
+        },
+        eventMarkers: { events: events }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          min: 0,
+          max: xMax,
+          title: {
+            display: true,
+            text: '経過時間（分）',
+            font: { size: 11 },
+            color: '#888'
+          },
+          ticks: {
+            stepSize: 2,
+            callback: function(v) { return v + '分'; },
+            color: '#888',
+            font: { size: 11 }
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        yTemp: {
+          type: 'linear',
+          position: 'left',
+          min: 80,
+          max: 245,
+          title: {
+            display: true,
+            text: '温度（℃）',
+            font: { size: 11 },
+            color: '#555'
+          },
+          ticks: {
+            stepSize: 20,
+            callback: function(v) { return v + '℃'; },
+            color: '#555',
+            font: { size: 11 }
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        yROR: {
+          type: 'linear',
+          position: 'right',
+          min: 0,
+          max: 22,
+          title: {
+            display: true,
+            text: 'ROR（℃/min）',
+            font: { size: 11 },
+            color: '#e67e22'
+          },
+          ticks: {
+            stepSize: 5,
+            callback: function(v) { return '+' + v; },
+            color: '#e67e22',
+            font: { size: 11 }
+          },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    },
+    plugins: [eventMarkerPlugin]
+  });
+}
+
+// =============================================
+// Batch 1 データ
+// =============================================
+const b1Drum = [
+  {x: 0,      y: 119},
+  {x: 3,      y: 163},
+  {x: 6,      y: 202},
+  {x: 8,      y: 203},
+  {x: 8.167,  y: 203},
+  {x: 10.167, y: 204},
+  {x: 11.6,   y: 208}
+];
+const b1Bean = [
+  {x: 0,      y: 90},
+  {x: 3,      y: 140},
+  {x: 6,      y: 187},
+  {x: 8,      y: 200},
+  {x: 8.167,  y: 201},
+  {x: 10.167, y: 208},
+  {x: 11.6,   y: 218}
+];
+const b1Ror = [
+  {x: 3,      y: 16.7},
+  {x: 6,      y: 15.7},
+  {x: 8,      y: 6.5},
+  {x: 10.167, y: 3.5},
+  {x: 11.6,   y: 7.6}
+];
+const b1Events = [
+  { t: 8.167,  label: '1ハゼ',  color: '#c87e1a' },
+  { t: 10.167, label: '1ハゼ終', color: '#c87e1a' },
+  { t: 11.6,   label: '排出',   color: '#2D4A3E' }
+];
+
+// =============================================
+// Batch 2 データ
+// =============================================
+const b2Drum = [
+  {x: 0,      y: 126},
+  {x: 3,      y: 172},
+  {x: 6,      y: 195},
+  {x: 8,      y: 202},
+  {x: 8.417,  y: 200},
+  {x: 10.417, y: 206},
+  {x: 12.283, y: 209}
+];
+const b2Bean = [
+  {x: 0,      y: 92},
+  {x: 3,      y: 144},
+  {x: 6,      y: 181},
+  {x: 8,      y: 196},
+  {x: 8.417,  y: 199},
+  {x: 10.417, y: 209},
+  {x: 12.283, y: 219}
+];
+const b2Ror = [
+  {x: 3,      y: 17.3},
+  {x: 6,      y: 12.3},
+  {x: 8,      y: 7.5},
+  {x: 10.417, y: 5.0},
+  {x: 12.283, y: 5.5}
+];
+const b2Events = [
+  { t: 8.417,  label: '1ハゼ',  color: '#c87e1a' },
+  { t: 10.417, label: '1ハゼ終', color: '#c87e1a' },
+  { t: 12.283, label: '排出',   color: '#2D4A3E' }
+];
+
+// =============================================
+// Colombia データ
+// =============================================
+const colDrum = [
+  {x: 0,      y: 102},
+  {x: 1,      y: 109},
+  {x: 2,      y: 128},
+  {x: 3,      y: 147},
+  {x: 4,      y: 164},
+  {x: 5,      y: 179},
+  {x: 6,      y: 193},
+  {x: 7,      y: 205},
+  {x: 8,      y: 214},
+  {x: 9,      y: 216},
+  {x: 10,     y: 218},
+  {x: 11.75,  y: 218},
+  {x: 13.467, y: 218},
+  {x: 14.2,   y: 220}
+];
+const colBean = [
+  {x: 0,      y: 90},
+  {x: 1,      y: 95},
+  {x: 2,      y: 107},
+  {x: 3,      y: 121},
+  {x: 4,      y: 138},
+  {x: 5,      y: 152},
+  {x: 6,      y: 167},
+  {x: 7,      y: 180},
+  {x: 8,      y: 193},
+  {x: 9,      y: 205},
+  {x: 10,     y: 216},
+  {x: 11.75,  y: 217},
+  {x: 13.467, y: 227},
+  {x: 14.2,   y: 230}
+];
+const colRor = [
+  {x: 1,      y: 5},
+  {x: 2,      y: 12},
+  {x: 3,      y: 14},
+  {x: 4,      y: 17},
+  {x: 5,      y: 14},
+  {x: 6,      y: 15},
+  {x: 7,      y: 13},
+  {x: 8,      y: 13},
+  {x: 9,      y: 12},
+  {x: 10,     y: 11},
+  {x: 11.75,  y: 1},
+  {x: 13.467, y: 6},
+  {x: 14.2,   y: 4}
+];
+const colEvents = [
+  { t: 9,      label: '1ハゼ',  color: '#c87e1a' },
+  { t: 11.75,  label: '1ハゼ終', color: '#c87e1a' },
+  { t: 13.467, label: '2ハゼ',  color: '#c0392b' },
+  { t: 14.2,   label: '排出',   color: '#2D4A3E' }
+];
+
+// =============================================
+// チャート生成
+// =============================================
+makeChart('chart-batch1',   b1Drum,  b1Bean,  b1Ror,  b1Events,  13);
+makeChart('chart-batch2',   b2Drum,  b2Bean,  b2Ror,  b2Events,  14);
+makeChart('chart-colombia', colDrum, colBean, colRor, colEvents, 16);
+</script>
+
+</body>
+</html>
