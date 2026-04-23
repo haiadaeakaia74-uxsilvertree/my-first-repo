@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 在庫ダッシュボード</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: #F8F4EE;
+      color: #1C1C1C;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 20px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: normal;
+      color: #2D4A3E;
+      border-bottom: 1px solid #D4C5A9;
+      padding-bottom: 12px;
+      margin-bottom: 8px;
+    }
+    .subtitle { color: #6B4226; font-size: 0.82rem; margin-bottom: 40px; }
+
+    /* Stats */
+    .stats-row { display: flex; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+    .stat-card {
+      background: white; border-radius: 8px; padding: 16px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 130px; text-align: center;
+    }
+    .stat-card .s-label { font-size: 0.72rem; color: #6B4226; margin-bottom: 5px; }
+    .stat-card .s-value { font-size: 1.6rem; font-weight: bold; color: #2D4A3E; }
+    .stat-card.warn .s-value { color: #c0392b; }
+
+    /* Section Header */
+    .section-header {
+      font-size: 0.8rem; color: #888; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 16px; margin-top: 40px;
+      padding-bottom: 6px; border-bottom: 1px solid #E8E0D4;
+    }
+
+    /* Chart Card */
+    .chart-card {
+      background: white; border-radius: 8px; padding: 24px 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 16px;
+    }
+    .chart-title { font-size: 0.85rem; color: #6B4226; margin-bottom: 18px; }
+
+    /* Consumption Table */
+    .consumption-table {
+      width: 100%; border-collapse: collapse; font-size: 0.85rem;
+      background: white; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 16px;
+    }
+    .consumption-table th {
+      background: #2D4A3E; color: white; padding: 10px 16px;
+      text-align: left; font-weight: normal; font-size: 0.78rem;
+      letter-spacing: 0.05em;
+    }
+    .consumption-table td { padding: 11px 16px; border-bottom: 1px solid #F8F4EE; }
+    .consumption-table tr:last-child td { border-bottom: none; }
+    .consumption-table tr:hover td { background: #faf7f3; }
+    .tag { padding: 2px 9px; border-radius: 4px; font-size: 0.7rem; display: inline-block; }
+    .tag-danger { background: #fde8e8; color: #c0392b; }
+    .tag-warn   { background: #fef3e2; color: #c0772a; }
+    .tag-ok     { background: #e8f4f0; color: #2D4A3E; }
+    .tag-safe   { background: #e8f4f0; color: #2D4A3E; font-weight: 600; }
+    .tag-ret    { background: #eee; color: #888; }
+    .bar-bg { background: #F0EDE8; border-radius: 4px; height: 6px; min-width: 80px; }
+    .bar-fill { height: 6px; border-radius: 4px; background: #2D4A3E; }
+    .bar-fill.warn { background: #e67e22; }
+    .bar-fill.danger { background: #c0392b; }
+
+    /* Snapshot Cards */
+    .snapshot-card {
+      background: white; border-radius: 8px; padding: 20px 24px;
+      margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      display: flex; align-items: flex-start; gap: 20px;
+      text-decoration: none; color: inherit;
+      transition: box-shadow 0.15s, transform 0.1s;
+    }
+    .snapshot-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.12); transform: translateY(-1px); }
+    .snap-date { min-width: 90px; text-align: center; }
+    .snap-date .d-month { font-size: 0.72rem; color: #888; letter-spacing: 0.05em; }
+    .snap-date .d-day { font-size: 1.8rem; font-weight: bold; color: #2D4A3E; line-height: 1.1; }
+    .snap-date .d-year { font-size: 0.7rem; color: #bbb; }
+    .snap-divider { width: 1px; background: #F0E8DC; align-self: stretch; min-height: 60px; }
+    .snap-info { flex: 1; }
+    .snap-title { font-size: 0.95rem; color: #1C1C1C; margin-bottom: 6px; font-weight: normal; }
+    .snap-sub { font-size: 0.78rem; color: #6B4226; margin-bottom: 10px; }
+    .snap-metrics { display: flex; gap: 20px; flex-wrap: wrap; }
+    .metric { font-size: 0.76rem; color: #666; }
+    .metric span { color: #2D4A3E; font-weight: 600; }
+    .snap-arrow { font-size: 1.2rem; color: #D4C5A9; align-self: center; padding-left: 8px; }
+
+    /* Order Guide */
+    .order-guide {
+      background: white; border-radius: 8px; padding: 22px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 12px;
+      border-left: 3px solid #2D4A3E;
+    }
+    .order-guide.warn { border-left-color: #e67e22; }
+    .order-guide.danger { border-left-color: #c0392b; }
+    .og-title { font-size: 0.85rem; font-weight: bold; color: #2D4A3E; margin-bottom: 8px; }
+    .order-guide.warn .og-title { color: #c0772a; }
+    .order-guide.danger .og-title { color: #c0392b; }
+    .og-body { font-size: 0.82rem; color: #555; line-height: 1.8; }
+
+    /* Howto */
+    .howto {
+      background: white; border-radius: 8px; padding: 22px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-top: 36px;
+      border-left: 3px solid #D4C5A9;
+    }
+    .howto-title { font-size: 0.82rem; color: #6B4226; font-weight: bold; margin-bottom: 10px; }
+    .howto-body { font-size: 0.8rem; color: #555; line-height: 1.9; }
+    code {
+      background: #F0EDE8; border-radius: 3px; padding: 1px 5px;
+      font-family: "SF Mono", Monaco, monospace; font-size: 0.78rem; color: #2D4A3E;
+    }
+
+    footer {
+      text-align: center; color: #D4C5A9; font-size: 0.73rem; margin-top: 56px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Silver Tree Coffee Roaster — 生豆在庫ダッシュボード</h1>
+<p class="subtitle">在庫推移 · 消費速度 · 発注ガイド　｜　ops/inventory/</p>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="s-label">総在庫（現在）</div>
+    <div class="s-value" style="font-size:1.2rem;">14.48kg</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">アクティブ銘柄</div>
+    <div class="s-value">5</div>
+  </div>
+  <div class="stat-card warn">
+    <div class="s-label">🔴 要発注</div>
+    <div class="s-value">1</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">記録スナップショット</div>
+    <div class="s-value">2</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">最終更新</div>
+    <div class="s-value" style="font-size:1.05rem;">2026.04.23</div>
+  </div>
+</div>
+
+<!-- Trend Chart -->
+<div class="section-header">在庫推移グラフ — 銘柄別</div>
+<div class="chart-card">
+  <div class="chart-title">各銘柄の生豆在庫量推移（kg）　｜　赤破線：発注ライン 2kg</div>
+  <canvas id="trendChart" height="280"></canvas>
+</div>
+
+<!-- Consumption Table -->
+<div class="section-header">消費速度 & 発注予測</div>
+<table class="consumption-table">
+  <thead>
+    <tr>
+      <th>銘柄</th>
+      <th>現在庫</th>
+      <th>消費量（直近）</th>
+      <th>残り推定</th>
+      <th>在庫率</th>
+      <th>発注目安</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ブラジル ベラビスタ農園<br><small style="color:#888;">PN NO.2</small></td>
+      <td><strong>4.53kg</strong></td>
+      <td>0.468kg / 1回<br><small style="color:#888;">2バッチ計</small></td>
+      <td>残約5セッション<br><small style="color:#888;">(4.53-2.0)÷0.47</small></td>
+      <td>
+        <div class="bar-bg"><div class="bar-fill" style="width:76%;"></div></div>
+        <small style="color:#888;">76%</small>
+      </td>
+      <td><span class="tag tag-ok">余裕あり</span></td>
+    </tr>
+    <tr>
+      <td>エチオピア コチャレ<br><small style="color:#888;">G1 ウォシュド</small></td>
+      <td><strong>3.50kg</strong></td>
+      <td>0.249kg / 1回<br><small style="color:#888;">1バッチ計</small></td>
+      <td>残約6セッション<br><small style="color:#888;">(3.50-2.0)÷0.25</small></td>
+      <td>
+        <div class="bar-bg"><div class="bar-fill" style="width:58%;"></div></div>
+        <small style="color:#888;">58%</small>
+      </td>
+      <td><span class="tag tag-ok">余裕あり</span></td>
+    </tr>
+    <tr>
+      <td>コロンビア スプレモ<br><small style="color:#888;">水出し専用</small></td>
+      <td><strong>3.27kg</strong></td>
+      <td>0.338kg / 1回<br><small style="color:#888;">1バッチ計</small></td>
+      <td>残約4セッション<br><small style="color:#888;">(3.27-2.0)÷0.34</small></td>
+      <td>
+        <div class="bar-bg"><div class="bar-fill" style="width:55%;"></div></div>
+        <small style="color:#888;">55%</small>
+      </td>
+      <td><span class="tag tag-ok">余裕あり</span></td>
+    </tr>
+    <tr>
+      <td>コスタリカ タラス ハニー</td>
+      <td><strong>2.18kg</strong></td>
+      <td>— <small style="color:#888;">（未焙煎）</small></td>
+      <td>発注ライン +0.18kg<br><small style="color:#888;">次回焙煎後に要確認</small></td>
+      <td>
+        <div class="bar-bg"><div class="bar-fill warn" style="width:36%;"></div></div>
+        <small style="color:#888;">36%</small>
+      </td>
+      <td><span class="tag tag-warn">次回要確認</span></td>
+    </tr>
+    <tr>
+      <td>インドネシア アチェ<br><small style="color:#888;">ガジャ農園 ビッグワン</small></td>
+      <td><strong>1.00kg</strong></td>
+      <td>— <small style="color:#888;">（未焙煎）</small></td>
+      <td>発注ライン以下<br><small style="color:#888;">次回ブランド変更予定</small></td>
+      <td>
+        <div class="bar-bg"><div class="bar-fill danger" style="width:17%;"></div></div>
+        <small style="color:#888;">17%</small>
+      </td>
+      <td><span class="tag tag-danger">要発注</span></td>
+    </tr>
+    <tr style="background:#fafafa; color:#aaa;">
+      <td><s>ブラジル モンテアレグレ</s></td>
+      <td><s>0g</s></td>
+      <td>—</td>
+      <td>—</td>
+      <td>
+        <div class="bar-bg"><div class="bar-fill" style="width:0%;"></div></div>
+        <small>0%</small>
+      </td>
+      <td><span class="tag tag-ret">廃止済み</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Order Guides -->
+<div class="section-header">発注ガイド</div>
+
+<div class="order-guide danger">
+  <div class="og-title">🔴 今すぐ発注が必要</div>
+  <div class="og-body">
+    <strong>インドネシア アチェ ガジャ農園（1.00kg）</strong> — 発注ラインを大幅に下回っています。<br>
+    ただし次回仕入れ時は別ブランドに変更予定。候補選定を先に行うこと。
+  </div>
+</div>
+
+<div class="order-guide warn">
+  <div class="og-title">🟠 次回焙煎前後に判断が必要</div>
+  <div class="og-body">
+    <strong>コスタリカ タラス ハニー（2.18kg）</strong> — 発注ラインまで残り0.18kg。次回1バッチ焙煎で即座に発注ラインを割ります。<br>
+    BASE出品作業中のため売れ行きを確認しつつ、タイミングを見て仕入れ検討。
+  </div>
+</div>
+
+<div class="order-guide">
+  <div class="og-title">📅 季節パターンメモ（蓄積中）</div>
+  <div class="og-body">
+    記録開始：2026年4月。スナップショットが増えるにつれ、季節ごとの消費傾向が見えてきます。<br>
+    「この時期（4月）は ベラビスタ・エチオピアをよく焙煎する」などのパターンを随時追記してください。<br>
+    <br>
+    <strong>参考：4月の消費ペース</strong>（2セッション・2日間のデータ）<br>
+    ブラジル系：0.47kg/セッション　｜　エチオピア：0.25kg/セッション　｜　コロンビア（水出し）：0.34kg/セッション
+  </div>
+</div>
+
+<!-- Snapshot List -->
+<div class="section-header">スナップショット一覧 — 新しい順</div>
+
+<!-- 2026-04-23 -->
+<a class="snapshot-card" href="2026-04-23.html">
+  <div class="snap-date">
+    <div class="d-month">APR</div>
+    <div class="d-day">23</div>
+    <div class="d-year">2026</div>
+  </div>
+  <div class="snap-divider"></div>
+  <div class="snap-info">
+    <div class="snap-title">焙煎後更新　—　モンテアレグレ廃止・エチオピア消費</div>
+    <div class="snap-sub">Brazil モンテアレグレ 使い切り廃止（ベラビスタに移行）／ Ethiopia コチャレ 0.249kg使用</div>
+    <div class="snap-metrics">
+      <div class="metric">総在庫：<span>14.48kg</span></div>
+      <div class="metric">銘柄数：<span>5（廃止1）</span></div>
+      <div class="metric">🔴 発注以下：<span>1銘柄</span></div>
+      <div class="metric">🟠 要注意：<span>1銘柄</span></div>
+    </div>
+  </div>
+  <div class="snap-arrow">›</div>
+</a>
+
+<!-- 2026-04-22 -->
+<a class="snapshot-card" href="2026-04-22.html">
+  <div class="snap-date">
+    <div class="d-month">APR</div>
+    <div class="d-day">22</div>
+    <div class="d-year">2026</div>
+  </div>
+  <div class="snap-divider"></div>
+  <div class="snap-info">
+    <div class="snap-title">焙煎後更新　—　ベラビスタ・コロンビア消費</div>
+    <div class="snap-sub">Brazil ベラビスタ 0.468kg使用（2バッチ）／ Colombia スプレモ 0.338kg使用（水出し）</div>
+    <div class="snap-metrics">
+      <div class="metric">総在庫：<span>14.88kg</span></div>
+      <div class="metric">銘柄数：<span>6</span></div>
+      <div class="metric">🔴 発注以下：<span>2銘柄</span></div>
+      <div class="metric">🟠 要注意：<span>1銘柄</span></div>
+    </div>
+  </div>
+  <div class="snap-arrow">›</div>
+</a>
+
+<!-- Howto -->
+<div class="howto">
+  <div class="howto-title">📋 新しいスナップショットを追加するには</div>
+  <div class="howto-body">
+    焙煎後に「在庫を更新して」と伝えるだけで自動生成されます。<br>
+    ファイル命名規則：<code>YYYY-MM-DD.html</code>（例：<code>2026-05-10.html</code>）<br>
+    保存先：<code>ops/inventory/</code> フォルダ　｜　マークダウン：<code>ops/inventory-log.md</code><br>
+    index.html の「スナップショット一覧」と「統計カード」は毎回更新します。
+  </div>
+</div>
+
+<footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　生豆在庫管理アーカイブ</footer>
+
+<script>
+  const labels = ['2026-04-22', '2026-04-23'];
+  const ORDER_LINE = 2.0;
+
+  const datasets = [
+    {
+      label: 'ベラビスタ農園',
+      data: [4.53, 4.53],
+      borderColor: '#2D4A3E',
+      backgroundColor: 'rgba(45,74,62,0.08)',
+      tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
+      borderWidth: 2.5,
+    },
+    {
+      label: 'エチオピア コチャレ',
+      data: [3.75, 3.50],
+      borderColor: '#6B4226',
+      backgroundColor: 'rgba(107,66,38,0.08)',
+      tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
+      borderWidth: 2.5,
+    },
+    {
+      label: 'コロンビア スプレモ',
+      data: [3.27, 3.27],
+      borderColor: '#8B6914',
+      backgroundColor: 'rgba(139,105,20,0.08)',
+      tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
+      borderWidth: 2.5,
+    },
+    {
+      label: 'コスタリカ タラス',
+      data: [2.18, 2.18],
+      borderColor: '#C2855A',
+      backgroundColor: 'rgba(194,133,90,0.08)',
+      tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
+      borderWidth: 2.5,
+    },
+    {
+      label: 'インドネシア アチェ',
+      data: [1.00, 1.00],
+      borderColor: '#c0392b',
+      backgroundColor: 'rgba(192,57,43,0.08)',
+      tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
+      borderWidth: 2.5,
+    },
+    {
+      label: 'モンテアレグレ（廃止）',
+      data: [0.148, null],
+      borderColor: '#bbb',
+      backgroundColor: 'rgba(180,180,180,0.05)',
+      tension: 0.3, pointRadius: 4, pointHoverRadius: 6,
+      borderWidth: 1.5,
+      borderDash: [4, 4],
+    },
+  ];
+
+  const orderLinePlugin = {
+    id: 'orderLine',
+    afterDraw(chart) {
+      const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+      const yPos = y.getPixelForValue(ORDER_LINE);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(left, yPos);
+      ctx.lineTo(right, yPos);
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(192,57,43,0.5)';
+      ctx.setLineDash([6, 3]);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(192,57,43,0.7)';
+      ctx.font = '11px "Hiragino Mincho ProN", serif';
+      ctx.fillText('発注ライン 2kg', right - 95, yPos - 5);
+      ctx.restore();
+    }
+  };
+
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { padding: 16, font: { size: 11 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y + 'kg' : '廃止'}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          ticks: { font: { size: 11 } }
+        },
+        y: {
+          beginAtZero: true,
+          max: 6,
+          ticks: { callback: v => v + 'kg', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        }
+      }
+    },
+    plugins: [orderLinePlugin]
+  });
+</script>
+</body>
+</html>

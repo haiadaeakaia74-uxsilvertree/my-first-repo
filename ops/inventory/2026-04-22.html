@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 在庫スナップショット 2026/4/22</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: #F8F4EE; color: #1C1C1C;
+      max-width: 920px; margin: 0 auto; padding: 48px 20px;
+    }
+    .nav { font-size: 0.78rem; color: #888; margin-bottom: 28px; }
+    .nav a { color: #2D4A3E; text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+    h1 { font-size: 1.3rem; font-weight: normal; color: #2D4A3E; border-bottom: 1px solid #D4C5A9; padding-bottom: 12px; margin-bottom: 8px; }
+    .subtitle { color: #6B4226; font-size: 0.82rem; margin-bottom: 36px; }
+    .stats-row { display: flex; gap: 12px; margin-bottom: 36px; flex-wrap: wrap; }
+    .stat-card { background: white; border-radius: 8px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 120px; text-align: center; }
+    .stat-card .s-label { font-size: 0.7rem; color: #6B4226; margin-bottom: 4px; }
+    .stat-card .s-value { font-size: 1.5rem; font-weight: bold; color: #2D4A3E; }
+    .stat-card.warn .s-value { color: #c0392b; }
+    .section-header { font-size: 0.78rem; color: #888; letter-spacing: 0.1em; text-transform: uppercase; margin: 32px 0 14px; padding-bottom: 6px; border-bottom: 1px solid #E8E0D4; }
+    .chart-card { background: white; border-radius: 8px; padding: 22px 26px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 14px; }
+    .chart-title { font-size: 0.85rem; color: #6B4226; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 14px; }
+    th { background: #2D4A3E; color: white; padding: 10px 16px; text-align: left; font-weight: normal; font-size: 0.78rem; letter-spacing: 0.05em; }
+    td { padding: 10px 16px; border-bottom: 1px solid #F8F4EE; }
+    tr:last-child td { border-bottom: none; }
+    .tag { padding: 2px 9px; border-radius: 4px; font-size: 0.7rem; display: inline-block; }
+    .tag-danger { background: #fde8e8; color: #c0392b; }
+    .tag-warn { background: #fef3e2; color: #c0772a; }
+    .tag-ok { background: #e8f4f0; color: #2D4A3E; }
+    .badge { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 4px; }
+    .badge-used { background: #e8f4f0; color: #2D4A3E; }
+    .badge-water { background: #e8f0f4; color: #2D4A3E; }
+    .badge-end { background: #fde8e8; color: #c0392b; }
+    .roast-summary { background: white; border-radius: 8px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 14px; border-left: 3px solid #D4C5A9; }
+    .rs-title { font-size: 0.82rem; color: #6B4226; font-weight: bold; margin-bottom: 10px; }
+    .rs-body { font-size: 0.82rem; color: #555; line-height: 1.9; }
+    footer { text-align: center; color: #D4C5A9; font-size: 0.73rem; margin-top: 48px; }
+  </style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="index.html">← 在庫ダッシュボード</a>　｜　スナップショット：2026-04-22
+</div>
+
+<h1>生豆在庫スナップショット — 2026年4月22日</h1>
+<p class="subtitle">焙煎後更新　｜　Brazil ベラビスタ ×2 ＋ Colombia スプレモ 焙煎</p>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="s-label">総在庫</div>
+    <div class="s-value" style="font-size:1.15rem;">14.88kg</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">銘柄数</div>
+    <div class="s-value">6</div>
+  </div>
+  <div class="stat-card warn">
+    <div class="s-label">🔴 発注以下</div>
+    <div class="s-value">2</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">🟠 要注意</div>
+    <div class="s-value">1</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">今回使用量</div>
+    <div class="s-value" style="font-size:1.1rem;">0.806kg</div>
+  </div>
+</div>
+
+<div class="section-header">在庫量グラフ</div>
+<div class="chart-card">
+  <div class="chart-title">生豆在庫量（kg）　｜　赤破線：発注ライン 2kg</div>
+  <canvas id="inventoryChart" height="260"></canvas>
+</div>
+
+<div class="section-header">在庫一覧</div>
+<table>
+  <thead>
+    <tr>
+      <th>銘柄</th>
+      <th>在庫量</th>
+      <th>発注ライン</th>
+      <th>状態</th>
+      <th>備考</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ブラジル 南ミナス ベラビスタ農園<br><small>ブルボンアマレロ PN NO.2</small></td>
+      <td><strong>4.53kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-ok">正常</span></td>
+      <td><span class="badge badge-used">4/22焙煎 0.468kg使用</span> ← 5.00kgより</td>
+    </tr>
+    <tr>
+      <td>エチオピア イルガチャフィ G1<br><small>コチャレ ウォシュド</small></td>
+      <td><strong>3.75kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-ok">正常</span></td>
+      <td>未焙煎（BASE出品待ち）</td>
+    </tr>
+    <tr>
+      <td>コロンビア スプレモ</td>
+      <td><strong>3.27kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-ok">正常</span></td>
+      <td><span class="badge badge-used">4/22焙煎 0.338kg使用</span> <span class="badge badge-water">水出し専用</span> ← 3.60kgより</td>
+    </tr>
+    <tr>
+      <td>コスタリカ タラス ハニー</td>
+      <td><strong>2.18kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-warn">要注意</span></td>
+      <td>発注ライン +0.18kg。BASE出品作業中</td>
+    </tr>
+    <tr>
+      <td>ブラジル モンテアレグレ</td>
+      <td><strong>148g</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-danger">発注以下</span></td>
+      <td>ベラビスタ農園に移行中・次回焙煎で使い切り予定</td>
+    </tr>
+    <tr>
+      <td>インドネシア アチェ<br><small>ガジャ農園 ビッグワン</small></td>
+      <td><strong>1.00kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-danger">発注以下</span></td>
+      <td>次回仕入れ時にブランド変更予定</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="section-header">この日の焙煎サマリー</div>
+<div class="roast-summary">
+  <div class="rs-title">🔥 2026-04-22 焙煎セッション（19:00〜）</div>
+  <div class="rs-body">
+    バッチ① Brazil ベラビスタ農園：234.8g → 199.2g　歩留まり 84.8%　中煎り<br>
+    バッチ② Brazil ベラビスタ農園：232.8g → 197.4g　歩留まり 84.8%　中煎り<br>
+    バッチ③ Colombia スプレモ：338g → 276.5g　歩留まり 81.8%　深煎り（水出し用）<br>
+    <br>
+    合計消費：ベラビスタ 467.6g + コロンビア 338g = <strong>805.6g</strong><br>
+    詳細：<code>roast-profiles/2026-04-22.html</code>
+  </div>
+</div>
+
+<footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　在庫スナップショット 2026.04.22</footer>
+
+<script>
+  const ORDER_LINE = 2.0;
+  const items = [
+    { name: 'ベラビスタ', current: 4.53 },
+    { name: 'エチオピア\nコチャレ', current: 3.75 },
+    { name: 'コロンビア\nスプレモ', current: 3.27 },
+    { name: 'コスタリカ\nタラス', current: 2.18 },
+    { name: 'モンテアレグレ', current: 0.148 },
+    { name: 'インドネシア\nアチェ', current: 1.00 },
+  ];
+  const colors = items.map(i =>
+    i.current < ORDER_LINE ? 'rgba(192,57,43,0.75)' :
+    i.current < ORDER_LINE * 1.3 ? 'rgba(230,126,34,0.75)' :
+    'rgba(45,74,62,0.75)'
+  );
+  const orderLinePlugin = {
+    id: 'orderLine',
+    afterDraw(chart) {
+      const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+      const yPos = y.getPixelForValue(ORDER_LINE);
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(left, yPos); ctx.lineTo(right, yPos);
+      ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(192,57,43,0.5)';
+      ctx.setLineDash([6, 3]); ctx.stroke();
+      ctx.fillStyle = 'rgba(192,57,43,0.7)';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('発注ライン 2kg', right - 95, yPos - 5);
+      ctx.restore();
+    }
+  };
+  new Chart(document.getElementById('inventoryChart'), {
+    type: 'bar',
+    data: {
+      labels: items.map(i => i.name),
+      datasets: [{ label: '現在庫 (kg)', data: items.map(i => i.current), backgroundColor: colors, borderRadius: 6 }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true, max: 6, ticks: { callback: v => v + 'kg' } } }
+    },
+    plugins: [orderLinePlugin]
+  });
+</script>
+</body>
+</html>
