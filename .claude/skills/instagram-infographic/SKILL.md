@@ -1,9 +1,9 @@
 ---
 name: instagram-infographic
-description: Silver Tree Coffee Roaster のInstagram・SNS投稿用インフォグラフィック画像（1080×1350 or 1080×1080）を生成する。「インフォグラフィックを作りたい」「コーヒー知識を画像にして」「比較画像を作って」「ドリップ手順を図解して」「商品の特徴を画像で見せたい」「SNS用のビジュアル投稿」「知識系の画像投稿を作る」「Instagramに載せる教育コンテンツ画像」などのときに必ず使用する。コンテンツのタイプと内容を入力するだけで、Silver TreeブランドカラーのPython Pillowスクリプトを生成・実行し、即座にJPG画像として保存する。
+description: Silver Tree Coffee Roaster のSNS投稿用インフォグラフィック画像を生成する。Instagram（1080×1350）・X/Twitter（1200×675）両対応。「インフォグラフィックを作りたい」「コーヒー知識を画像にして」「比較画像を作って」「ドリップ手順を図解して」「商品の特徴を画像で見せたい」「SNS用のビジュアル投稿」「X投稿に画像をつけたい」「投稿テキストからインフォグラフィックを生成」「知識系の画像投稿を作る」「画像とテキストをセットで投稿」などのときに必ず使用する。X投稿テキストを渡すだけで自動的に内容を解析してインフォグラフィックを生成し、x-post-log.mdの画像フィールドも更新できる。
 ---
 
-# Instagram インフォグラフィック生成スキル
+# SNS インフォグラフィック生成スキル（Instagram / X 両対応）
 
 ## ブランドカラー
 
@@ -293,7 +293,11 @@ draw_footer(draw)
 ```python
 # 日付ベースのファイル名で保存
 today = date.today().strftime("%Y-%m-%d")
-topic_slug = "topic-name"  # タイトルから生成
+topic_slug = "topic-name"  # タイトルから英数字で生成
+
+# プラットフォームに応じたディレクトリ
+# Instagram: images/instagram/
+# X:         images/x/
 output_path = f"images/instagram/{today}_infographic-{topic_slug}.jpg"
 img.save(output_path, "JPEG", quality=95)
 print(f"✅ 保存完了: {output_path}")
@@ -303,6 +307,153 @@ print(f"✅ 保存完了: {output_path}")
 - 保存先パス
 - x-post-log.md の `**画像：**` フィールドに追記するか確認
 - Instagram投稿のキャプション文が必要かを確認
+
+---
+
+## X投稿テキスト → インフォグラフィック → セット投稿（自動ワークフロー）
+
+### 概要
+
+X投稿テキストを受け取り、インフォグラフィックを自動生成してx-post-log.mdに紐付けるワークフロー。
+**柱①（コーヒー専門知識）**の投稿に特に有効。
+
+### 実行手順
+
+#### Step 1：X投稿テキストを解析してインフォグラフィック構造に変換
+
+受け取ったテキストから以下を抽出・生成する（Claudeが判断）：
+
+| 要素 | 内容 |
+|------|------|
+| infographic_title | 投稿の核心を15字以内で表したタイトル |
+| sub_title | 補足的なサブタイトル（10〜20字） |
+| items | ポイントのリスト（タイトル + 説明、3〜4個） |
+| hashtags | 元投稿のハッシュタグをそのまま使用 |
+| topic_slug | ファイル名用英数字スラッグ（例：paper-rinse, 4min-habit） |
+
+**変換ルール：**
+- X投稿が箇条書き・番号リストなら → 各項目をそのままitemsに
+- X投稿が説明文の場合 → 主要ポイントを3〜4点に分解してitemsに
+- タイトルは投稿テーマを端的に表す（投稿の書き出しと同じでなくてよい）
+- 説明文は短く・インパクトある表現に凝縮する（各20〜35字目安）
+
+#### Step 2：プラットフォームを確認
+
+- **X投稿に画像を追加する場合** → X形式（1200×675）、保存先：`images/x/`
+- **Instagramにもクロスポストする場合** → Instagram形式（1080×1350）も追加生成
+
+#### Step 3：X形式（1200×675）Pillowスクリプトを生成・実行
+
+```python
+from PIL import Image, ImageDraw, ImageFont
+from datetime import date
+import os
+
+W, H = 1200, 675
+
+# カラー（RGBタプル）
+BG       = (245, 240, 232)
+DARK_BR  = (61,  43,  31)
+COFFEE   = (107, 66,  38)
+LIGHT_BR = (160, 113, 79)
+DARK_GR  = (45,  74,  62)
+TEXT_C   = (44,  44,  44)
+SUBTEXT  = (136, 136, 128)
+CARD_BG  = (237, 231, 217)
+WHITE    = (255, 255, 255)
+
+MINCHO    = "/System/Library/Fonts/ヒラギノ明朝 ProN.ttc"
+GOTHIC_W3 = "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc"
+GOTHIC_W6 = "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc"
+
+def lf(path, size, index=0):
+    try:
+        return ImageFont.truetype(path, size, index=index)
+    except:
+        return ImageFont.load_default()
+
+img  = Image.new("RGB", (W, H), BG)
+draw = ImageDraw.Draw(img)
+
+# --- 左カラム（ダークグリーン背景、幅420px）---
+LEFT_W = 420
+draw.rectangle([(0, 0), (LEFT_W, H)], fill=DARK_GR)
+draw.text((40, 38), "Silver Tree Coffee Roaster", font=lf(GOTHIC_W3, 20), fill=(180, 210, 195))
+draw.line([(40, 68), (LEFT_W - 40, 68)], fill=LIGHT_BR, width=1)
+
+# タイトル（2行に分割）
+t_f = lf(MINCHO, 44, index=0)
+draw.text((40, 95),  "タイトル行1",  font=t_f, fill=WHITE)
+draw.text((40, 150), "タイトル行2",  font=t_f, fill=WHITE)
+
+# サブタイトル
+s_f = lf(GOTHIC_W3, 24)
+draw.text((40, 215), "サブタイトル", font=s_f, fill=(200, 220, 210))
+
+# 左下キャッチフレーズ
+c_f = lf(MINCHO, 22, index=0)
+draw.text((40, H - 80), "キャッチフレーズ1行目、", font=c_f, fill=(180, 210, 195))
+draw.text((40, H - 50), "2行目テキスト。", font=c_f, fill=(180, 210, 195))
+
+# --- 右カラム：ポイントカード ---
+RX = LEFT_W + 35
+items = [
+    ("①", "ポイント1タイトル", "説明文1"),
+    ("②", "ポイント2タイトル", "説明文2"),
+    ("③", "ポイント3タイトル", "説明文3"),
+    ("④", "ポイント4タイトル", "説明文4"),
+]
+
+num_f  = lf(GOTHIC_W6, 30)
+pt_f   = lf(GOTHIC_W6, 28)
+desc_f = lf(GOTHIC_W3, 21)
+
+ITEM_H = int((H - 60) / len(items))
+y = 28
+for num, pt_title, desc in items:
+    x2 = W - 25
+    draw.rectangle([(RX, y), (x2, y + ITEM_H - 10)], fill=CARD_BG)
+    draw.rectangle([(RX, y), (RX + 52, y + ITEM_H - 10)], fill=COFFEE)
+    nb = draw.textbbox((0,0), num, font=num_f)
+    draw.text((RX + (52-(nb[2]-nb[0]))//2, y + (ITEM_H-10-(nb[3]-nb[1]))//2), num, font=num_f, fill=WHITE)
+    draw.text((RX + 65, y + 12), pt_title, font=pt_f, fill=DARK_BR)
+    draw.text((RX + 65, y + 50), desc,     font=desc_f, fill=TEXT_C)
+    y += ITEM_H
+
+# フッター
+draw.line([(RX, H - 38), (W - 25, H - 38)], fill=LIGHT_BR, width=1)
+draw.text((RX, H - 30), "#ハッシュタグ1  #ハッシュタグ2", font=lf(GOTHIC_W3, 18), fill=SUBTEXT)
+
+# 保存
+os.makedirs("images/x", exist_ok=True)
+today = date.today().strftime("%Y-%m-%d")
+output = f"images/x/{today}_infographic-topic-slug.jpg"
+img.save(output, "JPEG", quality=95)
+print(f"✅ 保存完了: {output}")
+```
+
+#### Step 4：x-post-log.mdを自動更新
+
+対象の投稿エントリに `**画像：**` フィールドを追加（または更新）する。
+
+```markdown
+## 2026年4月9日 12:00
+**テーマ：** ブランドストーリー・想い（4分間の聖域）
+**画像：** images/x/2026-04-09_infographic-4min-habit.jpg   ← 追加
+**投稿文：**
+（投稿テキスト...）
+```
+
+x-post-log.mdの該当エントリに `**画像：**` 行が**ない**場合は `**テーマ：**` の次の行に追加する。
+すでにある場合はパスを上書きする。
+
+#### Step 5：報告
+
+ユーザーに以下を報告する：
+- 生成した画像のプレビュー（Readツールで表示）
+- 保存パス
+- x-post-log.mdの更新内容
+- 「次回の自動投稿（x_poster.py）でこの画像付きで投稿されます」と説明
 
 ## デザインルール
 
