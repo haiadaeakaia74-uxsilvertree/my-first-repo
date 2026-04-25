@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 財務ダッシュボード</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #2D4A3E;
+      --brown:   #6B4226;
+      --cream:   #F8F4EE;
+      --sand:    #E8E0D4;
+      --text:    #1C1C1C;
+      --muted:   #888;
+      --danger:  #c0392b;
+      --warn:    #d68910;
+      --ok:      #27ae60;
+      --blue:    #2980b9;
+    }
+
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: var(--cream);
+      color: var(--text);
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ── Header ── */
+    .page-header { margin-bottom: 32px; border-bottom: 1px solid var(--sand); padding-bottom: 12px; }
+    .page-header h1 { font-size: 1.3rem; font-weight: normal; color: var(--green); margin-bottom: 4px; }
+    .page-header .sub { font-size: 0.78rem; color: var(--brown); }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: 4px; margin-bottom: 28px; border-bottom: 1px solid var(--sand); flex-wrap: wrap; }
+    .tab {
+      padding: 8px 18px; font-size: 0.82rem; cursor: pointer;
+      border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0;
+      color: var(--muted); background: none; font-family: inherit; letter-spacing: 0.03em;
+    }
+    .tab.active { color: var(--green); border-color: var(--sand); background: white; margin-bottom: -1px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── KPI cards ── */
+    .kpi-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+    .kpi-card {
+      background: white; border-radius: 8px; padding: 14px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 130px; text-align: center;
+    }
+    .kpi-card .k-label { font-size: 0.68rem; color: var(--brown); margin-bottom: 4px; letter-spacing: 0.04em; }
+    .kpi-card .k-value { font-size: 1.55rem; font-weight: bold; color: var(--green); }
+    .kpi-card .k-sub   { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .kpi-card.warn  .k-value { color: var(--warn); }
+    .kpi-card.danger .k-value { color: var(--danger); }
+    .kpi-card.ok    .k-value { color: var(--ok); }
+
+    /* ── Section title ── */
+    .sec-title {
+      font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em;
+      text-transform: uppercase; border-bottom: 1px solid var(--sand);
+      padding-bottom: 5px; margin-bottom: 16px; margin-top: 32px;
+    }
+
+    /* ── Chart card ── */
+    .chart-card {
+      background: white; border-radius: 10px; padding: 22px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 16px;
+    }
+    .chart-card h3 { font-size: 0.85rem; color: var(--brown); font-weight: normal; margin-bottom: 16px; }
+    .chart-card canvas { max-height: 260px; }
+
+    /* ── Grid layouts ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    @media (max-width: 700px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* ── Progress bar ── */
+    .goal-section { background: white; border-radius: 10px; padding: 24px 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 16px; }
+    .goal-title { font-size: 0.9rem; color: var(--green); margin-bottom: 16px; }
+    .goal-bar-wrap { height: 14px; background: var(--sand); border-radius: 7px; overflow: hidden; margin-bottom: 8px; position: relative; }
+    .goal-bar { height: 100%; border-radius: 7px; transition: width 0.6s ease; position: relative; }
+    .goal-bar.confirmed  { background: var(--green); }
+    .goal-bar.pending    { background: var(--warn); }
+    .goal-bar.projected  { background: #A8C5BB; }
+    .goal-labels { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 16px; }
+    .goal-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.75rem; }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    /* ── Monthly table ── */
+    .fin-table {
+      width: 100%; border-collapse: collapse; font-size: 0.82rem;
+      background: white; border-radius: 10px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .fin-table th {
+      background: var(--green); color: white; padding: 9px 14px;
+      text-align: right; font-weight: normal; font-size: 0.74rem;
+      letter-spacing: 0.04em;
+    }
+    .fin-table th:first-child { text-align: left; }
+    .fin-table td { padding: 9px 14px; border-bottom: 1px solid var(--cream); text-align: right; }
+    .fin-table td:first-child { text-align: left; color: var(--brown); font-size: 0.8rem; }
+    .fin-table tr:last-child td { border-bottom: none; font-weight: bold; background: #f5f1ec; }
+    .fin-table tr.highlight td { background: #f0f7f4; }
+    .fin-table tr.warn-row td { background: #fff8f0; color: var(--warn); }
+    .fin-table tr.peak-row td { background: #f0f7f4; }
+    .fin-table .pending { color: var(--warn); font-size: 0.72rem; }
+
+    /* ── Customer bar rows ── */
+    .cust-list { display: flex; flex-direction: column; gap: 10px; }
+    .cust-row { background: white; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .cust-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .cust-name { font-size: 0.86rem; color: var(--green); }
+    .cust-amt  { font-size: 0.84rem; font-weight: bold; color: var(--text); }
+    .cust-bar-wrap { height: 6px; background: var(--sand); border-radius: 3px; overflow: hidden; }
+    .cust-bar  { height: 100%; border-radius: 3px; }
+    .cust-meta { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── Alert ── */
+    .alert {
+      padding: 12px 16px; border-radius: 8px; font-size: 0.8rem;
+      line-height: 1.6; margin-bottom: 12px;
+    }
+    .alert.danger { background: #fde8e8; color: var(--danger); border-left: 3px solid var(--danger); }
+    .alert.warn   { background: #fef3e2; color: #8a5a00; border-left: 3px solid var(--warn); }
+    .alert.ok     { background: #e8f4f0; color: #1a5c40; border-left: 3px solid var(--ok); }
+
+    /* ── Add entry form ── */
+    .add-form { background: white; border-radius: 10px; padding: 26px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 0.7rem; color: var(--brown); letter-spacing: 0.04em; }
+    .form-group input, .form-group select {
+      padding: 7px 10px; border: 1px solid var(--sand); border-radius: 6px;
+      font-size: 0.84rem; font-family: inherit; background: var(--cream); color: var(--text);
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--green); }
+    .form-group.full { grid-column: 1 / -1; }
+    .btn { padding: 9px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.84rem; font-family: inherit; }
+    .btn-primary { background: var(--green); color: white; font-weight: bold; }
+    .btn-primary:hover { background: #1e3328; }
+
+    footer { text-align: center; color: var(--sand); font-size: 0.72rem; margin-top: 60px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Silver Tree Coffee Roaster — 財務ダッシュボード</h1>
+  <div class="sub">財務マネージャー 森 明 ｜ データ出典: 売上明細CSV実測値 ｜ 最終更新: 2026-04-26</div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('overview', this)">概要・進捗</button>
+  <button class="tab" onclick="showTab('monthly', this)">月次推移</button>
+  <button class="tab" onclick="showTab('customers', this)">顧客別</button>
+  <button class="tab" onclick="showTab('channels', this)">チャネル別</button>
+  <button class="tab" onclick="showTab('add', this)">＋ 月次記録</button>
+</div>
+
+<!-- ══════ TAB: Overview ══════ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="kpi-row">
+    <div class="kpi-card ok">
+      <div class="k-label">2026年Q1確定売上</div>
+      <div class="k-value">72,400<span style="font-size:1rem">円</span></div>
+      <div class="k-sub">前年同期比 +111.8%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="k-label">2026年Q1利益率</div>
+      <div class="k-value">74.5<span style="font-size:1rem">%</span></div>
+      <div class="k-sub">2025年通年 66.6% から改善</div>
+    </div>
+    <div class="kpi-card">
+      <div class="k-label">月平均売上（Q1）</div>
+      <div class="k-value">24,133<span style="font-size:1rem">円</span></div>
+      <div class="k-sub">2025年通年平均 15,042円</div>
+    </div>
+    <div class="kpi-card warn">
+      <div class="k-label">4月 入金待ち</div>
+      <div class="k-value">8,500<span style="font-size:1rem">円</span></div>
+      <div class="k-sub">川端・渡邊・廣瀬くん 3件</div>
+    </div>
+    <div class="kpi-card">
+      <div class="k-label">廣瀬くん依存度（Q1）</div>
+      <div class="k-value">20.7<span style="font-size:1rem">%</span></div>
+      <div class="k-sub">2025年 35.5% から▲14.8pt</div>
+    </div>
+  </div>
+
+  <!-- Goal progress -->
+  <div class="goal-section">
+    <div class="goal-title">📍 2026年 年間目標：400,000円 への進捗</div>
+
+    <!-- Confirmed -->
+    <div style="margin-bottom:10px">
+      <div style="font-size:0.74rem;color:var(--muted);margin-bottom:4px">確定分（Q1 1〜3月）</div>
+      <div class="goal-bar-wrap">
+        <div class="goal-bar confirmed" style="width:18.1%"></div>
+      </div>
+      <div class="goal-labels"><span>0</span><span>¥100,000</span><span>¥200,000</span><span>¥300,000</span><span>¥400,000</span></div>
+    </div>
+
+    <!-- Confirmed + Pending -->
+    <div style="margin-bottom:10px">
+      <div style="font-size:0.74rem;color:var(--muted);margin-bottom:4px">確定 + 4月入金待ち（80,900円）</div>
+      <div class="goal-bar-wrap">
+        <div class="goal-bar confirmed" style="width:18.1%;float:left"></div>
+        <div class="goal-bar pending" style="width:2.1%;float:left"></div>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+
+    <!-- Full year projection -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:0.74rem;color:var(--muted);margin-bottom:4px">2課題達成シナリオ（マルシェ10回 × BASE月1万円）</div>
+      <div class="goal-bar-wrap">
+        <div class="goal-bar confirmed" style="width:18.1%;float:left"></div>
+        <div class="goal-bar pending" style="width:2.1%;float:left"></div>
+        <div class="goal-bar projected" style="width:87.8%;float:left;max-width:calc(100% - 20.2%)"></div>
+      </div>
+      <div style="clear:both"></div>
+      <div style="font-size:0.74rem;color:var(--green);margin-top:4px;font-weight:bold">→ 年間431,000円（目標107.8%）✅</div>
+    </div>
+
+    <div class="goal-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div><span>確定売上</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--warn)"></div><span>入金待ち</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#A8C5BB"></div><span>予測（2課題達成時）</span></div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="sec-title">警戒・機会</div>
+
+  <div class="alert ok">
+    ✅ <strong>マルシェ効果：</strong> 3月海岸寺（25,000円・利益率90%）が廣瀬くん依存度を35.5%→20.7%に下げた。マルシェ拡大戦略は財務的に証明済み。
+  </div>
+  <div class="alert warn">
+    ⚠️ <strong>BASE 0円（1〜3月）：</strong> 手紙屋事業（梅竹松）が購入0件。4月よりコーヒー豆専門にピボット。6月末までに月次10,000円が目標。
+  </div>
+  <div class="alert warn">
+    ⚠️ <strong>インドネシア在庫：</strong> 1.00kg（発注ライン2kg以下）。次回は別ブランドに変更予定。
+  </div>
+  <div class="alert danger">
+    🔴 <strong>廣瀬くん離脱リスク（継続監視）：</strong> 依存度は改善したが1kg定期客はまだ廣瀬くん1人。同型顧客をもう1〜2名育成が急務。
+  </div>
+
+  <!-- Quick chart: 2025 vs 2026 monthly overview -->
+  <div class="sec-title">月次売上比較（2025 vs 2026）</div>
+  <div class="chart-card">
+    <h3>月次売上（2025年全体 ／ 2026年Q1実績）</h3>
+    <canvas id="overviewChart"></canvas>
+  </div>
+</div>
+
+<!-- ══════ TAB: Monthly ══════ -->
+<div id="tab-monthly" class="tab-panel">
+
+  <div class="sec-title">2026年 月次推移</div>
+  <div class="chart-card">
+    <h3>月次売上・利益（2026年）</h3>
+    <canvas id="monthly2026Chart"></canvas>
+  </div>
+
+  <table class="fin-table" style="margin-bottom:24px">
+    <thead>
+      <tr>
+        <th>月</th><th>売上</th><th>利益</th><th>利益率</th><th>件数</th><th>備考</th>
+      </tr>
+    </thead>
+    <tbody id="table2026Body"></tbody>
+  </table>
+
+  <div class="sec-title">2025年 月次推移</div>
+  <div class="chart-card">
+    <h3>月次売上・利益（2025年）</h3>
+    <canvas id="monthly2025Chart"></canvas>
+  </div>
+
+  <table class="fin-table">
+    <thead>
+      <tr>
+        <th>月</th><th>売上</th><th>利益</th><th>利益率</th><th>件数</th><th>備考</th>
+      </tr>
+    </thead>
+    <tbody id="table2025Body"></tbody>
+  </table>
+</div>
+
+<!-- ══════ TAB: Customers ══════ -->
+<div id="tab-customers" class="tab-panel">
+
+  <div class="grid-2">
+    <div>
+      <div class="sec-title">2026年Q1 顧客別売上</div>
+      <div class="chart-card">
+        <h3>顧客別構成比（Q1確定）</h3>
+        <canvas id="cust2026Chart" style="max-height:220px"></canvas>
+      </div>
+      <div class="cust-list" id="custList2026"></div>
+    </div>
+    <div>
+      <div class="sec-title">2025年 顧客別売上</div>
+      <div class="chart-card">
+        <h3>顧客別構成比（2025年通年）</h3>
+        <canvas id="cust2025Chart" style="max-height:220px"></canvas>
+      </div>
+      <div class="cust-list" id="custList2025"></div>
+    </div>
+  </div>
+
+  <div class="sec-title">LTV（生涯顧客価値）試算</div>
+  <table class="fin-table">
+    <thead>
+      <tr><th>顧客</th><th>2025年売上</th><th>売上比率</th><th>推定LTV（5年）</th><th>優先度</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight"><td>廣瀬くん</td><td>64,000円</td><td>35.5%</td><td>320,000円</td><td>🔴 最高（離脱リスク大）</td></tr>
+      <tr><td>川端さん</td><td>32,650円</td><td>18.1%</td><td>163,250円</td><td>🟠 高優先</td></tr>
+      <tr><td>渡邊さん</td><td>18,350円</td><td>10.2%</td><td>91,750円</td><td>🟠 高優先</td></tr>
+      <tr><td>池田さん</td><td>8,700円</td><td>4.8%</td><td>26,100円（3年）</td><td>🟡 中優先</td></tr>
+      <tr><td>村越さん</td><td>4,950円</td><td>2.7%</td><td>継続フォロー</td><td>⚠️ 価格見直し要</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════ TAB: Channels ══════ -->
+<div id="tab-channels" class="tab-panel">
+
+  <div class="grid-2">
+    <div>
+      <div class="sec-title">2026年Q1 チャネル別</div>
+      <div class="chart-card">
+        <h3>チャネル構成比（Q1）</h3>
+        <canvas id="ch2026Chart" style="max-height:220px"></canvas>
+      </div>
+    </div>
+    <div>
+      <div class="sec-title">2025年通年 チャネル別</div>
+      <div class="chart-card">
+        <h3>チャネル構成比（2025年）</h3>
+        <canvas id="ch2025Chart" style="max-height:220px"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title">チャネル別利益率比較</div>
+  <table class="fin-table">
+    <thead>
+      <tr><th>チャネル</th><th>2025年売上</th><th>2025年比率</th><th>2025年利益率</th><th>2026年Q1売上</th><th>Q1比率</th></tr>
+    </thead>
+    <tbody>
+      <tr class="peak-row"><td>マルシェ</td><td>15,000円</td><td>8.3%</td><td><strong>96〜97%</strong> ⭐</td><td>25,000円</td><td><strong>34.5%</strong></td></tr>
+      <tr><td>直販・LINE・その他</td><td>144,100円</td><td>79.8%</td><td>67.7%</td><td>47,400円</td><td>65.5%</td></tr>
+      <tr><td>BASE（EC）</td><td>21,410円</td><td>11.9%</td><td>57.9%</td><td>0円</td><td>0%（ピボット中）</td></tr>
+      <tr><td><strong>合計</strong></td><td><strong>180,510円</strong></td><td>100%</td><td>66.6%</td><td><strong>72,400円</strong></td><td>100%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sec-title">2026年 BASE回復ロードマップ</div>
+  <table class="fin-table">
+    <thead><tr><th>月</th><th>BASE目標売上</th><th>必要注文数</th><th>主要施策</th></tr></thead>
+    <tbody>
+      <tr class="warn-row"><td>1〜3月</td><td>手紙屋事業（0円）</td><td>—</td><td>ピボット決定・3月末廃止</td></tr>
+      <tr><td>4月</td><td>4,500円</td><td>200g×2 + ドリップ×1</td><td>商品ページ整備・SNSリンク更新</td></tr>
+      <tr><td>5月</td><td>7,500円</td><td>200g×3 + ドリップ×2</td><td>CF告知 × BASE誘導投稿</td></tr>
+      <tr class="highlight"><td><strong>6月（目標）</strong></td><td><strong>10,000円</strong></td><td><strong>200g×4 + ドリップ×3</strong></td><td><strong>CF公開 × BASE認知拡大</strong></td></tr>
+      <tr><td>7月〜</td><td>10,000円/月維持</td><td>同上</td><td>CF支援者フォローアップ</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════ TAB: Add ══════ -->
+<div id="tab-add" class="tab-panel">
+  <div class="add-form">
+    <div class="sec-title" style="margin-top:0">月次売上を追加記録</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>年</label>
+        <select id="f-year">
+          <option value="2026" selected>2026</option>
+          <option value="2027">2027</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>月</label>
+        <select id="f-month">
+          <option value="1">1月</option><option value="2">2月</option>
+          <option value="3">3月</option><option value="4">4月</option>
+          <option value="5">5月</option><option value="6">6月</option>
+          <option value="7">7月</option><option value="8">8月</option>
+          <option value="9">9月</option><option value="10">10月</option>
+          <option value="11">11月</option><option value="12">12月</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ステータス</label>
+        <select id="f-status">
+          <option value="確定">確定</option>
+          <option value="入金待ち">入金待ち（見込み）</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>売上合計（円）</label>
+        <input type="number" id="f-revenue" placeholder="25000">
+      </div>
+      <div class="form-group">
+        <label>利益合計（円）</label>
+        <input type="number" id="f-profit" placeholder="18000">
+      </div>
+      <div class="form-group">
+        <label>取引件数</label>
+        <input type="number" id="f-count" placeholder="10">
+      </div>
+      <div class="form-group">
+        <label>うちBASE売上（円）</label>
+        <input type="number" id="f-base" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>うちマルシェ売上（円）</label>
+        <input type="number" id="f-marche" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>マルシェ回数</label>
+        <input type="number" id="f-marche-count" placeholder="0">
+      </div>
+      <div class="form-group full">
+        <label>備考</label>
+        <input type="text" id="f-note" placeholder="スモフェス出店 / 廣瀬くん注文あり 等">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="addEntry()">記録を保存</button>
+    <span style="font-size:0.72rem;color:var(--muted);margin-left:12px">ブラウザに保存されます</span>
+  </div>
+
+  <div class="sec-title">追加記録一覧</div>
+  <div id="addedEntriesTable"></div>
+</div>
+
+
+<!-- ════════════════════ JS ════════════════════ -->
+<script>
+// ── Data ──────────────────────────────────────
+const D2025 = [
+  { m:'1月',  rev:12180, profit:8889,  rate:73.0, cnt:9,  note:'' },
+  { m:'2月',  rev:13300, profit:8755,  rate:65.8, cnt:13, note:'' },
+  { m:'3月',  rev:8700,  profit:5320,  rate:61.1, cnt:7,  note:'⚠️ 最低月' },
+  { m:'4月',  rev:26630, profit:16695, rate:62.7, cnt:19, note:'廣瀬くん2回+BASE活況' },
+  { m:'5月',  rev:12850, profit:7903,  rate:61.5, cnt:13, note:'' },
+  { m:'6月',  rev:13650, profit:8920,  rate:65.3, cnt:10, note:'' },
+  { m:'7月',  rev:12050, profit:7750,  rate:64.3, cnt:14, note:'' },
+  { m:'8月',  rev:14850, profit:9511,  rate:64.0, cnt:13, note:'' },
+  { m:'9月',  rev:14150, profit:8700,  rate:61.5, cnt:9,  note:'' },
+  { m:'10月', rev:9750,  profit:6190,  rate:63.5, cnt:7,  note:'⚠️ 低迷月' },
+  { m:'11月', rev:26300, profit:21580, rate:82.1, cnt:10, note:'⭐ スモフェス15,000円' },
+  { m:'12月', rev:16100, profit:9963,  rate:61.9, cnt:10, note:'' },
+];
+const D2026_FIXED = [
+  { m:'1月', rev:15500, profit:10200, rate:65.8, cnt:8,  status:'確定', note:'廣瀬くん1回+川端さん定期', base:0, marche:0, marcheN:0 },
+  { m:'2月', rev:14900, profit:10015, rate:67.2, cnt:7,  status:'確定', note:'廣瀬くん1回+川端さん定期',  base:0, marche:0, marcheN:0 },
+  { m:'3月', rev:42000, profit:33700, rate:80.2, cnt:9,  status:'確定', note:'⭐ マルシェ海岸寺25,000円', base:0, marche:25000, marcheN:1 },
+  { m:'4月', rev:8500,  profit:5300,  rate:62.4, cnt:3,  status:'入金待ち', note:'月中途・入金待ち3件', base:0, marche:0, marcheN:0 },
+];
+const CUSTOMERS_2026 = [
+  { name:'マルシェ（海岸寺）', rev:25000, color:'#2D4A3E' },
+  { name:'川端さん', rev:15000, color:'#4A7C6F' },
+  { name:'廣瀬くん', rev:15000, color:'#6B4226' },
+  { name:'兄貴', rev:6000, color:'#A8C5BB' },
+  { name:'渡邊さん', rev:4000, color:'#C4A882' },
+  { name:'奥村さん', rev:2000, color:'#D4C5A9' },
+  { name:'DOM', rev:1900, color:'#B8A89A' },
+  { name:'阿部さん奥様', rev:500, color:'#ccc' },
+];
+const CUSTOMERS_2025 = [
+  { name:'廣瀬くん', rev:64000, color:'#2D4A3E' },
+  { name:'川端さん', rev:32650, color:'#4A7C6F' },
+  { name:'渡邊さん', rev:18350, color:'#6B4226' },
+  { name:'池田さん', rev:8700,  color:'#A8C5BB' },
+  { name:'村越さん', rev:4950,  color:'#C4A882' },
+  { name:'その他・新規', rev:51860, color:'#D4C5A9' },
+];
+
+// ── Tab switch ──
+function showTab(id, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+  if (id === 'customers') renderCustomerCharts();
+  if (id === 'channels') renderChannelCharts();
+  if (id === 'add') renderAddedEntries();
+}
+
+// ── Format ──
+const yen = n => n.toLocaleString() + '円';
+
+// ── Tables ──
+function buildTable(data, bodyId, is2026) {
+  const tbody = document.getElementById(bodyId);
+  let totRev = 0, totProfit = 0, totCnt = 0;
+  tbody.innerHTML = data.map(r => {
+    totRev += r.rev; totProfit += r.profit; totCnt += r.cnt;
+    const rClass = r.rev < 10000 ? 'warn-row'
+                 : r.rev >= 25000 ? 'peak-row' : '';
+    const pending = is2026 && r.status === '入金待ち' ? '<span class="pending">（入金待ち）</span>' : '';
+    return `<tr class="${rClass}">
+      <td>${r.m}${pending}</td>
+      <td>${yen(r.rev)}</td>
+      <td>${yen(r.profit)}</td>
+      <td>${r.rate.toFixed(1)}%</td>
+      <td>${r.cnt}件</td>
+      <td style="font-size:0.74rem;color:var(--muted)">${r.note||''}</td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML += `<tr>
+    <td>合計 / 平均</td>
+    <td>${yen(totRev)}</td>
+    <td>${yen(totProfit)}</td>
+    <td>${(totProfit/totRev*100).toFixed(1)}%</td>
+    <td>${totCnt}件</td>
+    <td></td>
+  </tr>`;
+}
+
+// ── Overview chart (2025 vs 2026) ──
+function initOverviewChart() {
+  const labels = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const rev25  = D2025.map(d => d.rev);
+  const rev26  = Array(12).fill(null);
+  D2026_FIXED.forEach((d,i) => { rev26[i] = d.rev; });
+  new Chart(document.getElementById('overviewChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'2025年売上', data: rev25, backgroundColor:'rgba(200,185,165,0.6)', borderColor:'rgba(180,160,135,0.8)', borderWidth:1 },
+        { label:'2026年売上', data: rev26, backgroundColor:'rgba(45,74,62,0.75)',   borderColor:'rgba(45,74,62,1)',     borderWidth:1 },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{labels:{font:{family:"Georgia",size:11}}}},
+      scales:{
+        y:{ticks:{callback:v=>v>=1000?(v/1000)+'k':v,font:{size:10}},grid:{color:'#f0ece6'}},
+        x:{ticks:{font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+// ── Monthly 2026 chart ──
+function init2026Chart() {
+  const all2026 = loadExtra().filter(e => e.year === 2026);
+  const combined = [...D2026_FIXED];
+  all2026.forEach(e => {
+    const monthStr = e.month + '月';
+    if (!combined.find(d => d.m === monthStr)) {
+      combined.push({ m: monthStr, rev: e.revenue, profit: e.profit, rate: e.profit/e.revenue*100, cnt: e.count, status: e.status, note: e.note });
+    }
+  });
+  combined.sort((a,b) => parseInt(a.m) - parseInt(b.m));
+  new Chart(document.getElementById('monthly2026Chart'), {
+    type: 'bar',
+    data: {
+      labels: combined.map(d => d.m),
+      datasets: [
+        { label:'利益', data: combined.map(d => d.profit), backgroundColor:'rgba(45,74,62,0.8)', stack:'s' },
+        { label:'コスト', data: combined.map(d => d.rev - d.profit), backgroundColor:'rgba(200,185,165,0.7)', stack:'s' },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{labels:{font:{family:"Georgia",size:11}}}},
+      scales:{
+        x:{stacked:true,ticks:{font:{size:10}},grid:{display:false}},
+        y:{stacked:true,ticks:{callback:v=>v>=1000?(v/1000)+'k':v,font:{size:10}},grid:{color:'#f0ece6'}}
+      }
+    }
+  });
+  buildTable(combined, 'table2026Body', true);
+}
+
+// ── Monthly 2025 chart ──
+function init2025Chart() {
+  new Chart(document.getElementById('monthly2025Chart'), {
+    type: 'bar',
+    data: {
+      labels: D2025.map(d => d.m),
+      datasets: [
+        { label:'利益', data: D2025.map(d => d.profit), backgroundColor:'rgba(45,74,62,0.8)', stack:'s' },
+        { label:'コスト', data: D2025.map(d => d.rev - d.profit), backgroundColor:'rgba(200,185,165,0.7)', stack:'s' },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{labels:{font:{family:"Georgia",size:11}}}},
+      scales:{
+        x:{stacked:true,ticks:{font:{size:10}},grid:{display:false}},
+        y:{stacked:true,ticks:{callback:v=>v>=1000?(v/1000)+'k':v,font:{size:10}},grid:{color:'#f0ece6'}}
+      }
+    }
+  });
+  buildTable(D2025, 'table2025Body', false);
+}
+
+// ── Customer charts ──
+let custChartInited = false;
+function renderCustomerCharts() {
+  if (custChartInited) return; custChartInited = true;
+  const colors26 = CUSTOMERS_2026.map(c => c.color);
+  const colors25 = CUSTOMERS_2025.map(c => c.color);
+  const total26 = CUSTOMERS_2026.reduce((s,c)=>s+c.rev,0);
+  const total25 = CUSTOMERS_2025.reduce((s,c)=>s+c.rev,0);
+
+  new Chart(document.getElementById('cust2026Chart'), {
+    type:'doughnut',
+    data:{labels:CUSTOMERS_2026.map(c=>c.name),datasets:[{data:CUSTOMERS_2026.map(c=>c.rev),backgroundColor:colors26,borderWidth:1,borderColor:'white'}]},
+    options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:10,family:'Georgia'},boxWidth:12}}}}
+  });
+  new Chart(document.getElementById('cust2025Chart'), {
+    type:'doughnut',
+    data:{labels:CUSTOMERS_2025.map(c=>c.name),datasets:[{data:CUSTOMERS_2025.map(c=>c.rev),backgroundColor:colors25,borderWidth:1,borderColor:'white'}]},
+    options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:10,family:'Georgia'},boxWidth:12}}}}
+  });
+
+  document.getElementById('custList2026').innerHTML = CUSTOMERS_2026.map(c => {
+    const pct = (c.rev/total26*100).toFixed(1);
+    return `<div class="cust-row">
+      <div class="cust-top"><span class="cust-name">${c.name}</span><span class="cust-amt">${yen(c.rev)}</span></div>
+      <div class="cust-bar-wrap"><div class="cust-bar" style="width:${pct}%;background:${c.color}"></div></div>
+      <div class="cust-meta">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('custList2025').innerHTML = CUSTOMERS_2025.map(c => {
+    const pct = (c.rev/total25*100).toFixed(1);
+    return `<div class="cust-row">
+      <div class="cust-top"><span class="cust-name">${c.name}</span><span class="cust-amt">${yen(c.rev)}</span></div>
+      <div class="cust-bar-wrap"><div class="cust-bar" style="width:${pct}%;background:${c.color}"></div></div>
+      <div class="cust-meta">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Channel charts ──
+let chChartInited = false;
+function renderChannelCharts() {
+  if (chChartInited) return; chChartInited = true;
+  new Chart(document.getElementById('ch2026Chart'), {
+    type:'doughnut',
+    data:{
+      labels:['マルシェ','直販・LINE・その他','BASE（EC）'],
+      datasets:[{data:[25000,47400,0],backgroundColor:['#2D4A3E','#A8C5BB','#D4C5A9'],borderWidth:1,borderColor:'white'}]
+    },
+    options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:10,family:'Georgia'},boxWidth:12}}}}
+  });
+  new Chart(document.getElementById('ch2025Chart'), {
+    type:'doughnut',
+    data:{
+      labels:['マルシェ','直販・LINE・その他','BASE（EC）'],
+      datasets:[{data:[15000,144100,21410],backgroundColor:['#2D4A3E','#A8C5BB','#D4C5A9'],borderWidth:1,borderColor:'white'}]
+    },
+    options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:10,family:'Georgia'},boxWidth:12}}}}
+  });
+}
+
+// ── LocalStorage for extra entries ──
+function loadExtra() {
+  const s = localStorage.getItem('st_finance_extra');
+  return s ? JSON.parse(s) : [];
+}
+function saveExtra(data) { localStorage.setItem('st_finance_extra', JSON.stringify(data)); }
+
+function addEntry() {
+  const year  = parseInt(document.getElementById('f-year').value);
+  const month = parseInt(document.getElementById('f-month').value);
+  const status = document.getElementById('f-status').value;
+  const rev   = parseFloat(document.getElementById('f-revenue').value);
+  const profit= parseFloat(document.getElementById('f-profit').value);
+  const count = parseInt(document.getElementById('f-count').value) || 0;
+  const base  = parseFloat(document.getElementById('f-base').value) || 0;
+  const marche= parseFloat(document.getElementById('f-marche').value) || 0;
+  const marcheN= parseInt(document.getElementById('f-marche-count').value) || 0;
+  const note  = document.getElementById('f-note').value.trim();
+  if (!rev || !profit) { alert('売上・利益は必須です'); return; }
+
+  const extras = loadExtra();
+  extras.push({ id:'fe_'+Date.now(), year, month, status, revenue:rev, profit, count, base, marche, marcheN, note });
+  saveExtra(extras);
+  alert('保存しました ✓');
+  renderAddedEntries();
+  // Clear
+  ['f-revenue','f-profit','f-count','f-base','f-marche','f-marche-count','f-note'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+}
+
+function renderAddedEntries() {
+  const extras = loadExtra();
+  if (!extras.length) {
+    document.getElementById('addedEntriesTable').innerHTML = '<div style="color:var(--muted);font-size:0.82rem;padding:16px">追加記録はまだありません</div>';
+    return;
+  }
+  const sorted = extras.slice().sort((a,b)=>a.year*100+a.month - (b.year*100+b.month));
+  document.getElementById('addedEntriesTable').innerHTML = `
+    <table class="fin-table">
+      <thead><tr><th>年月</th><th>売上</th><th>利益</th><th>利益率</th><th>件数</th><th>BASE</th><th>マルシェ</th><th>備考</th><th></th></tr></thead>
+      <tbody>
+        ${sorted.map(e => `<tr>
+          <td>${e.year}/${e.month}月${e.status==='入金待ち'?'<span class="pending">（見込み）</span>':''}</td>
+          <td>${yen(e.revenue)}</td><td>${yen(e.profit)}</td>
+          <td>${(e.profit/e.revenue*100).toFixed(1)}%</td>
+          <td>${e.count}件</td>
+          <td style="font-size:0.78rem">${e.base?yen(e.base):'—'}</td>
+          <td style="font-size:0.78rem">${e.marche?yen(e.marche)+'('+e.marcheN+'回)':'—'}</td>
+          <td style="font-size:0.74rem;color:var(--muted)">${e.note||''}</td>
+          <td><button onclick="deleteEntry('${e.id}')" style="font-size:0.68rem;color:var(--danger);background:none;border:none;cursor:pointer">削除</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function deleteEntry(id) {
+  if (!confirm('削除しますか？')) return;
+  saveExtra(loadExtra().filter(e => e.id !== id));
+  renderAddedEntries();
+}
+
+// ── Init ──
+initOverviewChart();
+init2026Chart();
+init2025Chart();
+</script>
+
+<footer>Silver Tree Coffee Roaster — 財務ダッシュボード | reports/finance/dashboard.html</footer>
+</body>
+</html>
