@@ -390,8 +390,8 @@ Silver TreeのコーヒーはBASEで購入できます。White Blend（中煎り
 ---
 
 ## 2026年5月14日 07:00
-**テーマ：** 軽バン設計図・詳細公開（柱②・DIY実況）
-**画像：** images/x/2026-05-14_van-design-detail.jpg
+**テーマ：** 軽バン設計図公開（柱②・DIY実況）
+**画像：** images/instagram/2026-05-13_van-blueprint.jpg
 **投稿文：**
 軽バン改装の設計図、全部見せます。
 
