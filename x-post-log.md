@@ -116,8 +116,6 @@ https://camp-fire.jp/projects/944948/preview?token=1lnwy0wi&utm_campaign=cp_po_s
 
 旅するコーヒー屋として、全国を巡るための第一歩です。明日9時、CAMPFIREで公開します。
 
-https://camp-fire.jp/projects/944948/preview?token=1lnwy0wi&utm_campaign=cp_po_share_c_msg_projects_show
-
 #旅するコーヒー屋
 
 ---
