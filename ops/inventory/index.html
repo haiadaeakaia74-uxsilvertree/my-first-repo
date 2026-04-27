@@ -136,7 +136,7 @@
 <div class="stats-row">
   <div class="stat-card">
     <div class="s-label">総在庫（現在）</div>
-    <div class="s-value" style="font-size:1.2rem;">14.48kg</div>
+    <div class="s-value" style="font-size:1.2rem;">14.23kg</div>
   </div>
   <div class="stat-card">
     <div class="s-label">アクティブ銘柄</div>
@@ -148,11 +148,11 @@
   </div>
   <div class="stat-card">
     <div class="s-label">記録スナップショット</div>
-    <div class="s-value">2</div>
+    <div class="s-value">3</div>
   </div>
   <div class="stat-card">
     <div class="s-label">最終更新</div>
-    <div class="s-value" style="font-size:1.05rem;">2026.04.23</div>
+    <div class="s-value" style="font-size:1.05rem;">2026.04.27</div>
   </div>
 </div>
 
@@ -201,12 +201,12 @@
     </tr>
     <tr>
       <td>コロンビア スプレモ<br><small style="color:#888;">水出し専用</small></td>
-      <td><strong>3.27kg</strong></td>
-      <td>0.338kg / 1回<br><small style="color:#888;">1バッチ計</small></td>
-      <td>残約4セッション<br><small style="color:#888;">(3.27-2.0)÷0.34</small></td>
+      <td><strong>3.02kg</strong></td>
+      <td>0.293kg / 1回 avg<br><small style="color:#888;">2バッチ計（0.338+0.247）</small></td>
+      <td>残約3〜4セッション<br><small style="color:#888;">(3.02-2.0)÷0.29</small></td>
       <td>
-        <div class="bar-bg"><div class="bar-fill" style="width:55%;"></div></div>
-        <small style="color:#888;">55%</small>
+        <div class="bar-bg"><div class="bar-fill" style="width:50%;"></div></div>
+        <small style="color:#888;">50%</small>
       </td>
       <td><span class="tag tag-ok">余裕あり</span></td>
     </tr>
@@ -269,15 +269,35 @@
   <div class="og-title">📅 季節パターンメモ（蓄積中）</div>
   <div class="og-body">
     記録開始：2026年4月。スナップショットが増えるにつれ、季節ごとの消費傾向が見えてきます。<br>
-    「この時期（4月）は ベラビスタ・エチオピアをよく焙煎する」などのパターンを随時追記してください。<br>
     <br>
-    <strong>参考：4月の消費ペース</strong>（2セッション・2日間のデータ）<br>
-    ブラジル系：0.47kg/セッション　｜　エチオピア：0.25kg/セッション　｜　コロンビア（水出し）：0.34kg/セッション
+    <strong>参考：4月の消費ペース</strong>（3セッション・3日間のデータ）<br>
+    ブラジル系：0.47kg/セッション　｜　エチオピア：0.25kg/セッション　｜　コロンビア（水出し）：0.29kg/セッション avg
   </div>
 </div>
 
 <!-- Snapshot List -->
 <div class="section-header">スナップショット一覧 — 新しい順</div>
+
+<!-- 2026-04-27 -->
+<a class="snapshot-card" href="2026-04-27.html">
+  <div class="snap-date">
+    <div class="d-month">APR</div>
+    <div class="d-day">27</div>
+    <div class="d-year">2026</div>
+  </div>
+  <div class="snap-divider"></div>
+  <div class="snap-info">
+    <div class="snap-title">焙煎後更新　—　コロンビア スプレモ 中煎り（温度プロファイル記録）</div>
+    <div class="snap-sub">Colombia スプレモ 0.247kg使用（246.8g→201g，歩留まり81.5%）/ 手回し焙煎プロファイル初記録</div>
+    <div class="snap-metrics">
+      <div class="metric">総在庫：<span>14.23kg</span></div>
+      <div class="metric">銘柄数：<span>5</span></div>
+      <div class="metric">🔴 発注以下：<span>1銘柄</span></div>
+      <div class="metric">🟠 要注意：<span>1銘柄</span></div>
+    </div>
+  </div>
+  <div class="snap-arrow">›</div>
+</a>
 
 <!-- 2026-04-23 -->
 <a class="snapshot-card" href="2026-04-23.html">
@@ -335,13 +355,13 @@
 <footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　生豆在庫管理アーカイブ</footer>
 
 <script>
-  const labels = ['2026-04-22', '2026-04-23'];
+  const labels = ['2026-04-22', '2026-04-23', '2026-04-27'];
   const ORDER_LINE = 2.0;
 
   const datasets = [
     {
       label: 'ベラビスタ農園',
-      data: [4.53, 4.53],
+      data: [4.53, 4.53, 4.53],
       borderColor: '#2D4A3E',
       backgroundColor: 'rgba(45,74,62,0.08)',
       tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
@@ -349,7 +369,7 @@
     },
     {
       label: 'エチオピア コチャレ',
-      data: [3.75, 3.50],
+      data: [3.75, 3.50, 3.50],
       borderColor: '#6B4226',
       backgroundColor: 'rgba(107,66,38,0.08)',
       tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
@@ -357,7 +377,7 @@
     },
     {
       label: 'コロンビア スプレモ',
-      data: [3.27, 3.27],
+      data: [3.27, 3.27, 3.02],
       borderColor: '#8B6914',
       backgroundColor: 'rgba(139,105,20,0.08)',
       tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
@@ -365,7 +385,7 @@
     },
     {
       label: 'コスタリカ タラス',
-      data: [2.18, 2.18],
+      data: [2.18, 2.18, 2.18],
       borderColor: '#C2855A',
       backgroundColor: 'rgba(194,133,90,0.08)',
       tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
@@ -373,7 +393,7 @@
     },
     {
       label: 'インドネシア アチェ',
-      data: [1.00, 1.00],
+      data: [1.00, 1.00, 1.00],
       borderColor: '#c0392b',
       backgroundColor: 'rgba(192,57,43,0.08)',
       tension: 0.3, pointRadius: 5, pointHoverRadius: 7,
@@ -381,7 +401,7 @@
     },
     {
       label: 'モンテアレグレ（廃止）',
-      data: [0.148, null],
+      data: [0.148, null, null],
       borderColor: '#bbb',
       backgroundColor: 'rgba(180,180,180,0.05)',
       tension: 0.3, pointRadius: 4, pointHoverRadius: 6,
@@ -390,23 +410,105 @@
     },
   ];
 
-  const orderLinePlugin = {
-    id: 'orderLine',
+  // 発注ライン赤帯 + インラインラベル プラグイン
+  const inlineLabelPlugin = {
+    id: 'inlineLabels',
     afterDraw(chart) {
-      const { ctx, chartArea: { left, right }, scales: { y } } = chart;
-      const yPos = y.getPixelForValue(ORDER_LINE);
+      const { ctx, chartArea: { left, right, top, bottom }, scales: { y } } = chart;
+
+      // ① 発注ライン以下を薄赤で塗る
+      const dangerY = y.getPixelForValue(ORDER_LINE);
+      ctx.save();
+      ctx.fillStyle = 'rgba(192,57,43,0.06)';
+      ctx.fillRect(left, dangerY, right - left, bottom - dangerY);
+      ctx.restore();
+
+      // ② 発注ライン破線＋ラベル
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(left, yPos);
-      ctx.lineTo(right, yPos);
+      ctx.moveTo(left, dangerY);
+      ctx.lineTo(right, dangerY);
       ctx.lineWidth = 1.5;
-      ctx.strokeStyle = 'rgba(192,57,43,0.5)';
+      ctx.strokeStyle = 'rgba(192,57,43,0.6)';
       ctx.setLineDash([6, 3]);
       ctx.stroke();
-      ctx.fillStyle = 'rgba(192,57,43,0.7)';
-      ctx.font = '11px "Hiragino Mincho ProN", serif';
-      ctx.fillText('発注ライン 2kg', right - 95, yPos - 5);
+      ctx.fillStyle = 'rgba(192,57,43,0.75)';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('▶ 発注ライン 2kg', left - 4, dangerY - 4);
       ctx.restore();
+
+      // ③ 右端インラインラベル（銘柄名・在庫・変化量）
+      const meta = chart.data.datasets.map((ds, i) => {
+        const vals = ds.data;
+        const lastIdx = vals.reduce((acc, v, j) => (v != null ? j : acc), -1);
+        if (lastIdx < 0) return null;
+        const lastVal = vals[lastIdx];
+        const firstVal = vals.find(v => v != null);
+        const delta = (lastVal - firstVal);
+        return {
+          rawY: y.getPixelForValue(lastVal),
+          nudgedY: y.getPixelForValue(lastVal),
+          val: lastVal,
+          first: firstVal,
+          delta,
+          color: ds.borderColor,
+          shortName: ds.label.replace('（廃止）', ''),
+          retired: ds.label.includes('廃止'),
+        };
+      }).filter(Boolean);
+
+      // ラベル衝突回避（上から順に最低18px間隔）
+      meta.sort((a, b) => a.rawY - b.rawY);
+      for (let i = 1; i < meta.length; i++) {
+        if (meta[i].nudgedY - meta[i-1].nudgedY < 18)
+          meta[i].nudgedY = meta[i-1].nudgedY + 18;
+      }
+      // 下端オーバー補正
+      for (let i = meta.length - 1; i >= 1; i--) {
+        if (meta[i].nudgedY > bottom - 4) meta[i].nudgedY = bottom - 4;
+        if (meta[i-1].nudgedY > meta[i].nudgedY - 18) meta[i-1].nudgedY = meta[i].nudgedY - 18;
+      }
+
+      meta.forEach(item => {
+        const lx = right + 10;
+        const ly = item.nudgedY;
+        ctx.save();
+
+        // ノードから引き出し線
+        if (Math.abs(item.nudgedY - item.rawY) > 2) {
+          ctx.beginPath();
+          ctx.moveTo(right + 4, item.rawY);
+          ctx.lineTo(right + 8, ly);
+          ctx.strokeStyle = item.retired ? '#ccc' : item.color + '88';
+          ctx.lineWidth = 0.8;
+          ctx.setLineDash([2, 2]);
+          ctx.stroke();
+        }
+
+        // 銘柄名
+        ctx.font = item.retired ? '10px sans-serif' : 'bold 11px sans-serif';
+        ctx.fillStyle = item.retired ? '#aaa' : item.color;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        const nameText = item.retired ? item.shortName + '（廃止）' : item.shortName;
+        ctx.fillText(nameText, lx, ly - 7);
+
+        // 在庫量
+        ctx.font = '11px sans-serif';
+        ctx.fillStyle = item.retired ? '#bbb' : item.color;
+        ctx.fillText(item.val + 'kg', lx, ly + 6);
+
+        // 変化量（変化した場合のみ）
+        if (Math.abs(item.delta) > 0.001 && !item.retired) {
+          const sign = item.delta < 0 ? '▼' : '▲';
+          const abs = Math.abs(item.delta).toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+          ctx.font = '10px sans-serif';
+          ctx.fillStyle = item.delta < 0 ? '#c0392b' : '#2D7A3E';
+          ctx.fillText(sign + abs + 'kg', lx + 34, ly + 6);
+        }
+        ctx.restore();
+      });
     }
   };
 
@@ -415,12 +517,10 @@
     data: { labels, datasets },
     options: {
       responsive: true,
+      layout: { padding: { right: 145, left: 8 } },
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { padding: 16, font: { size: 11 } }
-        },
+        legend: { display: false },
         tooltip: {
           callbacks: {
             label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y + 'kg' : '廃止'}`
@@ -440,7 +540,7 @@
         }
       }
     },
-    plugins: [orderLinePlugin]
+    plugins: [inlineLabelPlugin]
   });
 </script>
 </body>

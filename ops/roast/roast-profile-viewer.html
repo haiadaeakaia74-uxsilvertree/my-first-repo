@@ -122,6 +122,20 @@
 
     .roast-notes { font-size: 0.74rem; color: var(--muted); line-height: 1.5; }
 
+    /* ── Temperature Profile SVG ── */
+    .temp-profile-wrap {
+      margin-top: 10px;
+      border-top: 1px solid var(--sand);
+      padding-top: 8px;
+    }
+    .temp-profile-label {
+      font-size: 0.64rem;
+      color: var(--brown);
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
     /* ── Bean analysis ── */
     .bean-analysis-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
     .bean-card { background: white; border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
@@ -296,38 +310,66 @@ const SEED_ROASTS = [
     bean: 'ブラジル 南ミナス ベラビスタ農園 ブルボンアマレロ',
     level: '中煎り', weightIn: 234.8, weightOut: 199.2,
     startTemp: null, endTemp: null, time: null,
-    notes: '1ハゼ止め・中煎り'
+    notes: '1ハゼ止め・中煎り',
+    tempProfile: null
   },
   {
     id: 'seed2', date: '2026-04-22', batch: 'バッチ②',
     bean: 'ブラジル 南ミナス ベラビスタ農園 ブルボンアマレロ',
     level: '中煎り', weightIn: 232.8, weightOut: 197.4,
     startTemp: null, endTemp: null, time: null,
-    notes: '1ハゼ止め・中煎り'
+    notes: '1ハゼ止め・中煎り',
+    tempProfile: null
   },
   {
     id: 'seed3', date: '2026-04-22', batch: 'バッチ③',
     bean: 'コロンビア スプレモ',
     level: '深煎り', weightIn: 338.0, weightOut: 276.5,
     startTemp: null, endTemp: null, time: null,
-    notes: '2ハゼ通過・深煎り・水出し用'
+    notes: '2ハゼ通過・深煎り・水出し用',
+    tempProfile: null
   },
   {
     id: 'seed4', date: '2026-04-23', batch: 'バッチ①',
     bean: 'ブラジル モンテアレグレ（廃止・最終バッチ）',
     level: '中煎り', weightIn: 146.1, weightOut: 123.1,
     startTemp: null, endTemp: null, time: null,
-    notes: '1ハゼ止め・中煎り・最終バッチ（在庫使い切り。差2gは欠点豆排除）'
+    notes: '1ハゼ止め・中煎り・最終バッチ（在庫使い切り。差2gは欠点豆排除）',
+    tempProfile: null
   },
   {
     id: 'seed5', date: '2026-04-23', batch: 'バッチ②',
     bean: 'エチオピア イルガチャフィ G1 コチャレ ウォシュド',
     level: '中煎り', weightIn: 249.1, weightOut: 211.6,
     startTemp: null, endTemp: null, time: null,
-    notes: '1ハゼ止め・中煎り'
+    notes: '1ハゼ止め・中煎り',
+    tempProfile: null
+  },
+  {
+    id: 'seed6', date: '2026-04-27', batch: 'バッチ①',
+    bean: 'コロンビア スプレモ',
+    level: '中煎り', weightIn: 246.8, weightOut: 201,
+    startTemp: 124, endTemp: 225, time: 13.8,
+    notes: '1ハゼ 9分52秒〜55秒（豆206〜215℃）/ 終了13:49 / 目標ドラム220℃',
+    tempProfile: {
+      drumTarget: 220,
+      timepoints: [
+        { min: 0,  drum: 124, bean: 90  },
+        { min: 3,  drum: 162, bean: 138 },
+        { min: 6,  drum: 201, bean: 185 },
+        { min: 8,  drum: 209, bean: 206 },
+        { min: 10, drum: 211, bean: 216 },
+        { min: 12, drum: 225, bean: null }
+      ],
+      crack1: { time: '9:52', timeEnd: '9:55', drumMin: 209, drumMax: 211, beanMin: 206, beanMax: 215 },
+      crack2: { time: '9:49', drumMin: 215, drumMax: 217, beanMin: 229, beanMax: 234 },
+      endTime: '13:49'
+    }
   },
 ];
 
+// 在庫データ（version管理で更新）
+const INVENTORY_VERSION = '2026-04-27';
 const INVENTORY = [
   {
     bean: 'ブラジル 南ミナス ベラビスタ農園 ブルボンアマレロ PN NO.2',
@@ -341,8 +383,8 @@ const INVENTORY = [
   },
   {
     bean: 'コロンビア スプレモ',
-    stock: 3.27, orderLine: 2.0, max: 6.0,
-    notes: '4/22焙煎 0.34kg使用。水出し用深煎り専用'
+    stock: 3.02, orderLine: 2.0, max: 6.0,
+    notes: '4/27焙煎 0.247kg使用。水出し用深煎り専用'
   },
   {
     bean: 'コスタリカ タラス ハニー',
@@ -361,18 +403,30 @@ const INVENTORY = [
 // ══════════════════════════════════════════
 function loadRoasts() {
   const saved = localStorage.getItem('st_roasts');
-  if (saved) return JSON.parse(saved);
-  // 初回: シードデータを保存
-  localStorage.setItem('st_roasts', JSON.stringify(SEED_ROASTS));
-  return SEED_ROASTS;
+  if (!saved) {
+    localStorage.setItem('st_roasts', JSON.stringify(SEED_ROASTS));
+    return SEED_ROASTS;
+  }
+  let data = JSON.parse(saved);
+  // 新しいシードレコードをマージ（未収録のseedを自動追加）
+  const existingIds = new Set(data.map(r => r.id));
+  const newSeeds = SEED_ROASTS.filter(r => !existingIds.has(r.id));
+  if (newSeeds.length > 0) {
+    data = [...data, ...newSeeds];
+    localStorage.setItem('st_roasts', JSON.stringify(data));
+  }
+  return data;
 }
 function saveRoasts(data) {
   localStorage.setItem('st_roasts', JSON.stringify(data));
 }
 function loadInventory() {
+  const savedVersion = localStorage.getItem('st_inventory_version');
   const saved = localStorage.getItem('st_inventory');
-  if (saved) return JSON.parse(saved);
+  if (saved && savedVersion === INVENTORY_VERSION) return JSON.parse(saved);
+  // バージョン更新 or 初回: 最新データで上書き
   localStorage.setItem('st_inventory', JSON.stringify(INVENTORY));
+  localStorage.setItem('st_inventory_version', INVENTORY_VERSION);
   return INVENTORY;
 }
 
@@ -403,6 +457,86 @@ function yieldColor(y) {
   if (y >= 85) return '#27ae60';
   if (y >= 82) return '#2D4A3E';
   return '#d68910';
+}
+
+// ══════════════════════════════════════════
+//  Temperature Profile SVG
+// ══════════════════════════════════════════
+function makeTempSvg(tp) {
+  const W = 290, H = 128;
+  const padL = 30, padR = 22, padT = 8, padB = 18;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const minT = 60, maxT = 250, maxMin = 14;
+
+  function tx(m) { return padL + (m / maxMin) * plotW; }
+  function ty(t) { return padT + plotH - ((t - minT) / (maxT - minT)) * plotH; }
+  function f(n)  { return n.toFixed(1); }
+
+  // 水平グリッド線
+  const gridTemps = [80, 100, 130, 160, 190, 220];
+  const gridLines = gridTemps.map(t => {
+    const yy = ty(t);
+    const isTgt = t === tp.drumTarget;
+    return `<line x1="${padL}" y1="${f(yy)}" x2="${W - padR}" y2="${f(yy)}"
+      stroke="${isTgt ? '#e09b5a' : '#E8E0D4'}" stroke-width="${isTgt ? 1.5 : 0.5}"
+      ${isTgt ? 'stroke-dasharray="4,2"' : ''}/>
+      <text x="${padL - 3}" y="${f(yy + 3.5)}" font-size="7.5" text-anchor="end" fill="#bbb">${t}</text>`;
+  }).join('');
+
+  // 垂直グリッド線 & X軸ラベル
+  const xMarks = [0, 3, 6, 8, 10, 12, 14].map(m => {
+    const xx = tx(m);
+    return `<line x1="${f(xx)}" y1="${padT}" x2="${f(xx)}" y2="${f(padT + plotH)}"
+      stroke="#E8E0D4" stroke-width="0.5"/>
+      <text x="${f(xx)}" y="${f(padT + plotH + 10)}" font-size="7.5" text-anchor="middle" fill="#bbb">${m}</text>`;
+  }).join('');
+
+  // ドラム・豆のポリライン
+  const drumPts = tp.timepoints.filter(p => p.drum != null)
+    .map(p => `${f(tx(p.min))},${f(ty(p.drum))}`).join(' ');
+  const beanPts = tp.timepoints.filter(p => p.bean != null)
+    .map(p => `${f(tx(p.min))},${f(ty(p.bean))}`).join(' ');
+
+  // ドット
+  const drumDots = tp.timepoints.filter(p => p.drum != null)
+    .map(p => `<circle cx="${f(tx(p.min))}" cy="${f(ty(p.drum))}" r="2.5" fill="#e67e22"/>`).join('');
+  const beanDots = tp.timepoints.filter(p => p.bean != null)
+    .map(p => `<circle cx="${f(tx(p.min))}" cy="${f(ty(p.bean))}" r="2.5" fill="#2D4A3E"/>`).join('');
+
+  // 1ハゼ縦線マーカー
+  let crack1Svg = '';
+  if (tp.crack1) {
+    const [hh, ss] = tp.crack1.time.split(':').map(Number);
+    const crMin = hh + ss / 60;
+    const cx = tx(crMin);
+    crack1Svg = `<line x1="${f(cx)}" y1="${padT}" x2="${f(cx)}" y2="${f(padT + plotH)}"
+      stroke="#6B4226" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <text x="${f(cx + 2)}" y="${f(padT + 11)}" font-size="7.5" fill="#6B4226">1ハゼ</text>`;
+  }
+
+  // 目標温度ラベル
+  const targetY = ty(tp.drumTarget);
+  const targetLabel = `<text x="${W - padR + 2}" y="${f(targetY + 3)}" font-size="7" fill="#e09b5a">${tp.drumTarget}℃</text>`;
+
+  // 凡例
+  const legY = H + 4;
+  const legend = `
+    <rect x="${padL}" y="${legY}" width="10" height="3" fill="#e67e22" rx="1"/>
+    <text x="${padL + 13}" y="${legY + 4}" font-size="8" fill="#888">ドラム</text>
+    <rect x="${padL + 58}" y="${legY}" width="10" height="3" fill="#2D4A3E" rx="1"/>
+    <text x="${padL + 71}" y="${legY + 4}" font-size="8" fill="#888">豆</text>
+    <text x="${W / 2}" y="${H + 16}" font-size="7.5" text-anchor="middle" fill="#bbb">経過時間（分）</text>`;
+
+  return `<svg viewBox="0 0 ${W} ${H + 20}" width="100%"
+    style="max-width:${W}px;display:block;" xmlns="http://www.w3.org/2000/svg">
+    ${gridLines}${xMarks}${crack1Svg}${targetLabel}
+    <polyline points="${drumPts}" fill="none" stroke="#e67e22" stroke-width="2"
+      stroke-linejoin="round" stroke-linecap="round"/>
+    <polyline points="${beanPts}" fill="none" stroke="#2D4A3E" stroke-width="2"
+      stroke-linejoin="round" stroke-linecap="round"/>
+    ${drumDots}${beanDots}${legend}
+  </svg>`;
 }
 
 // ══════════════════════════════════════════
@@ -535,6 +669,10 @@ function renderHistory() {
         ${r.time ? '　'+r.time+'分' : ''}
       </div>` : ''}
       ${r.notes ? `<div class="roast-notes">${r.notes}</div>` : ''}
+      ${r.tempProfile ? `<div class="temp-profile-wrap">
+        <div class="temp-profile-label">温度プロファイル</div>
+        ${makeTempSvg(r.tempProfile)}
+      </div>` : ''}
     </div>`;
   }).join('');
 }
@@ -642,7 +780,8 @@ function addRoast() {
     startTemp: sT ? parseFloat(sT) : null,
     endTemp: eT ? parseFloat(eT) : null,
     time: time ? parseFloat(time) : null,
-    notes
+    notes,
+    tempProfile: null
   });
   saveRoasts(roasts);
   alert('記録を保存しました ✓');
