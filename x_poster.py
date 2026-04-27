@@ -17,6 +17,7 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 import tweepy
 from dotenv import dotenv_values
@@ -117,7 +118,7 @@ def parse_log_file(log_path: Path) -> list[dict]:
     return entries
 
 
-def _parse_date(date_str: str) -> datetime | None:
+def _parse_date(date_str: str) -> Optional[datetime]:
     m = re.search(r"(\d{4})年(\d{1,2})月(\d{1,2})日\s+(\d{1,2}):(\d{2})", date_str)
     if m:
         return datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)),
@@ -141,7 +142,7 @@ def save_posted_date(date: str) -> None:
     POSTED_FILE.write_text("\n".join(sorted(posted)) + "\n", encoding="utf-8")
 
 
-def resolve_image(image: str | None, entry_dt: datetime | None) -> str | None:
+def resolve_image(image: Optional[str], entry_dt: Optional[datetime]) -> Optional[str]:
     """imageフィールドを実際のパスに解決する。
     'daily' の場合は images/daily/YYYY-MM-DD.{jpg,jpeg,png} を自動検索。
     """
@@ -166,7 +167,7 @@ def resolve_image(image: str | None, entry_dt: datetime | None) -> str | None:
     return image
 
 
-def post_tweet(client: tweepy.Client, api: tweepy.API, text: str, image: str | None, dry_run: bool) -> bool:
+def post_tweet(client: tweepy.Client, api: tweepy.API, text: str, image: Optional[str], dry_run: bool) -> bool:
     """X に1件投稿する。成功したら True を返す。"""
     if dry_run:
         if image:
