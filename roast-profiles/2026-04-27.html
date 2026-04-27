@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 焙煎プロファイル 2026/4/27</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: #F8F4EE;
+      color: #1C1C1C;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .nav { font-size: 0.78rem; color: #888; margin-bottom: 28px; }
+    .nav a { color: #2D4A3E; text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: normal;
+      color: #2D4A3E;
+      border-bottom: 1px solid #D4C5A9;
+      padding-bottom: 12px;
+      margin-bottom: 6px;
+    }
+    .date { color: #6B4226; font-size: 0.82rem; margin-bottom: 36px; }
+
+    .summary-row { display: flex; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+    .summary-card {
+      background: white; border-radius: 8px; padding: 16px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 140px;
+    }
+    .summary-card .sc-label { font-size: 0.72rem; color: #6B4226; margin-bottom: 5px; }
+    .summary-card .sc-value { font-size: 1.5rem; font-weight: bold; color: #2D4A3E; line-height: 1.2; }
+    .summary-card .sc-sub { font-size: 0.72rem; color: #888; margin-top: 4px; }
+
+    .batch-section { margin-bottom: 60px; }
+    .batch-header { margin-bottom: 20px; }
+    .batch-title { font-size: 1.05rem; font-weight: normal; color: #2D4A3E; margin: 0 0 4px 0; }
+    .batch-sub { font-size: 0.78rem; color: #888; margin: 0; }
+
+    .chart-card {
+      background: white; border-radius: 8px; padding: 24px 20px 20px;
+      margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .chart-legend { display: flex; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 0.78rem; color: #555; }
+    .legend-line {
+      display: inline-block; width: 22px; height: 0;
+      border-top-width: 2.5px; border-top-style: solid; border-radius: 2px;
+    }
+    .legend-line.dashed { border-top-style: dashed; }
+
+    table {
+      width: 100%; border-collapse: collapse; font-size: 0.83rem;
+      background: white; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    th {
+      background: #2D4A3E; color: white; padding: 9px 14px;
+      text-align: left; font-weight: normal; font-size: 0.76rem; letter-spacing: 0.04em;
+    }
+    td { padding: 7px 14px; border-bottom: 1px solid #F8F4EE; font-variant-numeric: tabular-nums; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdfaf6; }
+    .badge { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 0.7rem; }
+    .badge-crack1 { background: #fef3e2; color: #c87e1a; }
+    .badge-crack2 { background: #fde8e8; color: #c0392b; }
+    .badge-eject  { background: #e8f4f0; color: #2D4A3E; }
+    .badge-input  { background: #f0f0f0; color: #555; }
+    .ror-plus { color: #b85e00; font-weight: 600; }
+    .ror-est  { color: #aaa; font-style: italic; }
+
+    .section-divider { border: none; border-top: 1px dashed #D4C5A9; margin: 48px 0; }
+
+    .insights-section { margin-bottom: 48px; }
+    .insights-header {
+      font-size: 0.85rem; color: #6B4226; letter-spacing: 0.08em;
+      margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid #D4C5A9;
+    }
+    .insight-card {
+      display: flex; gap: 20px; background: white; border-radius: 8px;
+      padding: 20px 22px; margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-left: 3px solid #2D4A3E;
+    }
+    .insight-num {
+      font-size: 1.4rem; font-weight: bold; color: #D4C5A9;
+      min-width: 32px; line-height: 1; padding-top: 2px; font-variant-numeric: tabular-nums;
+    }
+    .insight-body { flex: 1; }
+    .insight-title { font-size: 0.88rem; color: #2D4A3E; font-weight: bold; margin-bottom: 8px; line-height: 1.5; }
+    .insight-text { font-size: 0.82rem; color: #444; line-height: 1.8; }
+
+    footer { text-align: center; color: #D4C5A9; font-size: 0.73rem; margin-top: 56px; }
+  </style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="index.html">← 焙煎プロファイル一覧</a>
+</div>
+
+<h1>Silver Tree Coffee Roaster — 焙煎プロファイル</h1>
+<p class="date">2026年4月27日　｜　Colombia スプレモ　｜　目標ドラム 220℃　｜　手回し焙煎機 初プロファイル記録</p>
+
+<!-- Summary -->
+<div class="summary-row">
+  <div class="summary-card">
+    <div class="sc-label">☕ Colombia スプレモ</div>
+    <div class="sc-value">13:49</div>
+    <div class="sc-sub">排出 13分49秒 ／ 歩留まり 81.5%</div>
+  </div>
+  <div class="summary-card">
+    <div class="sc-label">生豆 → 焙煎後</div>
+    <div class="sc-value">246.8g</div>
+    <div class="sc-sub">→ 201g（△45.8g ロス）</div>
+  </div>
+  <div class="summary-card">
+    <div class="sc-label">1ハゼ</div>
+    <div class="sc-value">9:52</div>
+    <div class="sc-sub">〜9:55 ／ 豆206〜215℃</div>
+  </div>
+  <div class="summary-card">
+    <div class="sc-label">目標ドラム</div>
+    <div class="sc-value">220℃</div>
+    <div class="sc-sub">投入温 124℃ ／ 排出温 225℃+</div>
+  </div>
+</div>
+
+<!-- ===== Colombia スプレモ ===== -->
+<div class="batch-section">
+  <div class="batch-header">
+    <h2 class="batch-title">Colombia スプレモ（8:30）</h2>
+    <p class="batch-sub">目標ドラム220 ／ 中煎り 1ハゼ確認後排出 ／ 生豆 246.8g → 焙煎後 201g　｜　手回し焙煎機・初プロファイル記録</p>
+  </div>
+  <div class="chart-card">
+    <div class="chart-legend">
+      <div class="legend-item"><span class="legend-line" style="border-top-color:#2D4A3E;"></span>ドラム温度（左軸）</div>
+      <div class="legend-item"><span class="legend-line" style="border-top-color:#6B4226; border-top-width:3px;"></span>豆温度（左軸）</div>
+      <div class="legend-item"><span class="legend-line dashed" style="border-top-color:#e67e22;"></span>ROR（右軸 ℃/min）</div>
+    </div>
+    <canvas id="chart-colombia" height="280"></canvas>
+  </div>
+  <table>
+    <thead>
+      <tr><th>時間</th><th>ドラム℃</th><th>豆℃</th><th>ROR（℃/min）</th><th>イベント</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>0:00</td><td>124</td><td>90</td><td>—</td><td><span class="badge badge-input">投入</span></td></tr>
+      <tr><td>3:00</td><td>162</td><td>138</td><td><span class="ror-plus">+16.0</span></td><td></td></tr>
+      <tr><td>6:00</td><td>201</td><td>185</td><td><span class="ror-plus">+15.7</span></td><td></td></tr>
+      <tr><td>8:00</td><td>209</td><td>206</td><td><span class="ror-plus">+10.5</span></td><td></td></tr>
+      <tr><td>9:52</td><td>210</td><td>215</td><td>—</td><td><span class="badge badge-crack1">1ハゼ開始</span></td></tr>
+      <tr><td>9:55</td><td>211</td><td>215</td><td>—</td><td><span class="badge badge-crack1">1ハゼ終了</span></td></tr>
+      <tr><td>10:00</td><td>211</td><td>216</td><td><span class="ror-plus">+5.0</span></td><td></td></tr>
+      <tr><td>12:00</td><td>225</td><td>229</td><td><span class="ror-plus ror-est">+6.5 *</span></td><td><span class="badge badge-crack2">2ハゼ兆候</span></td></tr>
+      <tr><td>13:49</td><td>230</td><td>235</td><td>—</td><td><span class="badge badge-eject">排出</span></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:0.72rem;color:#aaa;margin-top:6px;">* 12分以降の豆温・RORは記録データから推定。排出時温度は2ハゼ進行中の概算値。</p>
+</div>
+
+<!-- ===== Insights ===== -->
+<hr class="section-divider">
+<div class="insights-section">
+  <div class="insights-header">分析インサイト — 2026/4/27</div>
+
+  <div class="insight-card">
+    <div class="insight-num">01</div>
+    <div class="insight-body">
+      <div class="insight-title">初期ROR +16.0 — 過去3セッションと比べて最も安定した立ち上がり</div>
+      <div class="insight-text">
+        0→3分のROR +16.0℃/minは、Brazil モレテ（+21.3）・Ethiopia コチャレ（+16.7）の中間値で最も安定的。
+        投入ドラム温124℃はColombia 4/22（データなし）より管理された状態での開始を示している。
+        3→6分も+15.7と高めを維持しており、前半の加熱ペースが一貫していることがわかる。
+        手回し焙煎では火力調整がアナログのため、このような序盤の安定性確保が品質の基盤になる。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">02</div>
+    <div class="insight-body">
+      <div class="insight-title">8分以降のROR急落（+10.5→+5.0）— 1ハゼ直前の理想的な減速</div>
+      <div class="insight-text">
+        6→8分の+10.5から8→10分の+5.0へ、RORが約半減している。
+        これは1ハゼ（9:52）に向けて火力管理ができていた証拠。
+        比較：Ethiopia 4/23は6→8分で+14.3→+9.0（33%減）、今回は+10.5→+5.0（52%減）と、
+        より急なROR降下を記録した。手回し焙煎の場合、豆量に対して熱容量が大きいため、
+        後半の火力調整（腕を回す速度の変化など）が大きく効いていると考えられる。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">03</div>
+    <div class="insight-body">
+      <div class="insight-title">1ハゼ（9:52）〜排出（13:49）= 3分57秒 — 次回は1〜2分短縮が理想</div>
+      <div class="insight-text">
+        今セッションは1ハゼ後に約4分かけて排出した。
+        比較：Ethiopia 4/23は1ハゼ終了（10:15）から排出（12:00）まで1分45秒。
+        Colombia は同じ中煎り設定でも長めに引いた結果、2ハゼ兆候が出て歩留まり81.5%と深煎り寄りになった。
+        次回同銘柄を真の中煎りに仕上げるには、1ハゼ終了から1〜2分（排出 約11:00〜12:00）を目標にする。
+        「1ハゼ後の時間管理」が Silver Tree Colombia の最重要コントロールポイント。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">04</div>
+    <div class="insight-body">
+      <div class="insight-title">歩留まり81.5% — 深煎りColombia（4/22: 81.8%）とほぼ同値の謎</div>
+      <div class="insight-text">
+        中煎り設定で焙煎したにもかかわらず、歩留まりが4/22深煎りColombia（81.8%）と0.3%差しかない。
+        これは排出タイミング（13:49）が遅く、2ハゼ兆候が確認されるまで焙煎が進んだためと考えられる。
+        「中煎りの歩留まり基準84〜85%」を目指す場合、Colombia スプレモはより早い排出が必須。
+        今後のColombia焙煎では「排出豆温220℃以下・1ハゼ後2分以内」を目標値として設定する。
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-num">05</div>
+    <div class="insight-body">
+      <div class="insight-title">Colombia スプレモ 2バッチ目 — 同銘柄の深煎り vs 今回の比較が可能に</div>
+      <div class="insight-text">
+        4/22（Colombia スプレモ 深煎り：338g→276.5g、81.8%、2ハゼ通過）と
+        今回（246.8g→201g、81.5%、2ハゼ兆候）のデータが揃った。
+        両バッチともColombia 水出し用に分類されているが、今後は
+        「真の中煎り（1ハゼ止め・排出12分以内）」バッチを追加して、
+        同銘柄3段階（中・中深・深）の歩留まり・味の差を比較記録していきたい。
+        Colombia の中煎り基準プロファイルを確立することがこの銘柄の次のゴール。
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　2026.4.27 焙煎記録</footer>
+
+<script>
+const eventMarkerPlugin = {
+  id: 'eventMarkers',
+  afterDraw(chart, args, pluginOptions) {
+    const events = pluginOptions.events || [];
+    if (!events.length) return;
+    const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+    events.forEach(ev => {
+      const xPos = x.getPixelForValue(ev.t);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(xPos, top);
+      ctx.lineTo(xPos, bottom);
+      ctx.strokeStyle = ev.color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = ev.color;
+      ctx.font = '10px "Hiragino Mincho ProN", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ev.label, xPos, top + 14);
+      ctx.restore();
+    });
+  }
+};
+
+function makeChart(canvasId, drumData, beanData, rorData, events, xMax) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'ドラム温度',
+          data: drumData,
+          borderColor: '#2D4A3E', backgroundColor: 'transparent',
+          borderWidth: 2, showLine: true, pointRadius: 4, pointHoverRadius: 6,
+          pointBackgroundColor: '#2D4A3E', pointBorderColor: '#fff', pointBorderWidth: 1.5,
+          yAxisID: 'yTemp', tension: 0.25, spanGaps: false,
+        },
+        {
+          label: '豆温度',
+          data: beanData,
+          borderColor: '#6B4226', backgroundColor: 'transparent',
+          borderWidth: 2.5, showLine: true, pointRadius: 4, pointHoverRadius: 6,
+          pointBackgroundColor: '#6B4226', pointBorderColor: '#fff', pointBorderWidth: 1.5,
+          yAxisID: 'yTemp', tension: 0.25, spanGaps: false,
+        },
+        {
+          label: 'ROR',
+          data: rorData,
+          borderColor: '#e67e22', backgroundColor: 'rgba(230,126,34,0.06)',
+          borderWidth: 2, borderDash: [6, 3], showLine: true,
+          pointRadius: 3.5, pointHoverRadius: 5,
+          pointBackgroundColor: '#e67e22', pointBorderColor: '#fff', pointBorderWidth: 1,
+          yAxisID: 'yROR', tension: 0.3, fill: false, spanGaps: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.97)',
+          titleColor: '#1C1C1C', bodyColor: '#444',
+          borderColor: '#D4C5A9', borderWidth: 1,
+          callbacks: {
+            title: function(items) {
+              const t = items[0].parsed.x;
+              const min = Math.floor(t);
+              const sec = Math.round((t - min) * 60);
+              return sec === 0 ? min + ':00' : min + ':' + String(sec).padStart(2, '0');
+            },
+            label: function(item) {
+              const label = item.dataset.label;
+              const val = item.parsed.y;
+              if (label === 'ROR') return '  ROR: +' + val + ' ℃/min';
+              return '  ' + label + ': ' + val + '℃';
+            }
+          }
+        },
+        eventMarkers: { events: events }
+      },
+      scales: {
+        x: {
+          type: 'linear', min: 0, max: xMax,
+          title: { display: true, text: '経過時間（分）', font: { size: 11 }, color: '#888' },
+          ticks: { stepSize: 2, callback: function(v) { return v + '分'; }, color: '#888', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        yTemp: {
+          type: 'linear', position: 'left', min: 80, max: 250,
+          title: { display: true, text: '温度（℃）', font: { size: 11 }, color: '#555' },
+          ticks: { stepSize: 20, callback: function(v) { return v + '℃'; }, color: '#555', font: { size: 11 } },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        yROR: {
+          type: 'linear', position: 'right', min: 0, max: 22,
+          title: { display: true, text: 'ROR（℃/min）', font: { size: 11 }, color: '#e67e22' },
+          ticks: { stepSize: 4, callback: function(v) { return '+' + v; }, color: '#e67e22', font: { size: 11 } },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    },
+    plugins: [eventMarkerPlugin]
+  });
+}
+
+// ===== Colombia スプレモ =====
+const colDrum = [
+  {x: 0,     y: 124},
+  {x: 3,     y: 162},
+  {x: 6,     y: 201},
+  {x: 8,     y: 209},
+  {x: 9.867, y: 210},
+  {x: 9.917, y: 211},
+  {x: 10,    y: 211},
+  {x: 12,    y: 225},
+  {x: 13.817,y: 230}
+];
+const colBean = [
+  {x: 0,     y: 90},
+  {x: 3,     y: 138},
+  {x: 6,     y: 185},
+  {x: 8,     y: 206},
+  {x: 9.867, y: 215},
+  {x: 9.917, y: 215},
+  {x: 10,    y: 216},
+  {x: 12,    y: 229},
+  {x: 13.817,y: 235}
+];
+const colRor = [
+  {x: 3,     y: 16.0},
+  {x: 6,     y: 15.7},
+  {x: 8,     y: 10.5},
+  {x: 10,    y: 5.0},
+  {x: 12,    y: 6.5}
+];
+const colEvents = [
+  { t: 9.867,  label: '1ハゼ',  color: '#c87e1a' },
+  { t: 9.917,  label: '1ハゼ終', color: '#c87e1a' },
+  { t: 12,     label: '2ハゼ兆候', color: '#c0392b' },
+  { t: 13.817, label: '排出',   color: '#2D4A3E' }
+];
+
+makeChart('chart-colombia', colDrum, colBean, colRor, colEvents, 15);
+</script>
+
+</body>
+</html>
