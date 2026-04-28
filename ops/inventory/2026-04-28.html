@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 在庫スナップショット 2026/4/28</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: #F8F4EE; color: #1C1C1C;
+      max-width: 920px; margin: 0 auto; padding: 48px 20px;
+    }
+    .nav { font-size: 0.78rem; color: #888; margin-bottom: 28px; }
+    .nav a { color: #2D4A3E; text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+    h1 { font-size: 1.3rem; font-weight: normal; color: #2D4A3E; border-bottom: 1px solid #D4C5A9; padding-bottom: 12px; margin-bottom: 8px; }
+    .subtitle { color: #6B4226; font-size: 0.82rem; margin-bottom: 36px; }
+    .stats-row { display: flex; gap: 12px; margin-bottom: 36px; flex-wrap: wrap; }
+    .stat-card { background: white; border-radius: 8px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 120px; text-align: center; }
+    .stat-card .s-label { font-size: 0.7rem; color: #6B4226; margin-bottom: 4px; }
+    .stat-card .s-value { font-size: 1.5rem; font-weight: bold; color: #2D4A3E; }
+    .stat-card.warn .s-value { color: #c0392b; }
+    .section-header { font-size: 0.78rem; color: #888; letter-spacing: 0.1em; text-transform: uppercase; margin: 32px 0 14px; padding-bottom: 6px; border-bottom: 1px solid #E8E0D4; }
+    .chart-card { background: white; border-radius: 8px; padding: 22px 26px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 14px; }
+    .chart-title { font-size: 0.85rem; color: #6B4226; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 14px; }
+    th { background: #2D4A3E; color: white; padding: 10px 16px; text-align: left; font-weight: normal; font-size: 0.78rem; letter-spacing: 0.05em; }
+    td { padding: 10px 16px; border-bottom: 1px solid #F8F4EE; }
+    tr:last-child td { border-bottom: none; }
+    tr.retired td { color: #999; background: #fafafa; }
+    .tag { padding: 2px 9px; border-radius: 4px; font-size: 0.7rem; display: inline-block; }
+    .tag-danger { background: #fde8e8; color: #c0392b; }
+    .tag-warn { background: #fef3e2; color: #c0772a; }
+    .tag-ok { background: #e8f4f0; color: #2D4A3E; }
+    .tag-ret { background: #eee; color: #888; }
+    .badge { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 4px; }
+    .badge-used { background: #e8f4f0; color: #2D4A3E; }
+    .badge-water { background: #e8f0f4; color: #2D4A3E; }
+    .badge-profile { background: #fef3e2; color: #8B6914; }
+    .alert-section { background: #fff8f0; border-left: 3px solid #c0392b; padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 14px; }
+    .alert-title { font-size: 0.82rem; color: #c0392b; margin-bottom: 8px; font-weight: bold; }
+    .alert-item { font-size: 0.88rem; padding: 3px 0; }
+    .notice-section { background: #fef9f0; border-left: 3px solid #e67e22; padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 14px; }
+    .notice-title { font-size: 0.82rem; color: #e67e22; margin-bottom: 8px; font-weight: bold; }
+    .retired-section { background: #f5f5f5; border-left: 3px solid #ccc; padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 14px; }
+    .retired-title { font-size: 0.82rem; color: #888; margin-bottom: 8px; font-weight: bold; }
+    .roast-summary { background: white; border-radius: 8px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 14px; border-left: 3px solid #D4C5A9; }
+    .rs-title { font-size: 0.82rem; color: #6B4226; font-weight: bold; margin-bottom: 10px; }
+    .rs-body { font-size: 0.82rem; color: #555; line-height: 1.9; }
+    .profile-card { background: white; border-radius: 8px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); margin-bottom: 14px; }
+    .profile-card.b1 { border-left: 3px solid #D35400; }
+    .profile-card.b2 { border-left: 3px solid #1F618D; }
+    .profile-title { font-size: 0.82rem; font-weight: bold; margin-bottom: 12px; }
+    .profile-card.b1 .profile-title { color: #D35400; }
+    .profile-card.b2 .profile-title { color: #1F618D; }
+    .profile-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 10px; }
+    .profile-table th { background: #F8F4EE; color: #6B4226; padding: 7px 10px; text-align: center; font-weight: normal; font-size: 0.74rem; border-bottom: 1px solid #E8E0D4; }
+    .profile-table td { padding: 7px 10px; border-bottom: 1px solid #F0EDE8; text-align: center; }
+    .profile-table td.drum { color: #D35400; font-weight: bold; }
+    .profile-table td.bean { color: #1A5276; font-weight: bold; }
+    .profile-table td.b2-drum { color: #1F618D; font-weight: bold; }
+    .profile-table td.b2-bean { color: #2471A3; font-weight: bold; }
+    .profile-table td.time-label { font-weight: bold; color: #1C1C1C; text-align: left; }
+    .crack-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .crack-table th { background: #F8F4EE; color: #6B4226; padding: 7px 12px; text-align: left; font-weight: normal; font-size: 0.74rem; border-bottom: 1px solid #E8E0D4; }
+    .crack-table td { padding: 7px 12px; border-bottom: 1px solid #F0EDE8; }
+    code { background: #F0EDE8; border-radius: 3px; padding: 1px 5px; font-family: "SF Mono", Monaco, monospace; font-size: 0.78rem; color: #2D4A3E; }
+    footer { text-align: center; color: #D4C5A9; font-size: 0.73rem; margin-top: 48px; }
+  </style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="index.html">← 在庫ダッシュボード</a>　｜　スナップショット：2026-04-28（最新）
+</div>
+
+<h1>生豆在庫スナップショット — 2026年4月28日　<small style="font-size:0.75rem; background:#e8f4f0; color:#2D4A3E; padding: 2px 10px; border-radius:4px; font-weight:normal;">最新</small></h1>
+<p class="subtitle">焙煎後更新　｜　Ethiopia コチャレ 2バッチ 503.3g使用（①251.8g→217.2g / ②251.5g→216.5g）</p>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="s-label">総在庫</div>
+    <div class="s-value" style="font-size:1.15rem;">13.73kg</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">アクティブ銘柄</div>
+    <div class="s-value">5</div>
+  </div>
+  <div class="stat-card warn">
+    <div class="s-label">🔴 発注以下</div>
+    <div class="s-value">1</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">🟠 要注意</div>
+    <div class="s-value">1</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">今回使用量</div>
+    <div class="s-value" style="font-size:1.1rem;">0.503kg</div>
+  </div>
+</div>
+
+<div class="alert-section">
+  <div class="alert-title">🔴 発注ライン以下</div>
+  <div class="alert-item">インドネシア アチェ ガジャ農園：<strong>1.00kg</strong>　→ 次回仕入れ時にブランド変更予定</div>
+</div>
+<div class="notice-section">
+  <div class="notice-title">🟠 発注ラインに近い</div>
+  <div class="alert-item">コスタリカ タラス ハニー：<strong>2.18kg</strong>　→ 次回焙煎後に発注ライン割れの可能性</div>
+</div>
+<div class="retired-section">
+  <div class="retired-title">⚫ 廃止済み</div>
+  <div class="alert-item" style="color:#888;">ブラジル モンテアレグレ：4/23焙煎で使い切り → ベラビスタ農園に移行完了</div>
+</div>
+
+<div class="section-header">在庫量グラフ（アクティブ5銘柄）</div>
+<div class="chart-card">
+  <div class="chart-title">生豆在庫量（kg）　｜　赤破線：発注ライン 2kg</div>
+  <canvas id="inventoryChart" height="240"></canvas>
+</div>
+
+<div class="section-header">在庫一覧</div>
+<table>
+  <thead>
+    <tr>
+      <th>銘柄</th>
+      <th>在庫量</th>
+      <th>発注ライン</th>
+      <th>状態</th>
+      <th>備考</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ブラジル 南ミナス ベラビスタ農園<br><small>ブルボンアマレロ PN NO.2</small></td>
+      <td><strong>4.53kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-ok">正常</span></td>
+      <td><span class="badge badge-used">4/22焙煎 0.468kg使用</span> BASE出品待ち</td>
+    </tr>
+    <tr>
+      <td>エチオピア イルガチャフィ G1<br><small>コチャレ ウォシュド</small></td>
+      <td><strong>2.997kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-ok">正常</span></td>
+      <td>
+        <span class="badge badge-used">4/28焙煎 0.503kg使用</span>
+        <span class="badge badge-profile">2バッチ比較記録済</span>
+      </td>
+    </tr>
+    <tr>
+      <td>コロンビア スプレモ</td>
+      <td><strong>3.02kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-ok">正常</span></td>
+      <td><span class="badge badge-used">4/27焙煎 0.247kg使用</span> <span class="badge badge-water">水出し専用</span></td>
+    </tr>
+    <tr>
+      <td>コスタリカ タラス ハニー</td>
+      <td><strong>2.18kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-warn">要注意</span></td>
+      <td>BASE出品作業中</td>
+    </tr>
+    <tr>
+      <td>インドネシア アチェ<br><small>ガジャ農園 ビッグワン</small></td>
+      <td><strong>1.00kg</strong></td>
+      <td>2kg</td>
+      <td><span class="tag tag-danger">発注以下</span></td>
+      <td>次回ブランド変更予定</td>
+    </tr>
+    <tr class="retired">
+      <td><s>ブラジル モンテアレグレ</s></td>
+      <td><s>0g</s></td>
+      <td>—</td>
+      <td><span class="tag tag-ret">廃止</span></td>
+      <td>4/23最終焙煎 → ベラビスタ農園に移行</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="section-header">この日の焙煎サマリー</div>
+<div class="roast-summary">
+  <div class="rs-title">🔥 2026-04-28 焙煎セッション（9:05 / 9:30 スタート）</div>
+  <div class="rs-body">
+    バッチ① Ethiopia コチャレ：251.8g → 217.2g　歩留まり <strong>86.3%</strong>　中煎り　9:05スタート<br>
+    　1ハゼ：8:29〜10:30（ドラム201〜204℃ / 豆202〜209℃）　排出：11:10（ドラム206℃ / 豆213℃）<br>
+    <br>
+    バッチ② Ethiopia コチャレ：251.5g → 216.5g　歩留まり <strong>86.1%</strong>　中煎り　9:30スタート<br>
+    　1ハゼ：8:20〜10:15（ドラム203〜211℃ / 豆202〜213℃）　排出：10:45（ドラム212℃ / 豆216℃）<br>
+    <br>
+    合計消費：Ethiopia コチャレ 503.3g = <strong>0.503kg</strong>　平均歩留まり：<strong>86.2%</strong><br>
+    詳細プロファイル：<code><a href="../../roast-profiles/2026-04-28.html" style="color:#2D4A3E; text-decoration:none;">roast-profiles/2026-04-28.html</a></code>（2バッチ比較チャート）
+  </div>
+</div>
+
+<!-- Batch 1 Profile -->
+<div class="section-header">バッチ① 温度プロファイル — Ethiopia コチャレ（9:05スタート）</div>
+<div class="profile-card b1">
+  <div class="profile-title">📊 バッチ① | 投入温：ドラム122℃ / 豆90℃</div>
+  <div style="overflow-x:auto;">
+    <table class="profile-table">
+      <thead>
+        <tr>
+          <th>経過時間</th>
+          <th>0分</th>
+          <th>1分</th>
+          <th>3分</th>
+          <th>4.5分</th>
+          <th>6分</th>
+          <th>7分</th>
+          <th>8分</th>
+          <th>9分</th>
+          <th>10分</th>
+          <th>11分</th>
+          <th>排出(11:10)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="time-label">ドラム（℃）</td>
+          <td class="drum">122</td><td class="drum">129</td><td class="drum">165</td>
+          <td class="drum">180</td><td class="drum">192</td><td class="drum">196</td>
+          <td class="drum">200</td><td class="drum">202</td><td class="drum">204</td>
+          <td class="drum">205</td><td class="drum">206</td>
+        </tr>
+        <tr>
+          <td class="time-label">豆（℃）</td>
+          <td class="bean">90</td><td class="bean">107</td><td class="bean">148</td>
+          <td class="bean">165</td><td class="bean">186</td><td class="bean">193</td>
+          <td class="bean">199</td><td class="bean">204</td><td class="bean">208</td>
+          <td class="bean">211</td><td class="bean">213</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <table class="crack-table">
+    <thead>
+      <tr><th>イベント</th><th>時刻（分:秒）</th><th>ドラム温度</th><th>豆温度</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>1ハゼ開始</strong></td><td>8:29</td><td>201℃</td><td>202℃</td></tr>
+      <tr><td><strong>1ハゼ終了</strong></td><td>10:30</td><td>204℃</td><td>209℃</td></tr>
+      <tr><td><strong>排出</strong></td><td>11:10 / 11:39（豆温計）</td><td>206℃</td><td>213℃</td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top:10px; font-size:0.78rem; color:#888; line-height:1.7;">
+    生豆：251.8g　→　焙煎後：217.2g　｜　歩留まり：<strong>86.3%</strong>
+  </div>
+</div>
+
+<!-- Batch 2 Profile -->
+<div class="section-header">バッチ② 温度プロファイル — Ethiopia コチャレ（9:30スタート）</div>
+<div class="profile-card b2">
+  <div class="profile-title">📊 バッチ② | 投入温：ドラム125℃ / 豆90℃</div>
+  <div style="overflow-x:auto;">
+    <table class="profile-table">
+      <thead>
+        <tr>
+          <th>経過時間</th>
+          <th>0分</th>
+          <th>1分</th>
+          <th>2分</th>
+          <th>3分</th>
+          <th>4分</th>
+          <th>5分</th>
+          <th>6分</th>
+          <th>7分</th>
+          <th>8分</th>
+          <th>9分</th>
+          <th>10分</th>
+          <th>排出(10:45)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="time-label">ドラム（℃）</td>
+          <td class="b2-drum">125</td><td class="b2-drum">132</td><td class="b2-drum">149</td>
+          <td class="b2-drum">166</td><td class="b2-drum">178</td><td class="b2-drum">185</td>
+          <td class="b2-drum">190</td><td class="b2-drum">196</td><td class="b2-drum">201</td>
+          <td class="b2-drum">207</td><td class="b2-drum">210</td><td class="b2-drum">212</td>
+        </tr>
+        <tr>
+          <td class="time-label">豆（℃）</td>
+          <td class="b2-bean">90</td><td class="b2-bean">109</td><td class="b2-bean">129</td>
+          <td class="b2-bean">148</td><td class="b2-bean">163</td><td class="b2-bean">175</td>
+          <td class="b2-bean">184</td><td class="b2-bean">192</td><td class="b2-bean">199</td>
+          <td class="b2-bean">207</td><td class="b2-bean">212</td><td class="b2-bean">216</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <table class="crack-table">
+    <thead>
+      <tr><th>イベント</th><th>時刻（分:秒）</th><th>ドラム温度</th><th>豆温度</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>1ハゼ開始</strong></td><td>8:20（①より9秒早）</td><td>203℃</td><td>202℃</td></tr>
+      <tr><td><strong>1ハゼ終了</strong></td><td>10:15</td><td>211℃</td><td>213℃</td></tr>
+      <tr><td><strong>排出</strong></td><td>10:45 / 11:15（豆温計）</td><td>212℃</td><td>216℃</td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top:10px; font-size:0.78rem; color:#888; line-height:1.7;">
+    生豆：251.5g　→　焙煎後：216.5g　｜　歩留まり：<strong>86.1%</strong>
+  </div>
+</div>
+
+<footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　在庫スナップショット 2026.04.28</footer>
+
+<script>
+  const ORDER_LINE = 2.0;
+  const items = [
+    { name: 'ベラビスタ', current: 4.53 },
+    { name: 'エチオピア\nコチャレ', current: 2.997 },
+    { name: 'コロンビア\nスプレモ', current: 3.02 },
+    { name: 'コスタリカ\nタラス', current: 2.18 },
+    { name: 'インドネシア\nアチェ', current: 1.00 },
+  ];
+  const colors = items.map(i =>
+    i.current < ORDER_LINE ? 'rgba(192,57,43,0.75)' :
+    i.current < ORDER_LINE * 1.3 ? 'rgba(230,126,34,0.75)' :
+    'rgba(45,74,62,0.75)'
+  );
+  const orderLinePlugin = {
+    id: 'orderLine',
+    afterDraw(chart) {
+      const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+      const yPos = y.getPixelForValue(ORDER_LINE);
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(left, yPos); ctx.lineTo(right, yPos);
+      ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(192,57,43,0.5)';
+      ctx.setLineDash([6, 3]); ctx.stroke();
+      ctx.fillStyle = 'rgba(192,57,43,0.7)';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('発注ライン 2kg', right - 95, yPos - 5);
+      ctx.restore();
+    }
+  };
+  new Chart(document.getElementById('inventoryChart'), {
+    type: 'bar',
+    data: {
+      labels: items.map(i => i.name),
+      datasets: [{ label: '現在庫 (kg)', data: items.map(i => i.current), backgroundColor: colors, borderRadius: 6 }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true, max: 6, ticks: { callback: v => v + 'kg' } } }
+    },
+    plugins: [orderLinePlugin]
+  });
+</script>
+</body>
+</html>
