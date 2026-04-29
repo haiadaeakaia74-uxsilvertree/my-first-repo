@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 焙煎プロファイル 2026/4/29</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: #F8F4EE;
+      color: #1C1C1C;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .nav { font-size: 0.78rem; color: #888; margin-bottom: 28px; }
+    .nav a { color: #2D4A3E; text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+    h1 {
+      font-size: 1.3rem;
+      font-weight: normal;
+      color: #2D4A3E;
+      border-bottom: 1px solid #D4C5A9;
+      padding-bottom: 12px;
+      margin-bottom: 8px;
+    }
+    .subtitle { color: #6B4226; font-size: 0.82rem; margin-bottom: 36px; }
+
+    /* Stats */
+    .stats-row { display: flex; gap: 12px; margin-bottom: 36px; flex-wrap: wrap; }
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 14px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+    }
+    .stat-card .s-label { font-size: 0.7rem; color: #6B4226; margin-bottom: 4px; }
+    .stat-card .s-value { font-size: 1.5rem; font-weight: bold; color: #2D4A3E; }
+    .stat-card.b1 .s-value { color: #D35400; }
+    .stat-card.b2 .s-value { color: #1F618D; }
+
+    /* Section Headers */
+    .section-header {
+      font-size: 0.78rem;
+      color: #888;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 32px 0 14px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #E8E0D4;
+    }
+
+    /* Chart */
+    .chart-card {
+      background: white;
+      border-radius: 8px;
+      padding: 22px 26px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      margin-bottom: 14px;
+    }
+    .chart-title { font-size: 0.85rem; color: #6B4226; margin-bottom: 14px; }
+
+    /* Legend */
+    .batch-legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      font-size: 0.78rem;
+      color: #555;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-line {
+      display: inline-block;
+      width: 28px;
+      height: 3px;
+      border-radius: 2px;
+    }
+    .legend-line.dashed {
+      background: repeating-linear-gradient(90deg,
+        currentColor 0, currentColor 6px, transparent 6px, transparent 10px);
+    }
+
+    /* Tables */
+    .profile-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      margin-bottom: 14px;
+    }
+    .profile-card.b1 { border-left: 3px solid #D35400; }
+    .profile-card.b2 { border-left: 3px solid #1F618D; }
+    .profile-title { font-size: 0.82rem; font-weight: bold; margin-bottom: 12px; }
+    .profile-card.b1 .profile-title { color: #D35400; }
+    .profile-card.b2 .profile-title { color: #1F618D; }
+    .profile-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 10px; overflow-x: auto; }
+    .profile-table th {
+      background: #F8F4EE;
+      color: #6B4226;
+      padding: 7px 10px;
+      text-align: center;
+      font-weight: normal;
+      font-size: 0.74rem;
+      border-bottom: 1px solid #E8E0D4;
+    }
+    .profile-table td { padding: 7px 10px; border-bottom: 1px solid #F0EDE8; text-align: center; }
+    .profile-table td.drum { color: #D35400; font-weight: bold; }
+    .profile-table td.b2-drum { color: #1F618D; font-weight: bold; }
+    .profile-table td.bean { color: #1A5276; font-weight: bold; }
+    .profile-table td.b2-bean { color: #1F618D; font-weight: bold; }
+    .profile-table td.time-label { font-weight: bold; color: #1C1C1C; text-align: left; }
+    .crack-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 10px; }
+    .crack-table th {
+      background: #F8F4EE;
+      color: #6B4226;
+      padding: 7px 12px;
+      text-align: left;
+      font-weight: normal;
+      font-size: 0.74rem;
+      border-bottom: 1px solid #E8E0D4;
+    }
+    .crack-table td { padding: 7px 12px; border-bottom: 1px solid #F0EDE8; }
+
+    /* Insights */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .insight-card {
+      background: white;
+      border-radius: 8px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      border-left: 3px solid #D4C5A9;
+    }
+    .insight-number {
+      font-size: 0.7rem;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .insight-title {
+      font-size: 0.88rem;
+      color: #1C1C1C;
+      margin-bottom: 6px;
+    }
+    .insight-body {
+      font-size: 0.8rem;
+      color: #555;
+      line-height: 1.7;
+    }
+    .highlight-ok { color: #2D4A3E; font-weight: bold; }
+    .highlight-note { color: #D35400; font-weight: bold; }
+    .highlight-2nd { color: #8E44AD; font-weight: bold; }
+
+    /* Batch badge */
+    .batch-badge {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      margin-right: 4px;
+    }
+    .b1-badge { background: #fef3e2; color: #D35400; }
+    .b2-badge { background: #eaf4fb; color: #1F618D; }
+
+    code {
+      background: #F0EDE8;
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-family: "SF Mono", Monaco, monospace;
+      font-size: 0.78rem;
+      color: #2D4A3E;
+    }
+    footer {
+      text-align: center;
+      color: #D4C5A9;
+      font-size: 0.73rem;
+      margin-top: 48px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="index.html">← 焙煎プロファイル一覧</a>　｜　セッション：2026-04-29（最新）
+</div>
+
+<h1>焙煎プロファイル — 2026年4月29日　<small style="font-size:0.75rem; background:#e8f4f0; color:#2D4A3E; padding:2px 10px; border-radius:4px; font-weight:normal;">最新</small></h1>
+<p class="subtitle">
+  Brazil ベラビスタ（中深煎り）＋ Costa Rica タラス ハニー（中深入り・2ハゼあり）× 異品種2バッチ比較　｜　手回し焙煎機　｜　21:50 / 22:00 スタート
+</p>
+
+<!-- Summary Cards -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="s-label">バッチ数</div>
+    <div class="s-value">2</div>
+  </div>
+  <div class="stat-card b1">
+    <div class="s-label">① Brazil 歩留まり</div>
+    <div class="s-value">83.9%</div>
+  </div>
+  <div class="stat-card b2">
+    <div class="s-label">② Costa Rica 歩留まり</div>
+    <div class="s-value">83.3%</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">平均歩留まり</div>
+    <div class="s-value">83.6%</div>
+  </div>
+  <div class="stat-card">
+    <div class="s-label">総消費量（生豆）</div>
+    <div class="s-value" style="font-size:1.1rem;">765.2g</div>
+  </div>
+</div>
+
+<!-- Batch comparison chart -->
+<div class="section-header">温度プロファイル比較チャート</div>
+<div class="chart-card">
+  <div class="chart-title">
+    ドラム温度 ＆ 豆温度（左軸）　｜　ROR ℃/min（右軸）
+  </div>
+  <div class="batch-legend">
+    <div class="legend-item">
+      <span class="legend-line" style="background:#D35400; height:3px;"></span>
+      <span>① ドラム（濃オレンジ・実線）— Brazil</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-line" style="background:#1A5276; height:3px;"></span>
+      <span>① 豆温（濃ブルー・実線）— Brazil</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-line" style="background:#F0A060; height:3px; border-top: 3px dashed #F0A060;"></span>
+      <span>② ドラム（薄オレンジ・破線）— Costa Rica</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-line" style="background:#7FB3D3; height:3px;"></span>
+      <span>② 豆温（薄ブルー・破線）— Costa Rica</span>
+    </div>
+    <div class="legend-item" style="color:#888;">
+      <span class="legend-line" style="background:#2D4A3E; height:1px;"></span>
+      <span>ROR①②（細線・右軸）</span>
+    </div>
+  </div>
+  <canvas id="roastChart" height="300"></canvas>
+</div>
+
+<!-- Batch 1 Table -->
+<div class="section-header">バッチ① — Brazil ベラビスタ農園 PN NO.2（21:50スタート）</div>
+<div class="profile-card b1">
+  <div class="profile-title">📊 バッチ① Brazil ベラビスタ　｜　378.1g → 317.3g（83.9%）｜　焙煎率 1.192</div>
+  <div style="overflow-x:auto;">
+    <table class="profile-table">
+      <thead>
+        <tr>
+          <th>経過時間</th>
+          <th>0分</th>
+          <th>3分</th>
+          <th>6分</th>
+          <th>8分</th>
+          <th>8:30<br><small>1ハゼ</small></th>
+          <th>10:26<br><small>1ハゼ終</small></th>
+          <th>排出(12:10)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="time-label">ドラム（℃）</td>
+          <td class="drum">118</td>
+          <td class="drum">150</td>
+          <td class="drum">191</td>
+          <td class="drum">213</td>
+          <td class="drum">218</td>
+          <td class="drum">222</td>
+          <td class="drum">222</td>
+        </tr>
+        <tr>
+          <td class="time-label">豆（℃）</td>
+          <td class="bean">90</td>
+          <td class="bean">127</td>
+          <td class="bean">168</td>
+          <td class="bean">194</td>
+          <td class="bean">202</td>
+          <td class="bean">214</td>
+          <td class="bean">221</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <table class="crack-table">
+    <thead>
+      <tr>
+        <th>イベント</th><th>時刻（分:秒）</th><th>ドラム温度</th><th>豆温度</th><th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1ハゼ開始</strong></td>
+        <td>8:30</td>
+        <td>218℃</td>
+        <td>202℃</td>
+        <td>音確認・豆の膨張開始</td>
+      </tr>
+      <tr>
+        <td><strong>1ハゼ終了</strong></td>
+        <td>10:26</td>
+        <td>222℃</td>
+        <td>214℃</td>
+        <td>ハゼ音が落ち着く</td>
+      </tr>
+      <tr>
+        <td><strong>排出</strong></td>
+        <td>11:30（ドラム）/ 12:10（豆温計）</td>
+        <td>222℃</td>
+        <td>221℃</td>
+        <td>中深煎り判断で排出、2ハゼなし</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="margin-top:10px; font-size:0.78rem; color:#888; line-height:1.7;">
+    生豆：378.1g　→　焙煎後：317.3g　｜　歩留まり：83.9%　｜　焙煎率（生÷仕上）：1.192（目標 1.18）<br>
+    投入温：ドラム 118℃ / 豆 90℃　｜　予熱設定：222℃
+  </div>
+</div>
+
+<!-- Batch 2 Table -->
+<div class="section-header">バッチ② — Costa Rica タラス ハニー（22:00スタート）</div>
+<div class="profile-card b2">
+  <div class="profile-title">📊 バッチ② Costa Rica タラス　｜　387.1g → 322.5g（83.3%）｜　焙煎率 1.200　｜　<span style="color:#8E44AD;">2ハゼ到達</span></div>
+  <div style="overflow-x:auto;">
+    <table class="profile-table">
+      <thead>
+        <tr>
+          <th>経過時間</th>
+          <th>0分</th>
+          <th>3分</th>
+          <th>6分</th>
+          <th>8分</th>
+          <th>8:14<br><small>1ハゼ</small></th>
+          <th>10:06<br><small>1ハゼ終</small></th>
+          <th>11分</th>
+          <th>12:24<br><small>2ハゼ</small></th>
+          <th>排出(13:00)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="time-label">ドラム（℃）</td>
+          <td style="color:#1F618D; font-weight:bold;">119</td>
+          <td style="color:#1F618D; font-weight:bold;">154</td>
+          <td style="color:#1F618D; font-weight:bold;">194</td>
+          <td style="color:#1F618D; font-weight:bold;">216</td>
+          <td style="color:#1F618D; font-weight:bold;">217</td>
+          <td style="color:#1F618D; font-weight:bold;">217</td>
+          <td style="color:#1F618D; font-weight:bold;">217</td>
+          <td style="color:#8E44AD; font-weight:bold;">221</td>
+          <td style="color:#8E44AD; font-weight:bold;">224</td>
+        </tr>
+        <tr>
+          <td class="time-label">豆（℃）</td>
+          <td style="color:#2471A3; font-weight:bold;">90</td>
+          <td style="color:#2471A3; font-weight:bold;">132</td>
+          <td style="color:#2471A3; font-weight:bold;">176</td>
+          <td style="color:#2471A3; font-weight:bold;">201</td>
+          <td style="color:#2471A3; font-weight:bold;">205</td>
+          <td style="color:#2471A3; font-weight:bold;">213</td>
+          <td style="color:#2471A3; font-weight:bold;">217</td>
+          <td style="color:#8E44AD; font-weight:bold;">226</td>
+          <td style="color:#8E44AD; font-weight:bold;">230</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <table class="crack-table">
+    <thead>
+      <tr>
+        <th>イベント</th><th>時刻（分:秒）</th><th>ドラム温度</th><th>豆温度</th><th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1ハゼ開始</strong></td>
+        <td>8:14</td>
+        <td>217℃</td>
+        <td>205℃</td>
+        <td>音確認・①より16秒早い</td>
+      </tr>
+      <tr>
+        <td><strong>1ハゼ終了</strong></td>
+        <td>10:06</td>
+        <td>217℃</td>
+        <td>213℃</td>
+        <td>ハゼ音が落ち着く</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#8E44AD;">2ハゼ開始</strong></td>
+        <td>12:24</td>
+        <td style="color:#8E44AD;">221℃</td>
+        <td style="color:#8E44AD;">226℃</td>
+        <td>2ハゼ突入（中深入り達成）</td>
+      </tr>
+      <tr>
+        <td><strong>排出</strong></td>
+        <td>13:00</td>
+        <td>224℃</td>
+        <td>230℃</td>
+        <td>2ハゼ終了と同時に排出</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="margin-top:10px; font-size:0.78rem; color:#888; line-height:1.7;">
+    生豆：387.1g　→　焙煎後：322.5g　｜　歩留まり：83.3%　｜　焙煎率（生÷仕上）：1.200（目標 1.22）<br>
+    投入温：ドラム 119℃ / 豆 90℃　｜　予熱設定：224℃　｜　<span style="color:#8E44AD;">2ハゼ到達：初めての深煎り記録</span>
+  </div>
+</div>
+
+<!-- Insights -->
+<div class="section-header">インサイト・考察</div>
+<div class="insights-grid">
+
+  <div class="insight-card">
+    <div class="insight-number">INSIGHT 01</div>
+    <div class="insight-title">異品種2バッチの歩留まり比較</div>
+    <div class="insight-body">
+      <span class="batch-badge b1-badge">①</span>83.9%（Brazil）　<span class="batch-badge b2-badge">②</span>83.3%（Costa Rica）<br>
+      差はわずか <span class="highlight-ok">0.6%</span>。異品種にもかかわらず近い歩留まり。
+      全体平均（84.5%）より若干低いが、<span class="highlight-note">深煎りによる水分蒸発増加</span>が主因と考えられる。
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-number">INSIGHT 02</div>
+    <div class="insight-title">Costa Rica が2ハゼに到達</div>
+    <div class="insight-body">
+      <span class="batch-badge b2-badge">②</span>12:24 に2ハゼ開始、13:00 排出。<br>
+      これは <span class="highlight-2nd">初の2ハゼ記録</span>。焙煎率 1.200 で中深入りを達成。
+      目標 1.22 より軽めだが、2ハゼを経た証拠として豆表面の油分が出始める段階。
+      <span class="highlight-ok">ダークブレンド素材</span>としての評価が可能に。
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-number">INSIGHT 03</div>
+    <div class="insight-title">1ハゼのタイミング差：16秒</div>
+    <div class="insight-body">
+      <span class="batch-badge b1-badge">①</span> 8:30（Brazil）　<span class="batch-badge b2-badge">②</span> 8:14（Costa Rica）<br>
+      Costa Rica が <span class="highlight-note">16秒早く</span>1ハゼに到達。
+      ハニープロセスの特性（残糖分が多い）が影響している可能性あり。
+      どちらも8分台で安定した1ハゼ。
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-number">INSIGHT 04</div>
+    <div class="insight-title">1ハゼ後のROR推移の差異</div>
+    <div class="insight-body">
+      Brazil（①）は1ハゼ後にRORが急速に収束 → 中深煎りで排出。<br>
+      Costa Rica（②）は1ハゼ後に一旦フラットな <span class="highlight-ok">ドラム停滞ゾーン</span>（10〜12分）を経て2ハゼへ。
+      ハニープロセスの密度差が温度推移に現れた形。
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-number">INSIGHT 05</div>
+    <div class="insight-title">同日異品種2バッチの比較確立</div>
+    <div class="insight-body">
+      同日に異なる品種・異なる焙煎度を1人で連続焙煎。
+      生豆合計 <span class="highlight-ok">765.2g → 639.8g</span>（合計仕上がり）。
+      Brazil（中深煎り）と Costa Rica（深煎り入り口）の<span class="highlight-ok">ブレンド素材</span>として
+      Dark Blend の配合可能性を初めて検証。
+    </div>
+  </div>
+
+</div>
+
+<footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　焙煎プロファイル 2026.04.29</footer>
+
+<script>
+// ===== データ定義 =====
+// バッチ① Brazil ベラビスタ 温度データ
+const b1Drum = [
+  {x:0,      y:118}, {x:3,      y:150}, {x:6,      y:191},
+  {x:8,      y:213}, {x:8.5,    y:218}, {x:10.433, y:222}, {x:12.167, y:222}
+];
+const b1Bean = [
+  {x:0,      y:90},  {x:3,      y:127}, {x:6,      y:168},
+  {x:8,      y:194}, {x:8.5,    y:202}, {x:10.433, y:214}, {x:12.167, y:221}
+];
+// バッチ① ROR（豆温）
+const b1Ror = [
+  {x:1.5,  y:12.3},  // 0→3 min: (127-90)/3
+  {x:4.5,  y:13.7},  // 3→6 min: (168-127)/3
+  {x:7.0,  y:13.0},  // 6→8 min: (194-168)/2
+  {x:8.25, y:8.0},   // 8→8.5 min: (202-194)/0.5 ×0.5 ≈ 8/min
+  {x:9.5,  y:5.2},   // 8.5→10.5 min: (214-202)/2
+  {x:11.5, y:3.1}    // 10.5→12 min: (221-214)/1.5 ≈ 4.7
+];
+
+// バッチ② Costa Rica タラス 温度データ
+const b2Drum = [
+  {x:0,      y:119}, {x:3,      y:154}, {x:6,      y:194},
+  {x:8,      y:216}, {x:8.233,  y:217}, {x:10.1,   y:217},
+  {x:11,     y:217}, {x:12.4,   y:221}, {x:13.0,   y:224}
+];
+const b2Bean = [
+  {x:0,      y:90},  {x:3,      y:132}, {x:6,      y:176},
+  {x:8,      y:201}, {x:8.233,  y:205}, {x:10.1,   y:213},
+  {x:11,     y:217}, {x:12.4,   y:226}, {x:13.0,   y:230}
+];
+// バッチ② ROR（豆温）
+const b2Ror = [
+  {x:1.5,  y:14.0},  // 0→3 min: (132-90)/3
+  {x:4.5,  y:14.7},  // 3→6 min: (176-132)/3
+  {x:7.0,  y:12.5},  // 6→8 min: (201-176)/2
+  {x:9.0,  y:4.4},   // 8→10 min: (213-201)/2.1 ≈ 5.7
+  {x:10.5, y:4.0},   // 10→11 min: (217-213)/1
+  {x:11.7, y:7.5},   // 11→12.4 min: (226-217)/1.4 ≈ 6.4
+  {x:12.7, y:6.7}    // 12.4→13 min: (230-226)/0.6 ≈ 6.7
+];
+
+// ===== イベントマーカーPlugin =====
+const eventMarkerPlugin = {
+  id: 'eventMarkers',
+  afterDraw(chart, args, pluginOptions) {
+    const events = pluginOptions.events || [];
+    if (!events.length) return;
+    const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+    events.forEach(ev => {
+      const xPos = x.getPixelForValue(ev.t);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(xPos, top);
+      ctx.lineTo(xPos, bottom);
+      ctx.strokeStyle = ev.color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = ev.color;
+      ctx.font = '10px "Hiragino Mincho ProN", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ev.label, xPos, top + (ev.labelOffset || 14));
+      ctx.restore();
+    });
+  }
+};
+
+// ===== チャート生成 =====
+const allEvents = [
+  { t: 8.5,    label: '①1ハゼ',  color: '#c87e1a', labelOffset: 14 },
+  { t: 12.167, label: '①排出',   color: '#D35400', labelOffset: 14 },
+  { t: 8.233,  label: '②1ハゼ',  color: '#2471A3', labelOffset: 28 },
+  { t: 12.4,   label: '②2ハゼ',  color: '#8E44AD', labelOffset: 28 },
+  { t: 13.0,   label: '②排出',   color: '#1A5276', labelOffset: 28 }
+];
+
+new Chart(document.getElementById('roastChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [
+      {
+        label: '①ドラム温度（Brazil）',
+        data: b1Drum,
+        borderColor: '#D35400',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        showLine: true,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        tension: 0.3,
+        yAxisID: 'yTemp'
+      },
+      {
+        label: '①豆温度（Brazil）',
+        data: b1Bean,
+        borderColor: '#1A5276',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        showLine: true,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        tension: 0.3,
+        yAxisID: 'yTemp'
+      },
+      {
+        label: '②ドラム温度（Costa Rica）',
+        data: b2Drum,
+        borderColor: '#F0A060',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [6, 4],
+        showLine: true,
+        pointRadius: 2.5,
+        pointHoverRadius: 4,
+        tension: 0.3,
+        yAxisID: 'yTemp'
+      },
+      {
+        label: '②豆温度（Costa Rica）',
+        data: b2Bean,
+        borderColor: '#7FB3D3',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [6, 4],
+        showLine: true,
+        pointRadius: 2.5,
+        pointHoverRadius: 4,
+        tension: 0.3,
+        yAxisID: 'yTemp'
+      },
+      {
+        label: '①ROR(℃/min)— Brazil',
+        data: b1Ror,
+        borderColor: '#2D4A3E',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [3, 3],
+        showLine: true,
+        pointRadius: 2,
+        pointHoverRadius: 3,
+        tension: 0.4,
+        yAxisID: 'yRor'
+      },
+      {
+        label: '②ROR(℃/min)— Costa Rica',
+        data: b2Ror,
+        borderColor: '#76B7A0',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [3, 3],
+        showLine: true,
+        pointRadius: 2,
+        pointHoverRadius: 3,
+        tension: 0.4,
+        yAxisID: 'yRor'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { intersect: false, mode: 'nearest' },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: { boxWidth: 24, font: { size: 11 } }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            const dsLabel = ctx.dataset.label || '';
+            const x = ctx.parsed.x.toFixed(2);
+            const y = ctx.parsed.y.toFixed(1);
+            if (dsLabel.includes('ROR')) return `${dsLabel}: ${y}℃/min @ ${x}min`;
+            return `${dsLabel}: ${y}℃ @ ${x}min`;
+          }
+        }
+      },
+      eventMarkers: { events: allEvents }
+    },
+    scales: {
+      x: {
+        type: 'linear',
+        title: { display: true, text: '経過時間（分）', font: { size: 11 } },
+        min: 0,
+        max: 14,
+        ticks: { stepSize: 1 }
+      },
+      yTemp: {
+        type: 'linear',
+        position: 'left',
+        title: { display: true, text: '温度（℃）', font: { size: 11 } },
+        min: 80,
+        max: 240,
+        ticks: { stepSize: 20 },
+        grid: { color: 'rgba(0,0,0,0.06)' }
+      },
+      yRor: {
+        type: 'linear',
+        position: 'right',
+        title: { display: true, text: 'ROR（℃/min）', font: { size: 11 } },
+        min: 0,
+        max: 25,
+        ticks: { stepSize: 5 },
+        grid: { drawOnChartArea: false }
+      }
+    }
+  },
+  plugins: [eventMarkerPlugin]
+});
+</script>
+</body>
+</html>
