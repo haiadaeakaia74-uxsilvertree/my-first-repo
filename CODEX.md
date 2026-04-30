@@ -34,6 +34,7 @@ Silver Tree Coffee Roaster / silvertree coffee の運用では、以下を最新
 ## 投稿文からインフォグラフィック生成
 
 X用インフォグラフィックは `scripts/generate_x_infographic.py` を使う。
+知識系の内容は、先に `.claude/skills/fact-check-infographic/SKILL.md` の手順で信憑性確認を行う。
 
 ### 信憑性確認ルール（必須）
 
