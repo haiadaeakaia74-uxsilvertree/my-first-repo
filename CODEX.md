@@ -69,6 +69,14 @@ GitHub Actions から手動実行する場合は、`Xインフォグラフィッ
 - 知識系投稿は信憑性確認済み。
 - CAMPFIRE、BASE、LINEなど外部リンクが必要な投稿はURLが確定している。
 
+ローカル確認:
+
+```bash
+python3 scripts/check_x_schedule.py
+```
+
+GitHub ActionsのX自動投稿でも、投稿前に同じチェックを実行する。
+
 ## 在庫・焙煎・財務
 
 - 在庫は `.claude/skills/inventory/SKILL.md` の形式を維持する。
