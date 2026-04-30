@@ -1,0 +1,44 @@
+name: Xインフォグラフィック生成
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '対象日時（例: 2026年5月10日 07:00）。空なら画像未設定の知識系投稿を一括生成'
+        required: false
+        type: string
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 依存パッケージをインストール
+        run: pip install Pillow
+
+      - name: インフォグラフィック生成
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then
+            python scripts/generate_x_infographic.py --date "${{ inputs.date }}"
+          else
+            python scripts/generate_x_infographic.py --all-missing
+          fi
+
+      - name: 生成物をコミット＆プッシュ
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add images/x x-post-log.md
+          git diff --staged --quiet || git commit -m "画像生成: Xインフォグラフィックを更新"
+          git pull --rebase origin main
+          git push origin main
