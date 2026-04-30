@@ -2,4 +2,21 @@ customers.md
 
 # 環境変数ファイル（APIキーを含むため除外）
 .env
+.env.*
+!.env.template
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python
 __pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# ローカル生成テスト
+images/x/*codex-test*.jpg
+images/x/*test*.jpg
