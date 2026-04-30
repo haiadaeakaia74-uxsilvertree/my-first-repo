@@ -31,6 +31,9 @@ jobs:
       - name: 画像ファイルを確認
         run: ls -la images/ || echo "imagesフォルダなし"
 
+      - name: 投稿予定を確認
+        run: python scripts/check_x_schedule.py
+
       - name: X に投稿
         env:
           API_KEY: ${{ secrets.X_API_KEY }}
