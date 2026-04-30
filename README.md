@@ -26,3 +26,9 @@ python3 scripts/generate_x_infographic.py --date "2026年5月10日 07:00"
 ```bash
 python3 scripts/generate_x_infographic.py --all-missing
 ```
+
+投稿予定を確認する場合:
+
+```bash
+python3 scripts/check_x_schedule.py
+```
