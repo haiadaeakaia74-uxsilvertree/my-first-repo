@@ -45,6 +45,22 @@ Silver Tree Coffee Roaster / silvertree coffee の運用では、以下を最新
 - X APIキーはGitHub Secretsで管理し、リポジトリやチャットに出さない。
 - `x-post-log.md` に旧方針の投稿が残っている場合でも、2026-05-01以降の新規投稿・修正投稿は現在方針に合わせる。
 
+## 投稿・文章作成時の担当者確認
+
+投稿文、告知文、商品説明、CAMPFIRE活動報告、LINE配信文、支援者メッセージを作るときは、必ず `orgchart.md` の組織担当者の視点で考える。
+同時に、該当する `.claude/skills/` の `SKILL.md` を確認してから作成・修正する。
+
+- SNS投稿、導線、CAMPFIRE拡散: 伊藤 蓮（SNS戦略家） + 渡辺 詩（コピーライター） + `.claude/skills/x-post/SKILL.md` または `.claude/skills/weekly-sns/SKILL.md`
+- Instagram投稿、画像、ストーリーズ: 伊藤 蓮 + 竹内 藍（ブランドディレクター） + `.claude/skills/instagram-infographic/SKILL.md` または `.claude/skills/instagram-analysis/SKILL.md`
+- CAMPFIRE本文、活動報告、リターン告知: 高橋 誠（CSO） + 伊藤 蓮 + 渡辺 詩 + `.claude/skills/campfire/SKILL.md`
+- リターン設計、価格、原価判断: 松本 匠（商品設計士） + 森 明（財務マネージャー） + `.claude/skills/product/SKILL.md` または `.claude/skills/finance/SKILL.md`
+- マルシェ、露店、営業許可、出店準備: 山田 拓（営業戦略家） + 橋本 律（オペレーションマネージャー） + `.claude/skills/event-application/SKILL.md` または `.claude/skills/marche-prep/SKILL.md`
+- 支援者・顧客への個別メッセージ: 井上 結（顧客サクセスマネージャー） + 渡辺 詩 + `.claude/skills/customer-message/SKILL.md`
+- 知識系投稿、インフォグラフィック: 伊藤 蓮 + 渡辺 詩 + `.claude/skills/fact-check-infographic/SKILL.md`
+
+担当者視点では、事実確認を最優先する。やっていない行動、未確認の注文、未承認の公開、古いブランド方針は投稿に入れない。
+投稿前には「誰の担当判断か」「どのskillを使ったか」「事実と未確認が混ざっていないか」を確認する。
+
 ## 投稿文からインフォグラフィック生成
 
 X用インフォグラフィックは `scripts/generate_x_infographic.py` を使う。
