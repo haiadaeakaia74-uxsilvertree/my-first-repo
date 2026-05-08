@@ -68,6 +68,10 @@
 
 可。ただし「今回の検証結果」として作る。
 
+生成画像:
+
+- `images/x/2026-05-11_infographic-water-roadmap.jpg`
+
 ## 投稿可否
 
 修正後に可。
