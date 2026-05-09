@@ -83,8 +83,9 @@
       white-space: nowrap;
     }
     @media print {
+      @page { size: A4 portrait; margin: 10mm; }
       body { background: #fff; padding: 0; }
-      .sheet { border: 0; max-width: none; padding: 10mm; }
+      .sheet { border: 0; max-width: none; width: 190mm; padding: 0; }
       h1 { font-size: 16pt; }
       .section-title { break-after: avoid; }
       table { page-break-inside: avoid; }
