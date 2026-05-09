@@ -94,7 +94,7 @@
 <body>
   <main class="sheet">
     <h1>Silver Tree Coffee Roaster — 焙煎プロファイル記録シート</h1>
-    <p class="subtitle">豆温は毎分記録。黄変・1ハゼ・火止め・排出は、時刻と温度を必ず残す。</p>
+    <p class="subtitle">基本は1分刻み。1ハゼ前後だけ30秒メモを追加。黄変・1ハゼ・火止め・排出は、時刻と温度を必ず残す。</p>
 
     <div class="section-title">基本情報</div>
     <table>
@@ -114,6 +114,11 @@
           <td class="label">焙煎後重量</td><td>g</td>
         </tr>
         <tr>
+          <td class="label">歩留まり</td><td>%（後計算可）</td>
+          <td class="label">焙煎率</td><td>生豆÷焙煎後（後計算可）</td>
+          <td class="label">減少率</td><td>%（後計算可）</td>
+        </tr>
+        <tr>
           <td class="label">狙い</td><td colspan="2">浅 / 中 / 中より深め / 中深 / 深</td>
           <td class="label">予熱・投入設定</td><td colspan="2"></td>
         </tr>
@@ -121,6 +126,7 @@
     </table>
 
     <div class="section-title">温度ログ</div>
+    <p class="small">毎分記録でOK。RORを細かく見たい場合は、1ハゼ前後だけ下の「30秒メモ」に追記する。</p>
     <table>
       <thead>
         <tr>
@@ -138,6 +144,19 @@
         <tr><td>6:00</td><td></td><td></td><td></td><td></td><td>15:00</td><td></td><td></td><td></td><td></td></tr>
         <tr><td>7:00</td><td></td><td></td><td></td><td></td><td>16:00</td><td></td><td></td><td></td><td></td></tr>
         <tr><td>8:00</td><td></td><td></td><td></td><td></td><td>17:00</td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">30秒メモ（1ハゼ前後だけ）</div>
+    <table>
+      <thead>
+        <tr><th>時間</th><th>ドラム温度</th><th>豆温</th><th>火力</th><th>状態・メモ</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>:</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>:</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>:</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>:</td><td></td><td></td><td></td><td></td></tr>
       </tbody>
     </table>
 
