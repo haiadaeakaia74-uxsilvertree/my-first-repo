@@ -97,7 +97,8 @@
       <tr><td>予熱・投入設定</td><td>220</td><td>ドラム温度不明</td></tr>
       <tr><td>黄変</td><td>4:00</td><td>8:00</td></tr>
       <tr><td>1ハゼ</td><td>8:46〜10:43</td><td>10:10〜13:45</td></tr>
-      <tr><td>排出時間</td><td>13:00</td><td>15:15</td></tr>
+      <tr><td>火止め</td><td>12:20</td><td>14:48</td></tr>
+      <tr><td>排出時間</td><td>13:00（ドラム209℃ / 豆219℃）</td><td>15:15（豆218℃）</td></tr>
       <tr><td>観察</td><td>飲み比べ後に香り・渋み・甘さ・後味を追記</td><td>ばらつき・生焼けあり。ROR 管理が難しい。</td></tr>
     </tbody>
   </table>
@@ -109,22 +110,22 @@
       <table>
         <thead>
           <tr>
-            <th>経過時間</th><th>0分</th><th>3分</th><th>6分</th><th>8分</th><th>10分</th><th>1ハゼ</th><th>排出</th>
+            <th>経過時間</th><th>0分</th><th>3分</th><th>6分</th><th>8分</th><th>10分</th><th>1ハゼ</th><th>火止め</th><th>排出</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td class="time-label">ドラム（℃）</td>
-            <td class="drum">124</td><td class="drum">166</td><td class="drum">190</td><td class="drum">201</td><td class="drum">210</td><td class="drum">206〜210</td><td class="drum">未記録</td>
+            <td class="drum">124</td><td class="drum">166</td><td class="drum">190</td><td class="drum">201</td><td class="drum">210</td><td class="drum">206〜210</td><td class="drum">—</td><td class="drum">209</td>
           </tr>
           <tr>
             <td class="time-label">豆（℃）</td>
-            <td class="bean">90</td><td class="bean">147</td><td class="bean">183</td><td class="bean">197</td><td class="bean">211</td><td class="bean">204〜215</td><td class="bean">未記録</td>
+            <td class="bean">90</td><td class="bean">147</td><td class="bean">183</td><td class="bean">197</td><td class="bean">211</td><td class="bean">204〜215</td><td class="bean">—</td><td class="bean">219</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p class="small">画像から読める値を優先。1ハゼは 8:46〜10:43、排出は 13:00。飲み比べ評価は未実施。</p>
+    <p class="small">画像から読める値と追記確認を反映。1ハゼは 8:46〜10:43、火止めは12:20、排出は13:00（ドラム209℃ / 豆219℃）。飲み比べ評価は未実施。</p>
   </div>
 
   <div class="section-header">バッチ② — 穴あき（9:15スタート）</div>
@@ -134,22 +135,22 @@
       <table>
         <thead>
           <tr>
-            <th>経過時間</th><th>0分</th><th>3分</th><th>6分</th><th>8分</th><th>10分</th><th>1ハゼ</th><th>排出</th>
+            <th>経過時間</th><th>0分</th><th>3分</th><th>6分</th><th>8分</th><th>10分</th><th>1ハゼ</th><th>火止め</th><th>排出</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td class="time-label">ドラム（℃）</td>
-            <td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td>
+            <td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td>
           </tr>
           <tr>
             <td class="time-label">豆（℃）</td>
-            <td class="hole">67</td><td class="hole">153</td><td class="hole">165</td><td class="hole">178</td><td class="hole">206</td><td class="hole">213〜218</td><td class="hole">未記録</td>
+            <td class="hole">67</td><td class="hole">153</td><td class="hole">165</td><td class="hole">178</td><td class="hole">206</td><td class="hole">213〜218</td><td class="hole">—</td><td class="hole">218</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p class="small">画像から読める豆温のみ記録。1ハゼは 10:10〜13:45、排出は 15:15。ドラム温度は不明として扱う。</p>
+    <p class="small">画像から読める豆温と追記確認を反映。1ハゼは 10:10〜13:45、火止めは14:48、排出は15:15（豆218℃）。ドラム温度は不明として扱う。</p>
   </div>
 
   <div class="section-header">インサイト・考察</div>
@@ -185,13 +186,13 @@
 
   <script>
     const glassDrum = [
-      {x:0, y:124}, {x:3, y:166}, {x:6, y:190}, {x:8, y:201}, {x:8.767, y:206}, {x:10, y:210}, {x:10.717, y:210}
+      {x:0, y:124}, {x:3, y:166}, {x:6, y:190}, {x:8, y:201}, {x:8.767, y:206}, {x:10, y:210}, {x:10.717, y:210}, {x:13, y:209}
     ];
     const glassBean = [
-      {x:0, y:90}, {x:3, y:147}, {x:6, y:183}, {x:8, y:197}, {x:8.767, y:204}, {x:10, y:211}, {x:10.717, y:215}
+      {x:0, y:90}, {x:3, y:147}, {x:6, y:183}, {x:8, y:197}, {x:8.767, y:204}, {x:10, y:211}, {x:10.717, y:215}, {x:13, y:219}
     ];
     const holeBean = [
-      {x:0, y:67}, {x:3, y:153}, {x:6, y:165}, {x:8, y:178}, {x:10, y:206}, {x:10.167, y:213}, {x:13.75, y:218}
+      {x:0, y:67}, {x:3, y:153}, {x:6, y:165}, {x:8, y:178}, {x:10, y:206}, {x:10.167, y:213}, {x:13.75, y:218}, {x:15.25, y:218}
     ];
     const glassRor = [
       {x:1.5, y:19.0}, {x:4.5, y:12.0}, {x:7.0, y:7.0}, {x:9.0, y:7.0}, {x:10.36, y:5.6}
@@ -228,9 +229,11 @@
     const events = [
       { t:4.0, label:'①黄変', color:'#D35400', labelOffset:14 },
       { t:8.767, label:'①1ハゼ', color:'#D35400', labelOffset:28 },
+      { t:12.333, label:'①火止め', color:'#c87e1a', labelOffset:42 },
       { t:13.0, label:'①排出', color:'#D35400', labelOffset:14 },
       { t:8.0, label:'②黄変', color:'#8B6914', labelOffset:42 },
       { t:10.167, label:'②1ハゼ', color:'#8B6914', labelOffset:56 },
+      { t:14.8, label:'②火止め', color:'#c0772a', labelOffset:42 },
       { t:15.25, label:'②排出', color:'#8B6914', labelOffset:28 }
     ];
 
