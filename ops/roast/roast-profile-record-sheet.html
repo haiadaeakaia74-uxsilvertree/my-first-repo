@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 焙煎プロファイル記録シート</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      color: #1C1C1C;
+      background: #F8F4EE;
+      margin: 0;
+      padding: 28px;
+    }
+    .sheet {
+      max-width: 1080px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 28px;
+      border: 1px solid #D4C5A9;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.35rem;
+      color: #2D4A3E;
+      font-weight: normal;
+      border-bottom: 2px solid #D4C5A9;
+      padding-bottom: 10px;
+    }
+    .subtitle {
+      color: #6B4226;
+      font-size: 0.82rem;
+      margin: 0 0 18px;
+    }
+    .section-title {
+      margin: 18px 0 8px;
+      color: #2D4A3E;
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid #E8E0D4;
+      padding-bottom: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin-bottom: 12px;
+      font-size: 0.78rem;
+    }
+    th, td {
+      border: 1px solid #D8D0C4;
+      padding: 6px 7px;
+      height: 31px;
+      vertical-align: top;
+    }
+    th {
+      background: #2D4A3E;
+      color: #fff;
+      font-weight: normal;
+    }
+    .label {
+      width: 18%;
+      color: #6B4226;
+      background: #F8F4EE;
+      font-weight: bold;
+    }
+    .small { font-size: 0.72rem; color: #777; line-height: 1.6; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .memo-box {
+      border: 1px solid #D8D0C4;
+      min-height: 78px;
+      padding: 8px;
+      font-size: 0.78rem;
+    }
+    .check-row span {
+      display: inline-block;
+      margin-right: 18px;
+      white-space: nowrap;
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .sheet { border: 0; max-width: none; padding: 10mm; }
+      h1 { font-size: 16pt; }
+      .section-title { break-after: avoid; }
+      table { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <h1>Silver Tree Coffee Roaster — 焙煎プロファイル記録シート</h1>
+    <p class="subtitle">豆温は毎分記録。黄変・1ハゼ・火止め・排出は、時刻と温度を必ず残す。</p>
+
+    <div class="section-title">基本情報</div>
+    <table>
+      <tbody>
+        <tr>
+          <td class="label">焙煎日</td><td></td>
+          <td class="label">開始時刻</td><td></td>
+          <td class="label">天候/気温/湿度</td><td></td>
+        </tr>
+        <tr>
+          <td class="label">豆名</td><td colspan="3"></td>
+          <td class="label">用途</td><td>Single / White / Dark / 検証</td>
+        </tr>
+        <tr>
+          <td class="label">ドラム</td><td>耐熱ガラス / 穴あき / その他</td>
+          <td class="label">生豆投入量</td><td>g</td>
+          <td class="label">焙煎後重量</td><td>g</td>
+        </tr>
+        <tr>
+          <td class="label">狙い</td><td colspan="2">浅 / 中 / 中より深め / 中深 / 深</td>
+          <td class="label">予熱・投入設定</td><td colspan="2"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">温度ログ</div>
+    <table>
+      <thead>
+        <tr>
+          <th>時間</th><th>ドラム温度</th><th>豆温</th><th>火力</th><th>状態・メモ</th>
+          <th>時間</th><th>ドラム温度</th><th>豆温</th><th>火力</th><th>状態・メモ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>0:00</td><td></td><td></td><td></td><td>投入</td><td>9:00</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>1:00</td><td></td><td></td><td></td><td></td><td>10:00</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>2:00</td><td></td><td></td><td></td><td></td><td>11:00</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>3:00</td><td></td><td></td><td></td><td></td><td>12:00</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>4:00</td><td></td><td></td><td></td><td></td><td>13:00</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>5:00</td><td></td><td></td><td></td><td></td><td>14:00</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>6:00</td><td></td><td></td><td></td><td></td><td>15:00</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>7:00</td><td></td><td></td><td></td><td></td><td>16:00</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>8:00</td><td></td><td></td><td></td><td></td><td>17:00</td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">イベント記録</div>
+    <table>
+      <thead>
+        <tr><th>イベント</th><th>時刻</th><th>ドラム温度</th><th>豆温</th><th>音・香り・見た目</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>黄変</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>1ハゼ開始</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>1ハゼピーク</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>1ハゼ終了</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>2ハゼ開始</td><td>なし /</td><td></td><td></td><td></td></tr>
+        <tr><td>火止め</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>排出</td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+      <div>
+        <div class="section-title">焙煎中の観察</div>
+        <div class="memo-box">
+          色づき / ハゼの強さ / 煙 / 香り / ムラ / 生焼け感 / 気になった操作
+        </div>
+      </div>
+      <div>
+        <div class="section-title">焙煎後チェック</div>
+        <div class="memo-box">
+          外観 / 欠点 / 焦げ / ムラ / 焙煎直後の香り / 冷却時間 / 保存方法
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">飲み比べ・カッピング</div>
+    <table>
+      <tbody>
+        <tr><td class="label">評価日</td><td></td><td class="label">抽出方法</td><td>ドリップ / エスプレッソ / 水出し</td><td class="label">湯温</td><td>℃</td></tr>
+        <tr><td class="label">香り</td><td colspan="5"></td></tr>
+        <tr><td class="label">甘さ</td><td></td><td class="label">酸</td><td></td><td class="label">苦味</td><td></td></tr>
+        <tr><td class="label">渋み・えぐみ</td><td></td><td class="label">ボディ</td><td></td><td class="label">後味</td><td></td></tr>
+        <tr><td class="label">総評</td><td colspan="5"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">次回修正</div>
+    <table>
+      <thead><tr><th>課題</th><th>次回の打ち手</th></tr></thead>
+      <tbody>
+        <tr><td></td><td></td></tr>
+        <tr><td></td><td></td></tr>
+        <tr><td></td><td></td></tr>
+      </tbody>
+    </table>
+
+    <p class="small">記入後は写真で送るか、`templates/roast-profile-record.md` の短縮入力形式で送る。</p>
+  </main>
+</body>
+</html>
