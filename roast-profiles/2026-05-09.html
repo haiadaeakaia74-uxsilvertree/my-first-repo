@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Silver Tree — 焙煎プロファイル 2026/5/9</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body {
       font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
       background: #F8F4EE;
       color: #1C1C1C;
-      max-width: 980px;
+      max-width: 1080px;
       margin: 0 auto;
       padding: 48px 20px;
     }
@@ -23,27 +24,36 @@
     .s-label { font-size: 0.72rem; color: #6B4226; margin-bottom: 5px; }
     .s-value { font-size: 1.45rem; font-weight: bold; color: #2D4A3E; }
     .section-header { font-size: 0.78rem; color: #888; letter-spacing: 0.1em; text-transform: uppercase; margin: 32px 0 14px; padding-bottom: 6px; border-bottom: 1px solid #E8E0D4; }
-    .note { background: #fff; border-left: 3px solid #2D4A3E; border-radius: 0 8px 8px 0; padding: 16px 20px; line-height: 1.8; font-size: 0.9rem; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .note, .chart-card, .profile-card, .insight-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .note { border-left: 3px solid #2D4A3E; border-radius: 0 8px 8px 0; padding: 16px 20px; line-height: 1.8; font-size: 0.9rem; }
+    .chart-card { padding: 24px 26px; }
+    .chart-title { color: #6B4226; font-size: 0.95rem; margin-bottom: 14px; }
+    .legend-note { font-size: 0.78rem; color: #777; line-height: 1.7; margin-bottom: 10px; }
+    .profile-card { padding: 20px 22px; margin-bottom: 18px; }
+    .profile-title { color: #2D4A3E; font-weight: bold; margin-bottom: 14px; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-    .card { background: #fff; border-radius: 8px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
-    .card h2 { font-size: 1.05rem; color: #2D4A3E; margin: 0 0 12px; }
-    .tag { display: inline-block; background: #e8f4f0; color: #2D4A3E; border-radius: 4px; padding: 2px 8px; font-size: 0.72rem; margin-left: 6px; }
-    .warn { background: #fff8f0; border-left: 3px solid #c0772a; }
-    .danger { background: #fff7f7; border-left: 3px solid #c0392b; }
     table { width: 100%; border-collapse: collapse; font-size: 0.88rem; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
-    th { background: #2D4A3E; color: #fff; padding: 10px 14px; text-align: left; font-weight: normal; font-size: 0.78rem; }
-    td { padding: 10px 14px; border-bottom: 1px solid #F8F4EE; vertical-align: top; }
+    .profile-card table { box-shadow: none; }
+    th { background: #2D4A3E; color: #fff; padding: 10px 12px; text-align: left; font-weight: normal; font-size: 0.78rem; }
+    td { padding: 10px 12px; border-bottom: 1px solid #F8F4EE; vertical-align: top; }
     tr:last-child td { border-bottom: none; }
-    .timeline { display: grid; gap: 12px; margin-top: 10px; }
-    .line { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 12px; font-size: 0.82rem; }
-    .bar { height: 12px; background: #E8E0D4; border-radius: 999px; position: relative; overflow: hidden; }
-    .bar span { position: absolute; height: 100%; left: 0; top: 0; border-radius: 999px; background: #2D4A3E; }
-    .bar.perf span { background: #8B6914; }
+    .time-label { color: #6B4226; font-weight: bold; }
+    .drum { color: #D35400; font-weight: bold; }
+    .bean { color: #1A5276; font-weight: bold; }
+    .hole { color: #8B6914; font-weight: bold; }
+    .tag { display: inline-block; background: #e8f4f0; color: #2D4A3E; border-radius: 4px; padding: 2px 8px; font-size: 0.72rem; margin-left: 6px; }
+    .warn { border-left: 3px solid #c0772a; }
+    .danger { border-left: 3px solid #c0392b; }
+    .insights-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .insight-card { padding: 18px 20px; border-top: 3px solid #D4C5A9; }
+    .insight-number { font-size: 0.7rem; color: #888; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .insight-title { color: #2D4A3E; font-weight: bold; margin-bottom: 8px; }
+    .insight-body { font-size: 0.84rem; color: #555; line-height: 1.85; }
     .small { color: #666; font-size: 0.82rem; line-height: 1.8; }
-    ul { margin: 8px 0 0 1.1em; padding: 0; line-height: 1.9; }
     footer { text-align: center; color: #D4C5A9; font-size: 0.73rem; margin-top: 48px; }
     @media (max-width: 760px) {
-      .stats-row, .grid { grid-template-columns: 1fr; }
+      .stats-row, .grid, .insights-grid { grid-template-columns: 1fr; }
+      body { padding: 32px 14px; }
     }
   </style>
 </head>
@@ -51,7 +61,7 @@
   <div class="nav"><a href="index.html">← 焙煎プロファイル一覧</a>　｜　2026-05-09</div>
 
   <h1>Brazil ベラビスタ G400 ドラム比較</h1>
-  <p class="subtitle">耐熱ガラス / 穴あき　｜　狙い：中煎りより少し深め　｜　味の飲み比べは明日以降に実施</p>
+  <p class="subtitle">耐熱ガラス / 穴あき　｜　狙い：中煎りより少し深め　｜　画像記録から読める温度データを反映</p>
 
   <div class="stats-row">
     <div class="stat-card"><div class="s-label">バッチ数</div><div class="s-value">2</div></div>
@@ -62,72 +72,257 @@
 
   <div class="section-header">結論</div>
   <div class="note">
-    数値上の歩留まり差は小さいが、イベント進行と焙煎の安定性には大きな差が出た。現段階では、G400 は <strong>耐熱ガラスでドラム温度を見ながら焙煎する方が安定性と再現性が高い</strong>。
+    耐熱ガラスはドラム温度と豆温の推移を記録できており、黄変から1ハゼ、排出までの流れを追える。穴あきはドラム温度が不明のため豆温中心の記録だが、進行が遅く、ばらつきと生焼けが見られた。現段階では <strong>耐熱ガラスでドラム温度を見ながら焙煎する方が安定性と再現性が高い</strong>。
+  </div>
+
+  <div class="section-header">温度プロファイル比較チャート</div>
+  <div class="chart-card">
+    <div class="chart-title">耐熱ガラス：ドラム温度＋豆温　｜　穴あき：豆温のみ　｜　RORは豆温から算出</div>
+    <div class="legend-note">
+      穴あきはドラム温度が不明のため、チャート上は豆温のみ表示。読みにくい手書き欄は無理に補完せず、確認できた値だけを記録。
+    </div>
+    <canvas id="roastChart" height="320"></canvas>
   </div>
 
   <div class="section-header">比較表</div>
   <table>
     <thead>
-      <tr>
-        <th>項目</th>
-        <th>耐熱ガラス</th>
-        <th>穴あき</th>
-      </tr>
+      <tr><th>項目</th><th>耐熱ガラス</th><th>穴あき</th></tr>
     </thead>
     <tbody>
       <tr><td>生豆投入量</td><td>200g</td><td>200g</td></tr>
       <tr><td>焙煎後重量</td><td>168.6g</td><td>168.1g</td></tr>
       <tr><td>歩留まり / 減少率</td><td>84.3% / 15.7%</td><td>84.1% / 16.0%</td></tr>
-      <tr><td>投入温度</td><td>220</td><td>不明</td></tr>
+      <tr><td>焙煎率（生豆÷焙煎後）</td><td>1.186</td><td>1.190</td></tr>
+      <tr><td>予熱・投入設定</td><td>220</td><td>ドラム温度不明</td></tr>
       <tr><td>黄変</td><td>4:00</td><td>8:00</td></tr>
       <tr><td>1ハゼ</td><td>8:46〜10:43</td><td>10:10〜13:45</td></tr>
       <tr><td>排出時間</td><td>13:00</td><td>15:15</td></tr>
-      <tr><td>観察</td><td>味評価は飲み比べ後</td><td>ばらつき・生焼けあり。ROR 管理が難しい。</td></tr>
+      <tr><td>観察</td><td>飲み比べ後に香り・渋み・甘さ・後味を追記</td><td>ばらつき・生焼けあり。ROR 管理が難しい。</td></tr>
     </tbody>
   </table>
 
-  <div class="section-header">進行の違い</div>
-  <div class="grid">
-    <div class="card">
-      <h2>耐熱ガラス <span class="tag">安定寄り</span></h2>
-      <div class="timeline">
-        <div class="line"><span>黄変 4:00</span><div class="bar"><span style="width:31%;"></span></div></div>
-        <div class="line"><span>1ハゼ 8:46</span><div class="bar"><span style="width:67%;"></span></div></div>
-        <div class="line"><span>排出 13:00</span><div class="bar"><span style="width:100%;"></span></div></div>
-      </div>
+  <div class="section-header">バッチ① — 耐熱ガラス（8:30スタート）</div>
+  <div class="profile-card">
+    <div class="profile-title">Brazil ベラビスタ　｜　200g → 168.6g（84.3%）｜　焙煎率 1.186</div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>経過時間</th><th>0分</th><th>3分</th><th>6分</th><th>8分</th><th>10分</th><th>1ハゼ</th><th>排出</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="time-label">ドラム（℃）</td>
+            <td class="drum">124</td><td class="drum">166</td><td class="drum">190</td><td class="drum">201</td><td class="drum">210</td><td class="drum">206〜210</td><td class="drum">未記録</td>
+          </tr>
+          <tr>
+            <td class="time-label">豆（℃）</td>
+            <td class="bean">90</td><td class="bean">147</td><td class="bean">183</td><td class="bean">197</td><td class="bean">211</td><td class="bean">204〜215</td><td class="bean">未記録</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="card warn">
-      <h2>穴あき <span class="tag" style="background:#fef3e2;color:#8B6914;">要再検証</span></h2>
-      <div class="timeline">
-        <div class="line"><span>黄変 8:00</span><div class="bar perf"><span style="width:52%;"></span></div></div>
-        <div class="line"><span>1ハゼ 10:10</span><div class="bar perf"><span style="width:67%;"></span></div></div>
-        <div class="line"><span>排出 15:15</span><div class="bar perf"><span style="width:100%;"></span></div></div>
-      </div>
-    </div>
+    <p class="small">画像から読める値を優先。1ハゼは 8:46〜10:43、排出は 13:00。飲み比べ評価は未実施。</p>
   </div>
 
-  <div class="section-header">観察メモ</div>
-  <div class="grid">
-    <div class="card">
-      <h2>耐熱ガラス</h2>
-      <p class="small">香り・渋み・甘さ・後味は飲み比べ後に記録。今回の検証では、黄変と1ハゼの進行が狙いに近く、温度管理の再現性を取りやすい方向。</p>
+  <div class="section-header">バッチ② — 穴あき（9:15スタート）</div>
+  <div class="profile-card warn">
+    <div class="profile-title">Brazil ベラビスタ　｜　200g → 168.1g（84.1%）｜　焙煎率 1.190　｜　ドラム温度不明</div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>経過時間</th><th>0分</th><th>3分</th><th>6分</th><th>8分</th><th>10分</th><th>1ハゼ</th><th>排出</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="time-label">ドラム（℃）</td>
+            <td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td><td>不明</td>
+          </tr>
+          <tr>
+            <td class="time-label">豆（℃）</td>
+            <td class="hole">67</td><td class="hole">153</td><td class="hole">165</td><td class="hole">178</td><td class="hole">206</td><td class="hole">213〜218</td><td class="hole">未記録</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="card danger">
-      <h2>穴あき</h2>
-      <ul>
-        <li>焙煎のばらつきがあり、生焼けが見られた。</li>
-        <li>ROR 管理が難しい。</li>
-        <li>先端と後部で温度が安定しない。</li>
-        <li>真ん中は火力があり、焼け方に偏りが出た。</li>
-      </ul>
+    <p class="small">画像から読める豆温のみ記録。1ハゼは 10:10〜13:45、排出は 15:15。ドラム温度は不明として扱う。</p>
+  </div>
+
+  <div class="section-header">インサイト・考察</div>
+  <div class="insights-grid">
+    <div class="insight-card">
+      <div class="insight-number">INSIGHT 01</div>
+      <div class="insight-title">歩留まりはほぼ同じ</div>
+      <div class="insight-body">耐熱ガラス 84.3%、穴あき 84.1%。重量減少だけを見ると差は小さいが、焼け方の均一性には差が出た。</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-number">INSIGHT 02</div>
+      <div class="insight-title">穴あきはイベントが遅い</div>
+      <div class="insight-body">黄変は耐熱ガラス 4:00、穴あき 8:00。1ハゼ開始も穴あきが約1分24秒遅く、排出も2分15秒長い。</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-number">INSIGHT 03</div>
+      <div class="insight-title">穴あきのドラム温度は未取得</div>
+      <div class="insight-body">穴あきは温度管理の基準が豆温中心になっている。次回検証するなら、ドラム温度または火力位置の記録が必要。</div>
+    </div>
+    <div class="insight-card danger">
+      <div class="insight-number">INSIGHT 04</div>
+      <div class="insight-title">現時点の実務判断</div>
+      <div class="insight-body">G400では、耐熱ガラスでドラム温度を見ながら進める方が再現性を取りやすい。穴あきは構造上の熱ムラ対策が必要。</div>
     </div>
   </div>
 
   <div class="section-header">次回確認</div>
   <div class="note">
-    飲み比べで、耐熱ガラスと穴あきの「香り・甘さ・渋み・後味」を確認する。穴あきを再検証する場合は、投入温度を必ず記録する。
+    飲み比べで、耐熱ガラスと穴あきの「香り・甘さ・渋み・後味」を確認する。穴あきを再検証する場合は、投入温度、火力位置、ドラム温度の代替指標を必ず記録する。
   </div>
 
-  <footer>Silver Tree Coffee Roaster — 焙煎プロファイル 2026.05.09</footer>
+  <footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　焙煎プロファイル 2026.05.09</footer>
+
+  <script>
+    const glassDrum = [
+      {x:0, y:124}, {x:3, y:166}, {x:6, y:190}, {x:8, y:201}, {x:8.767, y:206}, {x:10, y:210}, {x:10.717, y:210}
+    ];
+    const glassBean = [
+      {x:0, y:90}, {x:3, y:147}, {x:6, y:183}, {x:8, y:197}, {x:8.767, y:204}, {x:10, y:211}, {x:10.717, y:215}
+    ];
+    const holeBean = [
+      {x:0, y:67}, {x:3, y:153}, {x:6, y:165}, {x:8, y:178}, {x:10, y:206}, {x:10.167, y:213}, {x:13.75, y:218}
+    ];
+    const glassRor = [
+      {x:1.5, y:19.0}, {x:4.5, y:12.0}, {x:7.0, y:7.0}, {x:9.0, y:7.0}, {x:10.36, y:5.6}
+    ];
+    const holeRor = [
+      {x:1.5, y:28.7}, {x:4.5, y:4.0}, {x:7.0, y:6.5}, {x:9.0, y:14.0}, {x:11.95, y:1.4}
+    ];
+
+    const eventMarkerPlugin = {
+      id: 'eventMarkers',
+      afterDraw(chart, args, pluginOptions) {
+        const events = pluginOptions.events || [];
+        const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+        events.forEach(ev => {
+          const xPos = x.getPixelForValue(ev.t);
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(xPos, top);
+          ctx.lineTo(xPos, bottom);
+          ctx.strokeStyle = ev.color;
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 3]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = ev.color;
+          ctx.font = '10px "Hiragino Mincho ProN", serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(ev.label, xPos, top + (ev.labelOffset || 14));
+          ctx.restore();
+        });
+      }
+    };
+
+    const events = [
+      { t:4.0, label:'①黄変', color:'#D35400', labelOffset:14 },
+      { t:8.767, label:'①1ハゼ', color:'#D35400', labelOffset:28 },
+      { t:13.0, label:'①排出', color:'#D35400', labelOffset:14 },
+      { t:8.0, label:'②黄変', color:'#8B6914', labelOffset:42 },
+      { t:10.167, label:'②1ハゼ', color:'#8B6914', labelOffset:56 },
+      { t:15.25, label:'②排出', color:'#8B6914', labelOffset:28 }
+    ];
+
+    new Chart(document.getElementById('roastChart'), {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: '①耐熱ガラス ドラム温度',
+            data: glassDrum,
+            borderColor: '#D35400',
+            backgroundColor: 'transparent',
+            borderWidth: 2.5,
+            showLine: true,
+            pointRadius: 3,
+            tension: 0.25,
+            yAxisID: 'yTemp'
+          },
+          {
+            label: '①耐熱ガラス 豆温',
+            data: glassBean,
+            borderColor: '#1A5276',
+            backgroundColor: 'transparent',
+            borderWidth: 2.5,
+            showLine: true,
+            pointRadius: 3,
+            tension: 0.25,
+            yAxisID: 'yTemp'
+          },
+          {
+            label: '②穴あき 豆温',
+            data: holeBean,
+            borderColor: '#8B6914',
+            backgroundColor: 'transparent',
+            borderWidth: 2.5,
+            borderDash: [6, 4],
+            showLine: true,
+            pointRadius: 3,
+            tension: 0.25,
+            yAxisID: 'yTemp'
+          },
+          {
+            label: '①ROR（豆温）',
+            data: glassRor,
+            borderColor: '#2D4A3E',
+            backgroundColor: 'transparent',
+            borderWidth: 1.6,
+            borderDash: [3, 3],
+            showLine: true,
+            pointRadius: 2.5,
+            tension: 0.35,
+            yAxisID: 'yRor'
+          },
+          {
+            label: '②ROR（豆温・参考）',
+            data: holeRor,
+            borderColor: '#c0772a',
+            backgroundColor: 'transparent',
+            borderWidth: 1.4,
+            borderDash: [2, 4],
+            showLine: true,
+            pointRadius: 2.5,
+            tension: 0.35,
+            yAxisID: 'yRor'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'nearest', intersect: false },
+        plugins: {
+          legend: { position: 'top', labels: { boxWidth: 34, padding: 16 } },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const label = ctx.dataset.label || '';
+                const x = Number(ctx.parsed.x).toFixed(2).replace(/\.00$/, '');
+                const y = Number(ctx.parsed.y).toFixed(1).replace(/\.0$/, '');
+                return label.includes('ROR') ? `${label}: ${y}℃/min @ ${x}分` : `${label}: ${y}℃ @ ${x}分`;
+              }
+            }
+          },
+          eventMarkers: { events }
+        },
+        scales: {
+          x: { type: 'linear', min: 0, max: 16, title: { display: true, text: '経過時間（分）' }, ticks: { stepSize: 1 } },
+          yTemp: { type: 'linear', position: 'left', min: 60, max: 230, title: { display: true, text: '温度（℃）' }, ticks: { stepSize: 20 } },
+          yRor: { type: 'linear', position: 'right', min: 0, max: 30, title: { display: true, text: 'ROR（℃/min）' }, grid: { drawOnChartArea: false } }
+        }
+      },
+      plugins: [eventMarkerPlugin]
+    });
+  </script>
 </body>
 </html>
