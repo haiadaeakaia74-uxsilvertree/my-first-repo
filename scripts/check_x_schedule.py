@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Validate x-post-log.md before X auto posting.
+"""Validate X auto posting schedule.
 
 This does not send anything. It checks that the schedule is parseable, dates
 are unique, referenced images exist, and there is a future post available.
+
+The base schedule is x-post-log.md. If ops/sns/x-post-log-overrides.md has the
+same date, the override entry is used for validation and posting.
 """
 
 from __future__ import annotations
@@ -17,6 +20,7 @@ from typing import Optional
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG_FILE = ROOT / "x-post-log.md"
+OVERRIDE_FILE = ROOT / "ops" / "sns" / "x-post-log-overrides.md"
 POSTED_FILE = ROOT / "ops" / "sns" / "posted-dates.txt"
 
 
@@ -33,7 +37,7 @@ def parse_date(date_str: str) -> Optional[datetime]:
     )
 
 
-def parse_entries(content: str) -> list[dict]:
+def parse_entries(content: str, source: Path) -> list[dict]:
     pattern = re.compile(
         r"^## (?P<date>.+?)\n(?P<body>.*?)(?=^---\s*$\n|\Z)",
         re.MULTILINE | re.DOTALL,
@@ -53,8 +57,24 @@ def parse_entries(content: str) -> list[dict]:
                 "theme": theme_match.group(1).strip() if theme_match else "",
                 "image": image_match.group(1).strip() if image_match else None,
                 "text": text_match.group("text").strip(),
+                "source": source,
             }
         )
+    return entries
+
+
+def load_entries() -> list[dict]:
+    base_entries = parse_entries(LOG_FILE.read_text(encoding="utf-8"), LOG_FILE)
+    override_entries: list[dict] = []
+    if OVERRIDE_FILE.exists():
+        override_entries = parse_entries(OVERRIDE_FILE.read_text(encoding="utf-8"), OVERRIDE_FILE)
+
+    merged = {entry["date"]: entry for entry in base_entries}
+    for entry in override_entries:
+        merged[entry["date"]] = entry
+
+    entries = list(merged.values())
+    entries.sort(key=lambda e: e["datetime"] or datetime.max)
     return entries
 
 
@@ -69,8 +89,7 @@ def main() -> None:
     parser.add_argument("--require-future", action="store_true", help="Fail if no unposted future entries exist")
     args = parser.parse_args()
 
-    content = LOG_FILE.read_text(encoding="utf-8")
-    entries = parse_entries(content)
+    entries = load_entries()
     posted = posted_dates()
     errors: list[str] = []
     warnings: list[str] = []
@@ -78,6 +97,7 @@ def main() -> None:
     seen: set[str] = set()
     now = datetime.now()
     future_unposted = 0
+    override_count = 0
 
     for entry in entries:
         date = entry["date"]
@@ -85,6 +105,9 @@ def main() -> None:
         if date in seen:
             errors.append(f"重複日時: {date}")
         seen.add(date)
+
+        if entry.get("source") == OVERRIDE_FILE:
+            override_count += 1
 
         if dt is None:
             warnings.append(f"日時を解析できません: {date}")
@@ -103,7 +126,7 @@ def main() -> None:
     if args.require_future and future_unposted == 0:
         errors.append("未来の未投稿エントリがありません")
 
-    print(f"X投稿チェック: {len(entries)}件 / 未来の未投稿 {future_unposted}件")
+    print(f"X投稿チェック: {len(entries)}件 / override {override_count}件 / 未来の未投稿 {future_unposted}件")
     for warning in warnings:
         print(f"警告: {warning}")
     for error in errors:
