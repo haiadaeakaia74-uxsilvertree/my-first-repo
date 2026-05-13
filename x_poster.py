@@ -2,7 +2,6 @@
 x_poster.py - X（Twitter）自動投稿スクリプト
 
 x-post-log.md から投稿文を読み取り、X に自動投稿します。
-ops/sns/x-post-log-overrides.md に同じ日時の投稿がある場合は、そちらを優先します。
 画像フィールドがある場合は画像付きで投稿します。
 投稿済みの記録は ops/sns/posted-dates.txt に保存されます。
 
@@ -25,7 +24,6 @@ from dotenv import dotenv_values
 
 ENV_FILE = Path(".env")
 LOG_FILE = Path("x-post-log.md")
-OVERRIDE_FILE = Path("ops/sns/x-post-log-overrides.md")
 POSTED_FILE = Path("ops/sns/posted-dates.txt")
 
 SCHEDULED_WINDOW_MINUTES = 240  # GitHub Actions cron は最大2〜3時間遅延することがある
@@ -73,10 +71,8 @@ def get_v1_api(config: dict) -> tweepy.API:
 
 
 def parse_log_file(log_path: Path) -> list[dict]:
-    """投稿ログをパースして全エントリを返す。"""
+    """x-post-log.md をパースして全エントリを返す。"""
     if not log_path.exists():
-        if log_path == OVERRIDE_FILE:
-            return []
         print(f"エラー: {log_path} が見つかりません。")
         sys.exit(1)
 
@@ -116,28 +112,9 @@ def parse_log_file(log_path: Path) -> list[dict]:
             "text": text,
             "image": image,
             "datetime": _parse_date(date),
-            "source": str(log_path),
         })
 
     entries.sort(key=lambda e: e["datetime"] or datetime.max)
-    return entries
-
-
-def load_entries() -> list[dict]:
-    """通常ログを読み、同日時のoverrideがあればoverrideを優先する。"""
-    base_entries = parse_log_file(LOG_FILE)
-    override_entries = parse_log_file(OVERRIDE_FILE)
-
-    merged = {entry["date"]: entry for entry in base_entries}
-    for entry in override_entries:
-        merged[entry["date"]] = entry
-
-    entries = list(merged.values())
-    entries.sort(key=lambda e: e["datetime"] or datetime.max)
-
-    if override_entries:
-        print(f"override適用: {len(override_entries)}件（{OVERRIDE_FILE}）")
-
     return entries
 
 
@@ -252,7 +229,6 @@ def cmd_scheduled(entries: list[dict], posted_dates: set[str], client: tweepy.Cl
         return
 
     print(f"[{now.strftime('%Y-%m-%d %H:%M')}] 投稿します: 【{target['date']}】{target['theme']}")
-    print(f"  source: {target.get('source', LOG_FILE)}")
     if target["image"]:
         print(f"  画像: {target['image']}")
     print("-" * 40)
@@ -278,12 +254,10 @@ def cmd_list(entries: list[dict], posted_dates: set[str]) -> None:
         else:
             status = "未投稿"
         img = "🖼" if entry["image"] else "  "
-        source_mark = "*" if entry.get("source") == str(OVERRIDE_FILE) else " "
-        print(f"{status:<6} {img:<4} {entry['date']:<25} {source_mark}{entry['theme']}")
+        print(f"{status:<6} {img:<4} {entry['date']:<25} {entry['theme']}")
     print()
     pending = [e for e in entries if e["date"] not in posted_dates and (e["datetime"] or datetime.max) <= now]
     print(f"合計 {len(entries)} 件 / 未投稿（当日以前）{len(pending)} 件")
-    print("* = override適用")
 
 
 def main() -> None:
@@ -294,7 +268,7 @@ def main() -> None:
     args = parser.parse_args()
 
     config = load_config()
-    entries = load_entries()
+    entries = parse_log_file(LOG_FILE)
     posted_dates = get_posted_dates()
 
     if args.list:
@@ -322,7 +296,6 @@ def main() -> None:
         print(f"{len(pending)} 件の未投稿記事を処理します。\n")
         for entry in pending:
             print(f"【{entry['date']}】{entry['theme']}")
-            print(f"  source: {entry.get('source', LOG_FILE)}")
             if entry["image"]:
                 print(f"  画像: {entry['image']}")
             print("-" * 40)
