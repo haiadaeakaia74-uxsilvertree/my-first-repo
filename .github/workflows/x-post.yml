@@ -1,8 +1,6 @@
 name: X自動投稿（Codex管理）
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'  # 30分ごと（JST 07:00/12:00/20:00 の投稿ウィンドウを確認）
   workflow_dispatch:       # 手動実行ボタン（確認・再実行用）
 
 jobs:
