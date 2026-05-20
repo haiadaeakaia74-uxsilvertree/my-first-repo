@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — Brazil Bellavista 2026/5/11</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+      background: #F8F4EE;
+      color: #1C1C1C;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 48px 20px;
+    }
+    .nav { font-size: 0.78rem; color: #888; margin-bottom: 28px; }
+    .nav a { color: #2D4A3E; text-decoration: none; }
+    h1 { font-size: 1.35rem; font-weight: normal; color: #2D4A3E; border-bottom: 1px solid #D4C5A9; padding-bottom: 12px; margin-bottom: 8px; }
+    .subtitle { color: #6B4226; font-size: 0.85rem; margin-bottom: 34px; line-height: 1.8; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 32px; }
+    .stat-card, .note, .chart-card, table { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .stat-card { padding: 16px 18px; text-align: center; }
+    .s-label { font-size: 0.72rem; color: #6B4226; margin-bottom: 5px; }
+    .s-value { font-size: 1.35rem; font-weight: bold; color: #2D4A3E; }
+    .section-header { font-size: 0.78rem; color: #888; letter-spacing: 0.1em; text-transform: uppercase; margin: 32px 0 14px; padding-bottom: 6px; border-bottom: 1px solid #E8E0D4; }
+    .note { border-left: 3px solid #2D4A3E; border-radius: 0 8px 8px 0; padding: 16px 20px; line-height: 1.8; font-size: 0.9rem; }
+    .warn { border-left-color: #c0772a; }
+    .chart-card { padding: 24px 26px; margin-bottom: 16px; }
+    .chart-title { color: #6B4226; font-size: 0.95rem; margin-bottom: 14px; }
+    .small { color: #666; font-size: 0.82rem; line-height: 1.8; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; overflow: hidden; margin-bottom: 16px; }
+    th { background: #2D4A3E; color: #fff; padding: 10px 12px; text-align: left; font-weight: normal; font-size: 0.78rem; }
+    td { padding: 9px 12px; border-bottom: 1px solid #F8F4EE; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .drum { color: #D35400; font-weight: bold; }
+    .bean { color: #1A5276; font-weight: bold; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    footer { text-align: center; color: #D4C5A9; font-size: 0.73rem; margin-top: 48px; }
+    @media (max-width: 760px) {
+      .stats-row, .grid { grid-template-columns: 1fr; }
+      body { padding: 32px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="nav"><a href="index.html">← 焙煎プロファイル一覧</a>　｜　2026-05-11 Brazil Bellavista</div>
+
+  <h1>Brazil ベラビスタ 2バッチ焙煎プロファイル</h1>
+  <p class="subtitle">ブラジル 南ミナス ベラビスタ農園 ブルボンアマレロ PN NO.2　｜　狙い：中煎り　｜　画像記録から読める温度データを反映</p>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">生豆合計</div><div class="s-value">398.2g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後合計</div><div class="s-value">334.6g</div></div>
+    <div class="stat-card"><div class="s-label">平均歩留まり</div><div class="s-value">84.0%</div></div>
+    <div class="stat-card"><div class="s-label">排出</div><div class="s-value" style="font-size:1.05rem;">12:57 / 13:00</div></div>
+  </div>
+
+  <div class="section-header">結論</div>
+  <div class="note">
+    2バッチとも歩留まりは約84%で、5/9のブラジル比較に近い。バッチ2は1ハゼ開始が遅く、火止め時の豆温が223℃まで上がっているため、バッチ1より少し深めに寄った可能性がある。飲み比べで甘さ・渋み・後味を確認する。
+  </div>
+
+  <div class="section-header">温度プロファイル</div>
+  <div class="grid">
+    <div class="chart-card">
+      <div class="chart-title">バッチ1（21:00開始）</div>
+      <p class="small">200.2g → 168.3g / 歩留まり84.1%　｜　豆温RORを右軸に表示</p>
+      <canvas id="batch1Chart" height="320"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">バッチ2（21:20開始）</div>
+      <p class="small">198.0g → 166.3g / 歩留まり84.0%　｜　豆温RORを右軸に表示</p>
+      <canvas id="batch2Chart" height="320"></canvas>
+    </div>
+  </div>
+
+  <div class="section-header">比較データ</div>
+  <table>
+    <tbody>
+      <tr><th>項目</th><th>バッチ1</th><th>バッチ2</th></tr>
+      <tr><td>開始</td><td>21:00</td><td>21:20</td></tr>
+      <tr><td>生豆重量</td><td>200.2g</td><td>198.0g</td></tr>
+      <tr><td>焙煎後重量</td><td>168.3g</td><td>166.3g</td></tr>
+      <tr><td>歩留まり</td><td>84.1%</td><td>84.0%</td></tr>
+      <tr><td>黄変</td><td>4:20（183℃ / 165℃）</td><td>4:20（176℃ / 164℃）</td></tr>
+      <tr><td>1ハゼ</td><td>8:15〜10:15</td><td>9:10〜11:00</td></tr>
+      <tr><td>火止め</td><td>12:11（206℃ / 220℃）</td><td>12:20（210℃ / 223℃）</td></tr>
+      <tr><td>排出</td><td>12:57</td><td>13:00</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-header">温度ログ</div>
+  <div class="grid">
+    <table>
+      <thead><tr><th>時間</th><th>ドラム</th><th>豆温</th><th>メモ</th></tr></thead>
+      <tbody>
+        <tr><td>0:00</td><td class="drum">123℃</td><td class="bean">90℃</td><td>投入</td></tr>
+        <tr><td>1:00</td><td class="drum">131℃</td><td class="bean">107℃</td><td></td></tr>
+        <tr><td>2:00</td><td class="drum">146℃</td><td class="bean">121℃</td><td></td></tr>
+        <tr><td>3:00</td><td class="drum">163℃</td><td class="bean">142℃</td><td></td></tr>
+        <tr><td>4:20</td><td class="drum">183℃</td><td class="bean">165℃</td><td>黄変</td></tr>
+        <tr><td>8:15</td><td class="drum">206℃</td><td class="bean">202℃</td><td>1ハゼ開始</td></tr>
+        <tr><td>10:15</td><td class="drum">202℃</td><td class="bean">210℃</td><td>1ハゼ終了</td></tr>
+        <tr><td>12:11</td><td class="drum">206℃</td><td class="bean">220℃</td><td>火止め</td></tr>
+        <tr><td>12:57</td><td></td><td></td><td>排出</td></tr>
+      </tbody>
+    </table>
+    <table>
+      <thead><tr><th>時間</th><th>ドラム</th><th>豆温</th><th>メモ</th></tr></thead>
+      <tbody>
+        <tr><td>0:00</td><td class="drum">125℃</td><td class="bean">90℃</td><td>投入</td></tr>
+        <tr><td>1:00</td><td class="drum">135℃</td><td class="bean">114℃</td><td></td></tr>
+        <tr><td>2:00</td><td class="drum">148℃</td><td class="bean">130℃</td><td></td></tr>
+        <tr><td>3:00</td><td class="drum">162℃</td><td class="bean">146℃</td><td></td></tr>
+        <tr><td>4:20</td><td class="drum">176℃</td><td class="bean">164℃</td><td>黄変</td></tr>
+        <tr><td>9:10</td><td class="drum">198℃</td><td class="bean">202℃</td><td>1ハゼ開始</td></tr>
+        <tr><td>11:00</td><td class="drum">206℃</td><td class="bean">214℃</td><td>1ハゼ終了</td></tr>
+        <tr><td>12:20</td><td class="drum">210℃</td><td class="bean">223℃</td><td>火止め</td></tr>
+        <tr><td>13:00</td><td></td><td></td><td>排出</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-header">次回確認</div>
+  <div class="grid">
+    <div class="note warn">ドラム種別は画像判読が曖昧。耐熱ガラス / 穴あきのどちらかを次回確認する。</div>
+    <div class="note">バッチ2は後半豆温が高いため、バッチ1より深めに感じるかを飲み比べで確認する。</div>
+  </div>
+
+  <footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　焙煎プロファイル 2026.05.11</footer>
+
+  <script>
+    const batch1Drum = [{x:0,y:123},{x:1,y:131},{x:2,y:146},{x:3,y:163},{x:4,y:181},{x:4.333,y:183},{x:5,y:193},{x:6,y:197},{x:7,y:198},{x:8,y:199},{x:8.25,y:206},{x:9,y:201},{x:10,y:202},{x:10.25,y:202},{x:11,y:203},{x:12,y:205},{x:12.183,y:206}];
+    const batch1Bean = [{x:0,y:90},{x:1,y:107},{x:2,y:121},{x:3,y:142},{x:4,y:160},{x:4.333,y:165},{x:5,y:177},{x:6,y:187},{x:7,y:195},{x:8,y:201},{x:8.25,y:202},{x:9,y:205},{x:10,y:209},{x:10.25,y:210},{x:11,y:213},{x:12,y:219},{x:12.183,y:220}];
+    const batch1Ror = [{x:0.5,y:17.0},{x:1.5,y:14.0},{x:2.5,y:21.0},{x:3.5,y:18.0},{x:4.167,y:15.0},{x:4.667,y:18.0},{x:5.5,y:10.0},{x:6.5,y:8.0},{x:7.5,y:6.0},{x:8.125,y:4.0},{x:8.625,y:4.0},{x:9.5,y:4.0},{x:10.125,y:4.0},{x:10.625,y:4.0},{x:11.5,y:6.0},{x:12.092,y:5.5}];
+    const batch2Drum = [{x:0,y:125},{x:1,y:135},{x:2,y:148},{x:3,y:162},{x:4,y:172},{x:4.333,y:176},{x:5,y:184},{x:6,y:190},{x:7,y:191},{x:8,y:192},{x:9,y:197},{x:9.167,y:198},{x:10,y:203},{x:11,y:206},{x:12,y:210},{x:12.333,y:210}];
+    const batch2Bean = [{x:0,y:90},{x:1,y:114},{x:2,y:130},{x:3,y:146},{x:4,y:160},{x:4.333,y:164},{x:5,y:173},{x:6,y:184},{x:7,y:190},{x:8,y:194},{x:9,y:200},{x:9.167,y:202},{x:10,y:208},{x:11,y:214},{x:12,y:220},{x:12.333,y:223}];
+    const batch2Ror = [{x:0.5,y:24.0},{x:1.5,y:16.0},{x:2.5,y:16.0},{x:3.5,y:14.0},{x:4.167,y:12.0},{x:4.667,y:13.5},{x:5.5,y:11.0},{x:6.5,y:6.0},{x:7.5,y:4.0},{x:8.5,y:6.0},{x:9.083,y:12.0},{x:9.583,y:7.2},{x:10.5,y:6.0},{x:11.5,y:6.0},{x:12.167,y:9.0}];
+
+    const eventMarkerPlugin = {
+      id: 'eventMarkers',
+      afterDraw(chart, args, pluginOptions) {
+        const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+        (pluginOptions.events || []).forEach(ev => {
+          const xPos = x.getPixelForValue(ev.t);
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(xPos, top);
+          ctx.lineTo(xPos, bottom);
+          ctx.strokeStyle = ev.color;
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([4, 3]);
+          ctx.stroke();
+          ctx.fillStyle = ev.color;
+          ctx.font = '11px "Hiragino Mincho ProN", serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(ev.label, xPos, top + 14);
+          ctx.restore();
+        });
+      }
+    };
+
+    function makeChart(canvasId, drum, bean, ror, events) {
+      new Chart(document.getElementById(canvasId), {
+        type: 'scatter',
+        data: {
+          datasets: [
+            { label: 'ドラム温度', data: drum, yAxisID: 'y', showLine: true, borderColor: '#D35400', backgroundColor: '#D35400', tension: 0.25, pointRadius: 3 },
+            { label: '豆温', data: bean, yAxisID: 'y', showLine: true, borderColor: '#1A5276', backgroundColor: '#1A5276', tension: 0.25, pointRadius: 3 },
+            { label: 'ROR(豆温)', data: ror, yAxisID: 'ror', showLine: true, borderColor: '#6DBAA0', backgroundColor: '#6DBAA0', borderDash: [4, 3], tension: 0.25, pointRadius: 2 }
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: 'nearest', intersect: false },
+          scales: {
+            x: { type: 'linear', min: 0, max: 13.2, title: { display: true, text: '経過時間（分）' }, ticks: { stepSize: 1 } },
+            y: { min: 80, max: 235, title: { display: true, text: '温度（℃）' } },
+            ror: { position: 'right', min: 0, max: 30, title: { display: true, text: 'ROR（℃/min）' }, grid: { drawOnChartArea: false } }
+          },
+          plugins: { legend: { position: 'top' }, eventMarkers: { events } }
+        },
+        plugins: [eventMarkerPlugin]
+      });
+    }
+
+    makeChart('batch1Chart', batch1Drum, batch1Bean, batch1Ror, [
+      { t: 4.333, label: '黄変', color: '#c0772a' },
+      { t: 8.25, label: '1ハゼ', color: '#2D4A3E' },
+      { t: 10.25, label: '1ハゼ終', color: '#6B4226' },
+      { t: 12.183, label: '火止め', color: '#8e3b2f' }
+    ]);
+    makeChart('batch2Chart', batch2Drum, batch2Bean, batch2Ror, [
+      { t: 4.333, label: '黄変', color: '#c0772a' },
+      { t: 9.167, label: '1ハゼ', color: '#2D4A3E' },
+      { t: 11, label: '1ハゼ終', color: '#6B4226' },
+      { t: 12.333, label: '火止め', color: '#8e3b2f' }
+    ]);
+  </script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 2026-05-16 Roast Profile</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif; background:#F8F4EE; color:#1C1C1C; max-width:1080px; margin:0 auto; padding:48px 20px; }
+    .nav { font-size:.78rem; color:#888; margin-bottom:28px; }
+    .nav a { color:#2D4A3E; text-decoration:none; }
+    h1 { font-size:1.35rem; font-weight:normal; color:#2D4A3E; border-bottom:1px solid #D4C5A9; padding-bottom:12px; margin-bottom:8px; }
+    .subtitle { color:#6B4226; font-size:.85rem; margin-bottom:34px; line-height:1.8; }
+    .stats-row { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:24px; }
+    .stat-card, .note, .chart-card, table { background:#fff; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+    .stat-card { padding:16px 18px; text-align:center; }
+    .s-label { font-size:.72rem; color:#6B4226; margin-bottom:5px; }
+    .s-value { font-size:1.35rem; font-weight:bold; color:#2D4A3E; }
+    .section-header { font-size:.78rem; color:#888; letter-spacing:.1em; text-transform:uppercase; margin:32px 0 14px; padding-bottom:6px; border-bottom:1px solid #E8E0D4; }
+    .note { border-left:3px solid #2D4A3E; border-radius:0 8px 8px 0; padding:16px 20px; line-height:1.8; font-size:.9rem; }
+    .chart-card { padding:24px 26px; margin-bottom:16px; }
+    .chart-title { color:#6B4226; font-size:.95rem; margin-bottom:14px; }
+    table { width:100%; border-collapse:collapse; font-size:.86rem; overflow:hidden; margin-bottom:16px; }
+    th { background:#2D4A3E; color:#fff; padding:10px 12px; text-align:left; font-weight:normal; font-size:.78rem; }
+    td { padding:9px 12px; border-bottom:1px solid #F8F4EE; vertical-align:top; }
+    tr:last-child td { border-bottom:none; }
+    .drum { color:#D35400; font-weight:bold; }
+    .bean { color:#1A5276; font-weight:bold; }
+    footer { text-align:center; color:#D4C5A9; font-size:.73rem; margin-top:48px; }
+    @media (max-width:760px) { .stats-row { grid-template-columns:1fr; } body { padding:32px 14px; } }
+  </style>
+</head>
+<body>
+  <div class="nav"><a href="index.html">← 焙煎プロファイル一覧</a>　｜　自動生成</div>
+  <h1>複数銘柄（少量焙煎・投入量検証） 焙煎プロファイル</h1>
+  <p class="subtitle">2026-05-16　｜　狙い：浅煎り〜中深煎り　｜　ドラム：耐熱ガラス</p>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">バッチ数</div><div class="s-value">6</div></div>
+    <div class="stat-card"><div class="s-label">生豆合計</div><div class="s-value">935.7g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後合計</div><div class="s-value">781.6g</div></div>
+    <div class="stat-card"><div class="s-label">平均歩留まり</div><div class="s-value">83.5%</div></div>
+  </div>
+  <div class="section-header">読み取りメモ</div>
+  <div class="note"><ul><li>200g未満のバッチは、火力を少し触るだけで温度上昇の出方が変わりやすい。</li><li>特に120g級と145g級は、黄変・1ハゼ・後半の伸びを商品用プロファイルの基準にしにくい。</li><li>180.2gのコスタリカでも、後半の火力反応が安定しきらない。</li><li>250gのコロンビアは熱量が乗りやすく、G400の比較基準としては200g未満より扱いやすい。</li><li>以後、G400のプロファイル比較は220〜250gを基本にする。</li><li>エチオピア コチャレ使用：265.1g（2.997kg → 2.732kg）</li></ul></div>
+
+  <div class="section-header">バッチ1：エチオピア イルガチャフィ G1 コチャレ（120g級）</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">生豆</div><div class="s-value">120.0g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後</div><div class="s-value">103.0g</div></div>
+    <div class="stat-card"><div class="s-label">歩留まり</div><div class="s-value">85.8%</div></div>
+    <div class="stat-card"><div class="s-label">減少率</div><div class="s-value">14.2%</div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">バッチ1：エチオピア イルガチャフィ G1 コチャレ（120g級） 温度プロファイル / ROR</div>
+    <canvas id="batch1Chart" height="320"></canvas>
+  </div>
+  <table>
+    <thead><tr><th>時間</th><th>ドラム</th><th>豆温</th><th>火力</th><th>メモ</th></tr></thead>
+    <tbody><tr><td>0:00</td><td class="drum">129</td><td class="bean">90</td><td>強</td><td>投入</td></tr>
+<tr><td>1:00</td><td class="drum">143</td><td class="bean">119</td><td>弱</td><td></td></tr>
+<tr><td>2:00</td><td class="drum">161</td><td class="bean">146</td><td>中</td><td></td></tr>
+<tr><td>3:00</td><td class="drum">175</td><td class="bean">165</td><td>中</td><td>ファン小</td></tr>
+<tr><td>4:00</td><td class="drum">186</td><td class="bean">181</td><td></td><td></td></tr>
+<tr><td>5:00</td><td class="drum">192</td><td class="bean">191</td><td>弱</td><td>ファン中</td></tr>
+<tr><td>6:00</td><td class="drum">198</td><td class="bean">200</td><td></td><td></td></tr>
+<tr><td>7:00</td><td class="drum">203</td><td class="bean">206</td><td></td><td>ファン大</td></tr>
+<tr><td>8:00</td><td class="drum">204</td><td class="bean">209</td><td></td><td></td></tr>
+<tr><td>9:30</td><td class="drum"></td><td class="bean"></td><td></td><td>排出</td></tr></tbody>
+  </table>
+
+  <div class="section-header">バッチ2：コスタリカ タラス ハニー</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">生豆</div><div class="s-value">180.2g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後</div><div class="s-value">153.9g</div></div>
+    <div class="stat-card"><div class="s-label">歩留まり</div><div class="s-value">85.4%</div></div>
+    <div class="stat-card"><div class="s-label">減少率</div><div class="s-value">14.6%</div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">バッチ2：コスタリカ タラス ハニー 温度プロファイル / ROR</div>
+    <canvas id="batch2Chart" height="320"></canvas>
+  </div>
+  <table>
+    <thead><tr><th>時間</th><th>ドラム</th><th>豆温</th><th>火力</th><th>メモ</th></tr></thead>
+    <tbody><tr><td>0:00</td><td class="drum">135</td><td class="bean">90</td><td>強</td><td>投入</td></tr>
+<tr><td>1:00</td><td class="drum">142</td><td class="bean">114</td><td></td><td></td></tr>
+<tr><td>2:00</td><td class="drum">163</td><td class="bean">139</td><td></td><td></td></tr>
+<tr><td>3:00</td><td class="drum">182</td><td class="bean">164</td><td>中</td><td></td></tr>
+<tr><td>4:00</td><td class="drum">191</td><td class="bean">178</td><td>中弱</td><td></td></tr>
+<tr><td>5:00</td><td class="drum">195</td><td class="bean">190</td><td>弱</td><td></td></tr>
+<tr><td>6:00</td><td class="drum">196</td><td class="bean">196</td><td></td><td>ファン弱</td></tr>
+<tr><td>7:00</td><td class="drum">195</td><td class="bean">200</td><td></td><td></td></tr>
+<tr><td>8:00</td><td class="drum">195</td><td class="bean">201</td><td></td><td></td></tr>
+<tr><td>8:00</td><td class="drum">195</td><td class="bean">201</td><td></td><td>1ハゼ開始</td></tr>
+<tr><td>10:10</td><td class="drum">200</td><td class="bean">208</td><td></td><td>1ハゼ終了</td></tr>
+<tr><td>11:30</td><td class="drum">201</td><td class="bean">211</td><td></td><td>火止め</td></tr>
+<tr><td>12:17</td><td class="drum"></td><td class="bean"></td><td></td><td>排出</td></tr></tbody>
+  </table>
+
+  <div class="section-header">バッチ3：コロンビア スプレモ（120.4g）</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">生豆</div><div class="s-value">120.4g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後</div><div class="s-value">99.5g</div></div>
+    <div class="stat-card"><div class="s-label">歩留まり</div><div class="s-value">82.6%</div></div>
+    <div class="stat-card"><div class="s-label">減少率</div><div class="s-value">17.4%</div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">バッチ3：コロンビア スプレモ（120.4g） 温度プロファイル / ROR</div>
+    <canvas id="batch3Chart" height="320"></canvas>
+  </div>
+  <table>
+    <thead><tr><th>時間</th><th>ドラム</th><th>豆温</th><th>火力</th><th>メモ</th></tr></thead>
+    <tbody><tr><td>0:00</td><td class="drum">122</td><td class="bean">90</td><td>中</td><td>投入</td></tr>
+<tr><td>1:00</td><td class="drum">130</td><td class="bean">118</td><td>中</td><td></td></tr>
+<tr><td>2:00</td><td class="drum">145</td><td class="bean">140</td><td>弱</td><td></td></tr>
+<tr><td>3:00</td><td class="drum">155</td><td class="bean">153</td><td></td><td></td></tr>
+<tr><td>4:00</td><td class="drum">160</td><td class="bean">161</td><td></td><td></td></tr>
+<tr><td>5:00</td><td class="drum">164</td><td class="bean">167</td><td></td><td></td></tr>
+<tr><td>5:02</td><td class="drum">165</td><td class="bean">167</td><td></td><td>黄変</td></tr>
+<tr><td>6:00</td><td class="drum">170</td><td class="bean">172</td><td>中</td><td>ファン小</td></tr>
+<tr><td>7:00</td><td class="drum">177</td><td class="bean">179</td><td></td><td></td></tr>
+<tr><td>8:00</td><td class="drum">187</td><td class="bean">189</td><td></td><td>ファン中</td></tr>
+<tr><td>9:00</td><td class="drum">197</td><td class="bean">201</td><td></td><td></td></tr>
+<tr><td>9:10</td><td class="drum">200</td><td class="bean">203</td><td></td><td>1ハゼ開始</td></tr>
+<tr><td>10:00</td><td class="drum">208</td><td class="bean">212</td><td></td><td></td></tr>
+<tr><td>10:50</td><td class="drum">212</td><td class="bean">218</td><td></td><td>1ハゼ終了</td></tr>
+<tr><td>11:00</td><td class="drum">214</td><td class="bean">219</td><td></td><td></td></tr>
+<tr><td>12:00</td><td class="drum">216</td><td class="bean">222</td><td></td><td></td></tr>
+<tr><td>12:26</td><td class="drum">216</td><td class="bean">223</td><td></td><td>火止め</td></tr>
+<tr><td>12:49</td><td class="drum"></td><td class="bean"></td><td></td><td>排出</td></tr></tbody>
+  </table>
+
+  <div class="section-header">バッチ4：ブラジル 南ミナス ベラビスタ農園</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">生豆</div><div class="s-value">120.0g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後</div><div class="s-value">100.0g</div></div>
+    <div class="stat-card"><div class="s-label">歩留まり</div><div class="s-value">83.3%</div></div>
+    <div class="stat-card"><div class="s-label">減少率</div><div class="s-value">16.7%</div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">バッチ4：ブラジル 南ミナス ベラビスタ農園 温度プロファイル / ROR</div>
+    <canvas id="batch4Chart" height="320"></canvas>
+  </div>
+  <table>
+    <thead><tr><th>時間</th><th>ドラム</th><th>豆温</th><th>火力</th><th>メモ</th></tr></thead>
+    <tbody><tr><td>0:00</td><td class="drum">133</td><td class="bean">90</td><td></td><td>投入</td></tr>
+<tr><td>1:00</td><td class="drum">139</td><td class="bean">118</td><td>中</td><td></td></tr>
+<tr><td>2:00</td><td class="drum">151</td><td class="bean">138</td><td></td><td></td></tr>
+<tr><td>3:00</td><td class="drum">164</td><td class="bean">155</td><td></td><td></td></tr>
+<tr><td>4:00</td><td class="drum">173</td><td class="bean">168</td><td>弱</td><td></td></tr>
+<tr><td>5:00</td><td class="drum">176</td><td class="bean">176</td><td></td><td>ファン小</td></tr>
+<tr><td>6:00</td><td class="drum">179</td><td class="bean">181</td><td></td><td></td></tr>
+<tr><td>7:00</td><td class="drum">182</td><td class="bean">185</td><td></td><td></td></tr>
+<tr><td>8:00</td><td class="drum">189</td><td class="bean">191</td><td></td><td>ファン中</td></tr>
+<tr><td>9:00</td><td class="drum">197</td><td class="bean">199</td><td></td><td></td></tr>
+<tr><td>10:00</td><td class="drum">205</td><td class="bean">210</td><td></td><td></td></tr>
+<tr><td>11:00</td><td class="drum">210</td><td class="bean">215</td><td></td><td></td></tr>
+<tr><td>12:00</td><td class="drum">212</td><td class="bean">220</td><td></td><td></td></tr>
+<tr><td>12:30</td><td class="drum">213</td><td class="bean">223</td><td></td><td>火止め</td></tr>
+<tr><td>13:34</td><td class="drum"></td><td class="bean"></td><td></td><td>排出</td></tr></tbody>
+  </table>
+
+  <div class="section-header">バッチ5：エチオピア イルガチャフィ G1 コチャレ（145.1g）</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">生豆</div><div class="s-value">145.1g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後</div><div class="s-value">122.3g</div></div>
+    <div class="stat-card"><div class="s-label">歩留まり</div><div class="s-value">84.3%</div></div>
+    <div class="stat-card"><div class="s-label">減少率</div><div class="s-value">15.7%</div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">バッチ5：エチオピア イルガチャフィ G1 コチャレ（145.1g） 温度プロファイル / ROR</div>
+    <canvas id="batch5Chart" height="320"></canvas>
+  </div>
+  <table>
+    <thead><tr><th>時間</th><th>ドラム</th><th>豆温</th><th>火力</th><th>メモ</th></tr></thead>
+    <tbody><tr><td>0:00</td><td class="drum">134</td><td class="bean">90</td><td>中</td><td>投入</td></tr>
+<tr><td>1:00</td><td class="drum">135</td><td class="bean">113</td><td></td><td></td></tr>
+<tr><td>2:00</td><td class="drum">141</td><td class="bean">129</td><td></td><td></td></tr>
+<tr><td>3:00</td><td class="drum">150</td><td class="bean">142</td><td></td><td></td></tr>
+<tr><td>4:00</td><td class="drum">157</td><td class="bean">153</td><td></td><td></td></tr>
+<tr><td>4:20</td><td class="drum">160</td><td class="bean">157</td><td></td><td>黄変</td></tr>
+<tr><td>5:00</td><td class="drum">165</td><td class="bean">163</td><td></td><td>ファン弱</td></tr>
+<tr><td>6:00</td><td class="drum">173</td><td class="bean">173</td><td></td><td></td></tr>
+<tr><td>7:00</td><td class="drum">179</td><td class="bean">180</td><td></td><td></td></tr>
+<tr><td>8:00</td><td class="drum">185</td><td class="bean">187</td><td></td><td></td></tr>
+<tr><td>9:00</td><td class="drum">192</td><td class="bean">194</td><td></td><td></td></tr>
+<tr><td>9:48</td><td class="drum">197</td><td class="bean">200</td><td></td><td>1ハゼ開始</td></tr>
+<tr><td>10:00</td><td class="drum">199</td><td class="bean">201</td><td></td><td></td></tr>
+<tr><td>11:00</td><td class="drum">203</td><td class="bean">207</td><td></td><td></td></tr>
+<tr><td>11:58</td><td class="drum">205</td><td class="bean">210</td><td></td><td>1ハゼ終了</td></tr>
+<tr><td>15:32</td><td class="drum"></td><td class="bean"></td><td></td><td>火止め</td></tr>
+<tr><td>16:00</td><td class="drum"></td><td class="bean"></td><td></td><td>排出</td></tr></tbody>
+  </table>
+
+  <div class="section-header">バッチ6：コロンビア スプレモ（250g）</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">生豆</div><div class="s-value">250.0g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後</div><div class="s-value">202.9g</div></div>
+    <div class="stat-card"><div class="s-label">歩留まり</div><div class="s-value">81.2%</div></div>
+    <div class="stat-card"><div class="s-label">減少率</div><div class="s-value">18.8%</div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">バッチ6：コロンビア スプレモ（250g） 温度プロファイル / ROR</div>
+    <canvas id="batch6Chart" height="320"></canvas>
+  </div>
+  <table>
+    <thead><tr><th>時間</th><th>ドラム</th><th>豆温</th><th>火力</th><th>メモ</th></tr></thead>
+    <tbody><tr><td>0:00</td><td class="drum">114</td><td class="bean">90</td><td></td><td>投入</td></tr>
+<tr><td>1:00</td><td class="drum">124</td><td class="bean">104</td><td>弱</td><td></td></tr>
+<tr><td>2:00</td><td class="drum">145</td><td class="bean">124</td><td></td><td></td></tr>
+<tr><td>3:00</td><td class="drum">164</td><td class="bean">143</td><td>中</td><td></td></tr>
+<tr><td>4:00</td><td class="drum">180</td><td class="bean">160</td><td>中</td><td></td></tr>
+<tr><td>5:00</td><td class="drum">191</td><td class="bean">174</td><td></td><td>ファン小</td></tr>
+<tr><td>6:00</td><td class="drum">201</td><td class="bean">184</td><td></td><td></td></tr>
+<tr><td>7:00</td><td class="drum">210</td><td class="bean">192</td><td></td><td></td></tr>
+<tr><td>8:00</td><td class="drum">219</td><td class="bean">206</td><td></td><td></td></tr>
+<tr><td>9:00</td><td class="drum">224</td><td class="bean">216</td><td></td><td></td></tr>
+<tr><td>10:00</td><td class="drum">225</td><td class="bean">225</td><td></td><td></td></tr>
+<tr><td>11:00</td><td class="drum">225</td><td class="bean">230</td><td></td><td></td></tr>
+<tr><td>12:40</td><td class="drum">226</td><td class="bean">234</td><td></td><td>排出</td></tr></tbody>
+  </table>
+
+  <footer>Silver Tree Coffee Roaster — generated from 2026-05-16_g400-small-batch-stability.md at 2026-05-19 23:07</footer>
+  <script>
+    const eventMarkerPlugin = {
+      id: 'eventMarkers',
+      afterDraw(chart, args, pluginOptions) {
+        const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+        (pluginOptions.events || []).forEach(ev => {
+          const xPos = x.getPixelForValue(ev.t);
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(xPos, top);
+          ctx.lineTo(xPos, bottom);
+          ctx.strokeStyle = ev.color;
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([4, 3]);
+          ctx.stroke();
+          ctx.fillStyle = ev.color;
+          ctx.font = '11px "Hiragino Mincho ProN", serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(ev.label, xPos, top + 14);
+          ctx.restore();
+        });
+      }
+    };
+    function makeChart(canvasId, drum, bean, ror, events) {
+      new Chart(document.getElementById(canvasId), {
+        type: 'scatter',
+        data: { datasets: [
+          { label: 'ドラム温度', data: drum, yAxisID: 'y', showLine: true, borderColor: '#D35400', backgroundColor: '#D35400', tension: .25, pointRadius: 3 },
+          { label: '豆温', data: bean, yAxisID: 'y', showLine: true, borderColor: '#1A5276', backgroundColor: '#1A5276', tension: .25, pointRadius: 3 },
+          { label: 'ROR(豆温)', data: ror, yAxisID: 'ror', showLine: true, borderColor: '#6DBAA0', backgroundColor: '#6DBAA0', borderDash: [4, 3], tension: .25, pointRadius: 2 }
+        ]},
+        options: {
+          responsive: true,
+          interaction: { mode: 'nearest', intersect: false },
+          scales: {
+            x: { type: 'linear', min: 0, max: 17, title: { display: true, text: '経過時間（分）' }, ticks: { stepSize: 1 } },
+            y: { min: 60, max: 240, title: { display: true, text: '温度（℃）' } },
+            ror: { position: 'right', min: 0, max: 30, title: { display: true, text: 'ROR（℃/min）' }, grid: { drawOnChartArea: false } }
+          },
+          plugins: { legend: { position: 'top' }, eventMarkers: { events } }
+        },
+        plugins: [eventMarkerPlugin]
+      });
+    }
+    makeChart('batch1Chart', [{"x": 0.0, "y": 129.0}, {"x": 1.0, "y": 143.0}, {"x": 2.0, "y": 161.0}, {"x": 3.0, "y": 175.0}, {"x": 4.0, "y": 186.0}, {"x": 5.0, "y": 192.0}, {"x": 6.0, "y": 198.0}, {"x": 7.0, "y": 203.0}, {"x": 8.0, "y": 204.0}], [{"x": 0.0, "y": 90.0}, {"x": 1.0, "y": 119.0}, {"x": 2.0, "y": 146.0}, {"x": 3.0, "y": 165.0}, {"x": 4.0, "y": 181.0}, {"x": 5.0, "y": 191.0}, {"x": 6.0, "y": 200.0}, {"x": 7.0, "y": 206.0}, {"x": 8.0, "y": 209.0}], [{"x": 0.5, "y": 29.0}, {"x": 1.5, "y": 27.0}, {"x": 2.5, "y": 19.0}, {"x": 3.5, "y": 16.0}, {"x": 4.5, "y": 10.0}, {"x": 5.5, "y": 9.0}, {"x": 6.5, "y": 6.0}, {"x": 7.5, "y": 3.0}], [{"t": 9.5, "label": "排出", "color": "#555555"}]);makeChart('batch2Chart', [{"x": 0.0, "y": 135.0}, {"x": 1.0, "y": 142.0}, {"x": 2.0, "y": 163.0}, {"x": 3.0, "y": 182.0}, {"x": 4.0, "y": 191.0}, {"x": 5.0, "y": 195.0}, {"x": 6.0, "y": 196.0}, {"x": 7.0, "y": 195.0}, {"x": 8.0, "y": 195.0}, {"x": 8.0, "y": 195.0}, {"x": 10.167, "y": 200.0}, {"x": 11.5, "y": 201.0}], [{"x": 0.0, "y": 90.0}, {"x": 1.0, "y": 114.0}, {"x": 2.0, "y": 139.0}, {"x": 3.0, "y": 164.0}, {"x": 4.0, "y": 178.0}, {"x": 5.0, "y": 190.0}, {"x": 6.0, "y": 196.0}, {"x": 7.0, "y": 200.0}, {"x": 8.0, "y": 201.0}, {"x": 8.0, "y": 201.0}, {"x": 10.167, "y": 208.0}, {"x": 11.5, "y": 211.0}], [{"x": 0.5, "y": 24.0}, {"x": 1.5, "y": 25.0}, {"x": 2.5, "y": 25.0}, {"x": 3.5, "y": 14.0}, {"x": 4.5, "y": 12.0}, {"x": 5.5, "y": 6.0}, {"x": 6.5, "y": 4.0}, {"x": 7.5, "y": 1.0}, {"x": 9.083, "y": 3.23}, {"x": 10.833, "y": 2.25}], [{"t": 8.0, "label": "1ハゼ開始", "color": "#2D4A3E"}, {"t": 10.167, "label": "1ハゼ終了", "color": "#6B4226"}, {"t": 11.5, "label": "火止め", "color": "#8e3b2f"}, {"t": 12.283, "label": "排出", "color": "#555555"}]);makeChart('batch3Chart', [{"x": 0.0, "y": 122.0}, {"x": 1.0, "y": 130.0}, {"x": 2.0, "y": 145.0}, {"x": 3.0, "y": 155.0}, {"x": 4.0, "y": 160.0}, {"x": 5.0, "y": 164.0}, {"x": 5.033, "y": 165.0}, {"x": 6.0, "y": 170.0}, {"x": 7.0, "y": 177.0}, {"x": 8.0, "y": 187.0}, {"x": 9.0, "y": 197.0}, {"x": 9.167, "y": 200.0}, {"x": 10.0, "y": 208.0}, {"x": 10.833, "y": 212.0}, {"x": 11.0, "y": 214.0}, {"x": 12.0, "y": 216.0}, {"x": 12.433, "y": 216.0}], [{"x": 0.0, "y": 90.0}, {"x": 1.0, "y": 118.0}, {"x": 2.0, "y": 140.0}, {"x": 3.0, "y": 153.0}, {"x": 4.0, "y": 161.0}, {"x": 5.0, "y": 167.0}, {"x": 5.033, "y": 167.0}, {"x": 6.0, "y": 172.0}, {"x": 7.0, "y": 179.0}, {"x": 8.0, "y": 189.0}, {"x": 9.0, "y": 201.0}, {"x": 9.167, "y": 203.0}, {"x": 10.0, "y": 212.0}, {"x": 10.833, "y": 218.0}, {"x": 11.0, "y": 219.0}, {"x": 12.0, "y": 222.0}, {"x": 12.433, "y": 223.0}], [{"x": 0.5, "y": 28.0}, {"x": 1.5, "y": 22.0}, {"x": 2.5, "y": 13.0}, {"x": 3.5, "y": 8.0}, {"x": 4.5, "y": 6.0}, {"x": 5.017, "y": 0.0}, {"x": 5.517, "y": 5.17}, {"x": 6.5, "y": 7.0}, {"x": 7.5, "y": 10.0}, {"x": 8.5, "y": 12.0}, {"x": 9.083, "y": 12.0}, {"x": 9.583, "y": 10.8}, {"x": 10.417, "y": 7.2}, {"x": 10.917, "y": 6.0}, {"x": 11.5, "y": 3.0}, {"x": 12.217, "y": 2.31}], [{"t": 5.033, "label": "黄変", "color": "#c0772a"}, {"t": 9.167, "label": "1ハゼ開始", "color": "#2D4A3E"}, {"t": 10.833, "label": "1ハゼ終了", "color": "#6B4226"}, {"t": 12.433, "label": "火止め", "color": "#8e3b2f"}, {"t": 12.817, "label": "排出", "color": "#555555"}]);makeChart('batch4Chart', [{"x": 0.0, "y": 133.0}, {"x": 1.0, "y": 139.0}, {"x": 2.0, "y": 151.0}, {"x": 3.0, "y": 164.0}, {"x": 4.0, "y": 173.0}, {"x": 5.0, "y": 176.0}, {"x": 6.0, "y": 179.0}, {"x": 7.0, "y": 182.0}, {"x": 8.0, "y": 189.0}, {"x": 9.0, "y": 197.0}, {"x": 10.0, "y": 205.0}, {"x": 11.0, "y": 210.0}, {"x": 12.0, "y": 212.0}, {"x": 12.5, "y": 213.0}], [{"x": 0.0, "y": 90.0}, {"x": 1.0, "y": 118.0}, {"x": 2.0, "y": 138.0}, {"x": 3.0, "y": 155.0}, {"x": 4.0, "y": 168.0}, {"x": 5.0, "y": 176.0}, {"x": 6.0, "y": 181.0}, {"x": 7.0, "y": 185.0}, {"x": 8.0, "y": 191.0}, {"x": 9.0, "y": 199.0}, {"x": 10.0, "y": 210.0}, {"x": 11.0, "y": 215.0}, {"x": 12.0, "y": 220.0}, {"x": 12.5, "y": 223.0}], [{"x": 0.5, "y": 28.0}, {"x": 1.5, "y": 20.0}, {"x": 2.5, "y": 17.0}, {"x": 3.5, "y": 13.0}, {"x": 4.5, "y": 8.0}, {"x": 5.5, "y": 5.0}, {"x": 6.5, "y": 4.0}, {"x": 7.5, "y": 6.0}, {"x": 8.5, "y": 8.0}, {"x": 9.5, "y": 11.0}, {"x": 10.5, "y": 5.0}, {"x": 11.5, "y": 5.0}, {"x": 12.25, "y": 6.0}], [{"t": 12.5, "label": "火止め", "color": "#8e3b2f"}, {"t": 13.567, "label": "排出", "color": "#555555"}]);makeChart('batch5Chart', [{"x": 0.0, "y": 134.0}, {"x": 1.0, "y": 135.0}, {"x": 2.0, "y": 141.0}, {"x": 3.0, "y": 150.0}, {"x": 4.0, "y": 157.0}, {"x": 4.333, "y": 160.0}, {"x": 5.0, "y": 165.0}, {"x": 6.0, "y": 173.0}, {"x": 7.0, "y": 179.0}, {"x": 8.0, "y": 185.0}, {"x": 9.0, "y": 192.0}, {"x": 9.8, "y": 197.0}, {"x": 10.0, "y": 199.0}, {"x": 11.0, "y": 203.0}, {"x": 11.967, "y": 205.0}], [{"x": 0.0, "y": 90.0}, {"x": 1.0, "y": 113.0}, {"x": 2.0, "y": 129.0}, {"x": 3.0, "y": 142.0}, {"x": 4.0, "y": 153.0}, {"x": 4.333, "y": 157.0}, {"x": 5.0, "y": 163.0}, {"x": 6.0, "y": 173.0}, {"x": 7.0, "y": 180.0}, {"x": 8.0, "y": 187.0}, {"x": 9.0, "y": 194.0}, {"x": 9.8, "y": 200.0}, {"x": 10.0, "y": 201.0}, {"x": 11.0, "y": 207.0}, {"x": 11.967, "y": 210.0}], [{"x": 0.5, "y": 23.0}, {"x": 1.5, "y": 16.0}, {"x": 2.5, "y": 13.0}, {"x": 3.5, "y": 11.0}, {"x": 4.167, "y": 12.0}, {"x": 4.667, "y": 9.0}, {"x": 5.5, "y": 10.0}, {"x": 6.5, "y": 7.0}, {"x": 7.5, "y": 7.0}, {"x": 8.5, "y": 7.0}, {"x": 9.4, "y": 7.5}, {"x": 9.9, "y": 5.0}, {"x": 10.5, "y": 6.0}, {"x": 11.483, "y": 3.1}], [{"t": 4.333, "label": "黄変", "color": "#c0772a"}, {"t": 9.8, "label": "1ハゼ開始", "color": "#2D4A3E"}, {"t": 11.967, "label": "1ハゼ終了", "color": "#6B4226"}, {"t": 15.533, "label": "火止め", "color": "#8e3b2f"}, {"t": 16.0, "label": "排出", "color": "#555555"}]);makeChart('batch6Chart', [{"x": 0.0, "y": 114.0}, {"x": 1.0, "y": 124.0}, {"x": 2.0, "y": 145.0}, {"x": 3.0, "y": 164.0}, {"x": 4.0, "y": 180.0}, {"x": 5.0, "y": 191.0}, {"x": 6.0, "y": 201.0}, {"x": 7.0, "y": 210.0}, {"x": 8.0, "y": 219.0}, {"x": 9.0, "y": 224.0}, {"x": 10.0, "y": 225.0}, {"x": 11.0, "y": 225.0}, {"x": 12.667, "y": 226.0}], [{"x": 0.0, "y": 90.0}, {"x": 1.0, "y": 104.0}, {"x": 2.0, "y": 124.0}, {"x": 3.0, "y": 143.0}, {"x": 4.0, "y": 160.0}, {"x": 5.0, "y": 174.0}, {"x": 6.0, "y": 184.0}, {"x": 7.0, "y": 192.0}, {"x": 8.0, "y": 206.0}, {"x": 9.0, "y": 216.0}, {"x": 10.0, "y": 225.0}, {"x": 11.0, "y": 230.0}, {"x": 12.667, "y": 234.0}], [{"x": 0.5, "y": 14.0}, {"x": 1.5, "y": 20.0}, {"x": 2.5, "y": 19.0}, {"x": 3.5, "y": 17.0}, {"x": 4.5, "y": 14.0}, {"x": 5.5, "y": 10.0}, {"x": 6.5, "y": 8.0}, {"x": 7.5, "y": 14.0}, {"x": 8.5, "y": 10.0}, {"x": 9.5, "y": 9.0}, {"x": 10.5, "y": 5.0}, {"x": 11.833, "y": 2.4}], [{"t": 12.667, "label": "排出", "color": "#555555"}]);
+  </script>
+</body>
+</html>

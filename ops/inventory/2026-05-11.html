@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 在庫スナップショット 2026/5/11</title>
+  <style>
+    body { font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif; background:#F8F4EE; color:#1C1C1C; max-width:920px; margin:0 auto; padding:48px 20px; }
+    .nav { font-size:.78rem; color:#888; margin-bottom:28px; }
+    .nav a { color:#2D4A3E; text-decoration:none; }
+    h1 { font-size:1.35rem; font-weight:normal; color:#2D4A3E; border-bottom:1px solid #D4C5A9; padding-bottom:12px; margin-bottom:8px; }
+    .subtitle { color:#6B4226; font-size:.85rem; margin-bottom:34px; }
+    .stats-row { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:32px; }
+    .card, table { background:white; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+    .card { padding:16px 18px; text-align:center; }
+    .label { font-size:.72rem; color:#6B4226; margin-bottom:5px; }
+    .value { font-size:1.35rem; font-weight:bold; color:#2D4A3E; }
+    .danger .value { color:#c0392b; }
+    .section-header { font-size:.78rem; color:#888; letter-spacing:.1em; text-transform:uppercase; margin:32px 0 14px; padding-bottom:6px; border-bottom:1px solid #E8E0D4; }
+    table { width:100%; border-collapse:collapse; overflow:hidden; font-size:.88rem; }
+    th { background:#2D4A3E; color:white; padding:10px 12px; text-align:left; font-weight:normal; font-size:.78rem; }
+    td { padding:10px 12px; border-bottom:1px solid #F8F4EE; vertical-align:top; }
+    tr:last-child td { border-bottom:none; }
+    .tag { padding:2px 9px; border-radius:4px; font-size:.72rem; display:inline-block; }
+    .tag-ok { background:#e8f4f0; color:#2D4A3E; }
+    .tag-danger { background:#fde8e8; color:#c0392b; }
+    .note { background:white; border-left:3px solid #2D4A3E; border-radius:0 8px 8px 0; padding:16px 20px; line-height:1.8; font-size:.9rem; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+    footer { text-align:center; color:#D4C5A9; font-size:.73rem; margin-top:48px; }
+    @media (max-width:760px) { .stats-row { grid-template-columns:1fr; } body { padding:32px 14px; } }
+  </style>
+</head>
+<body>
+  <div class="nav"><a href="index.html">← 在庫ダッシュボード</a>　｜　2026-05-11</div>
+
+  <h1>生豆在庫スナップショット</h1>
+  <p class="subtitle">Brazil ベラビスタ 2バッチ焙煎後　｜　2026年5月11日更新</p>
+
+  <div class="stats-row">
+    <div class="card"><div class="label">総在庫</div><div class="value">11.870kg</div></div>
+    <div class="card"><div class="label">アクティブ銘柄</div><div class="value">5</div></div>
+    <div class="card danger"><div class="label">発注ライン以下</div><div class="value">2</div></div>
+    <div class="card"><div class="label">今回使用</div><div class="value">0.398kg</div></div>
+  </div>
+
+  <div class="section-header">今回の焙煎反映</div>
+  <div class="note">
+    ブラジル 南ミナス ベラビスタ農園を2バッチ焙煎。生豆 200.2g と 198.0g、合計 398.2g を在庫から減算した。
+  </div>
+
+  <div class="section-header">在庫一覧</div>
+  <table>
+    <thead>
+      <tr><th>銘柄</th><th>在庫量</th><th>状態</th><th>備考</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>ブラジル 南ミナス ベラビスタ農園</td><td><strong>3.354kg</strong></td><td><span class="tag tag-ok">正常</span></td><td>5/11に0.398kg使用</td></tr>
+      <tr><td>エチオピア イルガチャフィ G1 コチャレ</td><td><strong>2.997kg</strong></td><td><span class="tag tag-ok">正常</span></td><td>4/28焙煎後から変動なし</td></tr>
+      <tr><td>コロンビア スプレモ</td><td><strong>2.723kg</strong></td><td><span class="tag tag-ok">正常</span></td><td>水出し・単品・検証用</td></tr>
+      <tr><td>コスタリカ タラス ハニー</td><td><strong>1.793kg</strong></td><td><span class="tag tag-danger">発注ライン以下</span></td><td>発注済み。入荷後に加算</td></tr>
+      <tr><td>インドネシア アチェ ガジャ農園</td><td><strong>1.000kg</strong></td><td><span class="tag tag-danger">発注ライン以下</span></td><td>次回は別ブランドへ変更予定</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Silver Tree Coffee Roaster — 香川県東かがわ市　｜　在庫スナップショット 2026.05.11</footer>
+</body>
+</html>

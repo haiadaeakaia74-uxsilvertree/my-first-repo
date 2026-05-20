@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Tree — 2026-04-22 Roast Profile</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif; background:#F8F4EE; color:#1C1C1C; max-width:1080px; margin:0 auto; padding:48px 20px; }
+    .nav { font-size:.78rem; color:#888; margin-bottom:28px; }
+    .nav a { color:#2D4A3E; text-decoration:none; }
+    h1 { font-size:1.35rem; font-weight:normal; color:#2D4A3E; border-bottom:1px solid #D4C5A9; padding-bottom:12px; margin-bottom:8px; }
+    .subtitle { color:#6B4226; font-size:.85rem; margin-bottom:34px; line-height:1.8; }
+    .stats-row { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:24px; }
+    .stat-card, .note, .chart-card, table { background:#fff; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+    .stat-card { padding:16px 18px; text-align:center; }
+    .s-label { font-size:.72rem; color:#6B4226; margin-bottom:5px; }
+    .s-value { font-size:1.35rem; font-weight:bold; color:#2D4A3E; }
+    .section-header { font-size:.78rem; color:#888; letter-spacing:.1em; text-transform:uppercase; margin:32px 0 14px; padding-bottom:6px; border-bottom:1px solid #E8E0D4; }
+    .note { border-left:3px solid #2D4A3E; border-radius:0 8px 8px 0; padding:16px 20px; line-height:1.8; font-size:.9rem; }
+    .chart-card { padding:24px 26px; margin-bottom:16px; }
+    .chart-title { color:#6B4226; font-size:.95rem; margin-bottom:14px; }
+    table { width:100%; border-collapse:collapse; font-size:.86rem; overflow:hidden; margin-bottom:16px; }
+    th { background:#2D4A3E; color:#fff; padding:10px 12px; text-align:left; font-weight:normal; font-size:.78rem; }
+    td { padding:9px 12px; border-bottom:1px solid #F8F4EE; vertical-align:top; }
+    tr:last-child td { border-bottom:none; }
+    .drum { color:#D35400; font-weight:bold; }
+    .bean { color:#1A5276; font-weight:bold; }
+    footer { text-align:center; color:#D4C5A9; font-size:.73rem; margin-top:48px; }
+    @media (max-width:760px) { .stats-row { grid-template-columns:1fr; } body { padding:32px 14px; } }
+  </style>
+</head>
+<body>
+  <div class="nav"><a href="index.html">← 焙煎プロファイル一覧</a>　｜　自動生成</div>
+  <h1>コロンビア スプレモ 焙煎プロファイル</h1>
+  <p class="subtitle">2026-04-22　｜　狙い：未記録　｜　ドラム：未記録</p>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">バッチ数</div><div class="s-value">1</div></div>
+    <div class="stat-card"><div class="s-label">生豆合計</div><div class="s-value">338.0g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後合計</div><div class="s-value">276.5g</div></div>
+    <div class="stat-card"><div class="s-label">平均歩留まり</div><div class="s-value">81.8%</div></div>
+  </div>
+  <div class="section-header">読み取りメモ</div>
+  <div class="note"><ul><li>2ハゼ確認（深煎り）</li><li>水出し用として使用予定</li><li>総焙煎時間：約14分12秒</li><li>[ ] 2ハゼ開始から終了までの時間をより細かく記録する</li><li>[ ] 排出後の香りをメモする</li></ul></div>
+
+  <div class="section-header">バッチ1</div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="s-label">生豆</div><div class="s-value">338.0g</div></div>
+    <div class="stat-card"><div class="s-label">焙煎後</div><div class="s-value">276.5g</div></div>
+    <div class="stat-card"><div class="s-label">歩留まり</div><div class="s-value">81.8%</div></div>
+    <div class="stat-card"><div class="s-label">減少率</div><div class="s-value">18.2%</div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">バッチ1 温度プロファイル / ROR</div>
+    <canvas id="batch1Chart" height="320"></canvas>
+  </div>
+  <table>
+    <thead><tr><th>時間</th><th>ドラム</th><th>豆温</th><th>火力</th><th>メモ</th></tr></thead>
+    <tbody><tr><td colspan="5">温度ログなし</td></tr></tbody>
+  </table>
+
+  <footer>Silver Tree Coffee Roaster — generated from 2026-04-22_colombia-supremo.md at 2026-05-19 23:07</footer>
+  <script>
+    const eventMarkerPlugin = {
+      id: 'eventMarkers',
+      afterDraw(chart, args, pluginOptions) {
+        const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+        (pluginOptions.events || []).forEach(ev => {
+          const xPos = x.getPixelForValue(ev.t);
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(xPos, top);
+          ctx.lineTo(xPos, bottom);
+          ctx.strokeStyle = ev.color;
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([4, 3]);
+          ctx.stroke();
+          ctx.fillStyle = ev.color;
+          ctx.font = '11px "Hiragino Mincho ProN", serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(ev.label, xPos, top + 14);
+          ctx.restore();
+        });
+      }
+    };
+    function makeChart(canvasId, drum, bean, ror, events) {
+      new Chart(document.getElementById(canvasId), {
+        type: 'scatter',
+        data: { datasets: [
+          { label: 'ドラム温度', data: drum, yAxisID: 'y', showLine: true, borderColor: '#D35400', backgroundColor: '#D35400', tension: .25, pointRadius: 3 },
+          { label: '豆温', data: bean, yAxisID: 'y', showLine: true, borderColor: '#1A5276', backgroundColor: '#1A5276', tension: .25, pointRadius: 3 },
+          { label: 'ROR(豆温)', data: ror, yAxisID: 'ror', showLine: true, borderColor: '#6DBAA0', backgroundColor: '#6DBAA0', borderDash: [4, 3], tension: .25, pointRadius: 2 }
+        ]},
+        options: {
+          responsive: true,
+          interaction: { mode: 'nearest', intersect: false },
+          scales: {
+            x: { type: 'linear', min: 0, max: 16, title: { display: true, text: '経過時間（分）' }, ticks: { stepSize: 1 } },
+            y: { min: 60, max: 240, title: { display: true, text: '温度（℃）' } },
+            ror: { position: 'right', min: 0, max: 30, title: { display: true, text: 'ROR（℃/min）' }, grid: { drawOnChartArea: false } }
+          },
+          plugins: { legend: { position: 'top' }, eventMarkers: { events } }
+        },
+        plugins: [eventMarkerPlugin]
+      });
+    }
+    makeChart('batch1Chart', [], [], [], []);
+  </script>
+</body>
+</html>
