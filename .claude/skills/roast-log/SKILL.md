@@ -1,6 +1,6 @@
 ---
 name: roast-log
-description: Silver Tree Coffee Roasterの焙煎記録シート写真・焙煎メモを読み取り、roast-logs/*.mdを正本として保存し、scripts/generate_roast_profiles.pyでroast-profiles/*.htmlと一覧を自動生成する。焙煎記録、記録用紙、プロファイルHTML、ROR、歩留まり、次回改善、写真から反映、ブラウザー確認の依頼で使用する。推測で埋めず、読み取れない項目は確認する。
+description: Silver Tree Coffee Roasterの焙煎記録シート写真・焙煎メモを読み取り、roast-logs/*.mdを正本として保存し、scripts/generate_roast_profiles.pyでroast-profiles/*.htmlと一覧を自動生成する。焙煎記録、記録用紙、プロファイルHTML、ROR、歩留まり、次回改善、写真から反映、ブラウザー確認、本番HTML上書きの依頼で使用する。推測で埋めず、読み取れない項目は確認する。
 argument-hint: [焙煎記録シート写真または焙煎メモ]
 ---
 
@@ -12,6 +12,7 @@ argument-hint: [焙煎記録シート写真または焙煎メモ]
 
 - ユーザーはコマンドを打たなくてよい。焙煎記録シートを撮影して貼ればよい。
 - 写真読み取り → Markdown化 → HTML自動生成 → ブラウザー確認リンク返却、まで行う。
+- HTMLは `roast-logs/*.md` から再生成できる状態にする。手作業でHTMLだけ直さない。
 - ROR、歩留まり、重量減少率、焙煎率は手計算よりスクリプト計算を優先する。
 - 読み取れない項目を推測で埋めない。曖昧な箇所は「要確認」と書くか、ユーザーに確認する。
 - 既存の本番HTMLは無断で上書きしない。まず比較用に生成し、確認後に正式反映する。
@@ -53,13 +54,22 @@ argument-hint: [焙煎記録シート写真または焙煎メモ]
 
 読みにくい場合は、先に「読めた項目 / 読めない項目」を短く出す。読めない数値を勝手に補完しない。
 
+## 写真判読の扱い
+
+- 画像から読めるが確度が低い数値は「写真判読」と明記する。
+- 生豆量・焙煎後重量・日付・豆名が曖昧な場合は、在庫反映前に確認する。
+- ユーザーが後から訂正した数値は、訂正値を正としてログ・HTML・在庫を合わせる。
+- 例: 「エチオピア120g級」はユーザー訂正で `生豆120g / 焙煎後103g` を正とする。
+
 ## 保存手順
 
 1. 写真またはメモから `roast-logs/YYYY-MM-DD_[bean-slug].md` を作る。
 2. 温度ログは標準表で保存する。
-3. `scripts/generate_roast_profiles.py` で比較用HTMLを生成する。
-4. ブラウザー確認用リンクを返す。
-5. ユーザー確認後、本番の `roast-profiles/*.html` と `roast-profiles/index.html` に反映する。
+3. 必要なら「現時点の読み」「次回確認」「学び」をMarkdownに残す。
+4. `scripts/generate_roast_profiles.py` で比較用HTMLを生成する。
+5. `roast-profiles/generated-preview/index.html` のリンクを返す。
+6. ユーザー確認後、本番の `roast-profiles/*.html` と `roast-profiles/index.html` に反映する。
+7. GitHub反映が必要な場合は、`github-sync-safe` の手順で対象ファイルだけcommit/pushする。
 
 標準の比較用生成:
 
@@ -71,6 +81,13 @@ python3 scripts/generate_roast_profiles.py roast-logs/YYYY-MM-DD_[bean-slug].md 
 
 ```bash
 python3 scripts/generate_roast_profiles.py --write --overwrite --index
+```
+
+正式反映後は、生成物の差分が広がりやすい。commit前に最低限以下を見る。
+
+```bash
+git status --short
+git diff --stat -- roast-logs roast-profiles scripts/generate_roast_profiles.py
 ```
 
 ## Markdownログの標準
@@ -119,6 +136,14 @@ python3 scripts/generate_roast_profiles.py --write --overwrite --index
 - トータルログに豆別集計が出ているか。
 - 豆名表記ゆれで別行になっていないか。
 - 「次回確認」「現時点の読み」がMarkdownから拾えているか。
+
+## 2026-05時点の運用判断
+
+- 日別ログとトータルログは自動生成HTMLを基本にする。
+- ユーザー確認用は `generated-preview` を使う。
+- ユーザーが「自動生成に今後はしていきましょう」と判断済み。
+- `roast-profiles/` 本番HTMLは、確認後に生成結果へ寄せる。
+- G400の商品用プロファイルは、原則220〜250gの記録を重視する。
 
 ## 在庫反映
 
